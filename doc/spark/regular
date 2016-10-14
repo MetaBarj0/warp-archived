@@ -1,320 +1,27 @@
-#ifndef _TEST_HPP_
-#define _TEST_HPP_
+This is the roadmap to develop further spark, the formal language features
+branch of warp.
 
-// this is the library tested
-#include "warp.hpp"
+This document describes the regular language support.
 
-/**
- * \brief The test namespace will contain all that is necessary to test stuff.
- * Will contain types and functions.
- */
-namespace test
-{
-  /**
-    \brief Types containing all tests for warp::signed_auto_constant and
-    warp::unsigned_auto_constant
-  **/
-  struct auto_constant_tester
-  {
-    // static methods
-    /**
-      \brief This method will contain all code necessary to obtain the strictest
-      signed integral type that contain a specified value
-    **/
-    static void auto_type_signed_constant();
+The first step for spark implementation is to create a grammar that is closely
+related to regular language feature, some sort of regular grammar, that looks
+like an EBNF form of more complicated grammar that could be found elsewhere.
 
-    /**
-      \brief This method will contain all code necessary to obtain the strictest
-      unsigned integral type that contain a specified value
-    **/
-    static void auto_type_unsigned_constant();
-  };
+Regular grammar definition :
+----------------------------
+  This grammar must be able to be parsed by a regular grammar.
+  I think I'll create a group type that can parse this kind of grammar.
+  Hence, the next step will be to provide a type that can instantiate built
+  compile-time automaton. These 'runtimed' automata will be able to parse this
+  regular grammar to ensure its correctness.
 
-  /**
-   * \brief A tester relative to meta sequences
-   */
-  struct sequence_algorithms_tester
-  {
-    // some intern types
-    /**
-     * \brief Base class used for type list runtime access
-     */
-    struct a 
-    {
-      /**
-       * \brief implement the required contract
-       *
-       * \return a foo string
-       */
-      virtual const char * foo() const noexcept { return "a - foo"; }
-    };
+  How does it looks like?
+  -----------------------
+  User could use extended raw string exposed by c++ as well as more old-styled
+  strings :
 
-    /**
-     * \brief type that is stored inside a type sequence
-     */
-    struct b : public a
-    {
-      /**
-       * \brief implement the required contract
-       *
-       * \return a foo string
-       */
-      const char * foo() const noexcept final { return "b - foo"; }
-    };
-
-    /**
-     * \brief type that is stored inside a type sequence
-     */
-    struct c : public a
-    {
-      /**
-       * \brief implement the required contract
-       *
-       * \return a foo string
-       */
-      const char * foo() const noexcept final { return "c - foo"; }
-    };
-
-    /**
-     * \brief type that is stored inside a type sequence
-     */
-    struct d : public a
-    {
-      /**
-       * \brief implement the required contract
-       *
-       * \return a foo string
-       */
-      const char * foo() const noexcept final { return "d - foo"; }
-    };
-
-    /**
-     * \brief type that is stored inside a type sequence
-     */
-    struct e : public a
-    {
-      /**
-       * \brief implement the required contract
-       *
-       * \return a foo string
-       */
-      const char * foo() const noexcept final { return "e - foo"; }
-    };
-    
-    /**
-     * \brief type that is stored inside a type sequence
-     */
-    struct f : public a
-    {
-      /**
-       * \brief implement the required contract
-       *
-       * \return a foo string
-       */
-      const char * foo() const noexcept final { return "f - foo"; }
-    };
-
-    // playing with meta-predicates
-    /**
-     * \brief Predicate ready to be used on a type sequence
-     *
-     * \tparam T the currently explored type while iterating the type sequence
-     * \tparam U parameters the predicate, used as operand to determine the
-     * predicate value for the currently explored type of the type sequenec
-     */
-    template< class T, class U >
-      struct the_type
-      {
-        /**
-         * \brief If currently explored type is the same as U, exposes true,
-         * otherwise, exposes false
-         */
-        static constexpr auto value = std::is_same< T, U >::value;
-      };
-
-    /**
-     * \brief Predicate to be used on type sequence, veryfying if the currently
-     * explored type is bigger than the specified one
-     *
-     * \tparam T the currently explored type in the type sequene
-     * \tparam U parameter used in value evaluation
-     */
-    template< class T, class U >
-      struct type_bigger_than
-      {
-        /**
-         * \brief simple size comparison
-         */
-        static constexpr auto value = sizeof( T ) > sizeof( U );
-      };
-
-    /**
-     * \brief Predicate to be used on integral sequence, looks for an odd number
-     *
-     * \tparam T the integral type used in the integral sequence
-     * \tparam V the currently explored value while iterating the integral
-     * sequence
-     */
-    template< class T, T V >
-      struct odd_number
-      {
-        /**
-         * \brief Odd number searching
-         */
-        static constexpr auto value = ( ( V % 2 ) != 0 );
-      };
-
-    /**
-     * \brief Declaration of a predicate used on an integral sequence.
-     * Specialized later
-     *
-     * \tparam T integral type used in the integral sequence
-     * \tparam V currently explored value in the integral sequence
-     * \tparam U a type that is specialized, used as predicate parameter
-     */
-    template< class T, T V, class U >
-      struct the_number;
-
-    /**
-     * \brief Only valid version of the predicate, specialized for its parameter
-     *
-     * \tparam T integral type used in the integral sequence
-     * \tparam V currently explored value in the integral sequence
-     * \tparam U integral type used in an integral_constant template
-     * \tparam W the value used in the integral_constant
-     */
-    template< class T, T V, class U, U W >
-      struct the_number< T, V, std::integral_constant< U, W > >
-      {
-        /**
-         * \brief Simple comparison
-         */
-        static constexpr auto value = ( V == W );
-      };
-
-    // satic methods
-    /**
-     * \brief Test algorithms implementation using integral sequence provided by
-     * warp and custom integral sequence as well
-     */
-    static void test_algorithms();
-
-    /**
-     * \brief Tests push_back on both type and integral sequences
-     */
-    static void test_push_back();
-
-    /**
-     * \brief Testing push_front features
-     */
-    static void test_push_front();
-
-    /**
-     * \brief pop_front testing on both integral and type sequence types
-     */
-    static void test_pop_front();
-
-    /**
-     * \brief pop_back testing on both integral and type sequence types
-     */
-    static void test_pop_back();
-
-    /**
-     * \brief Testing reverse algorithms
-     */
-    static void test_reverse();
-
-    /**
-     * \brief Groups all predicate aware algorithms
-     */
-    static void test_predicate_aware_algorithms();
-
-    /**
-     * \brief Tests the find_first algorithms for both type and integral
-     * sequence
-     */
-    static void test_find_first();
-
-    /**
-     * \brief Tests the find_all algorithms for both type and integral
-     * sequence
-     */
-    static void test_find_all();
-
-    /**
-     * \brief Test empty algorithms for both integral and type sequences
-     */
-    static void test_empty();
-
-    /**
-     * \brief Testing remove_first algorithms on both integral and type sequenes
-     */
-    static void test_remove_first();
-
-    /**
-     * \brief Testing remove_all algorithms on both integral and type sequenes
-     */
-    static void test_remove_all();
-
-    /**
-     * \brief Testing sorting feature for both integral and type sequence
-     */
-    static void test_sort();
-
-    /**
-     * \brief Tests partition algorithm for both integral and type sequence
-     */
-    static void test_partition();
-
-    /**
-     * \brief Tests unique algorithm on both type and integral sequences
-     */
-    static void test_unique();
-
-    /**
-     * \brief Testing generate ability
-     */
-    static void test_generate();
-
-    /**
-     * \brief Testind appending a char buffer inside an integral sequence
-     */
-    static void test_append_char_buffer();
-
-    /**
-     * \brief Testing the for_each_(type|value) feature
-     */
-    static void test_for_each();
-
-    /**
-     * \brief Testing runtime access feature for both integral and type
-     * sequences. A runtime acces for sequences allow the user to iterate
-     * through instances of integers and types inside a sequence that has been
-     * constructed in compile time at runtime
-     */
-    static void test_runtime_access_for();
-  };
-
-  /**
-   * \brief Holds all that is necessary to test the spark module of warp.
-   */
-  struct spark_tester
-  {
-    /**
-     * \brief A constexpr value type exposing a static method returning a
-     * string defining a simple regular grammar
-     */
-    struct simple_grammar_string
-    {
-      /**
-       * \brief Exposes a regular grammar definition string
-       *
-       * \return the grammar definition string
-       */
-      static constexpr auto value()
-      {
-        return
-          R"grammar(
+  auto simple_regular_grammar_definition =
+    R"grammar(
     # This is a documentation line. Each documentation line must be enclosed   #
     # by a pair of ## characters. Documentation lines can be mixed together    #
     # just like this : ##another infos# #last infos                            #
@@ -504,9 +211,7 @@ namespace test
       # closures (quantifiers). The closure used here is the concatenation     #
       # and the only valid operands are previously defined group.              #
       # Consequently, the order of group definition matters.                   #
-      # The '.' closure is only valid for use with group values, not symbol,   #
-      # thus, if the 'c' group weren't defined, this definition would be       #
-      # invalid.                                                               #
+      # The '.' closure is only valid for use with group values, not symbol    #
       cd? = c . d?;
 
       # Uses the alternation closure with previsouly defined groups            #
@@ -517,15 +222,13 @@ namespace test
       # This group use an unary closure on another group. The usage of the     #
       # brace pair is absolutely mandatory because b is a previsouly           #
       # defined group as well as b|cd?. If 'b' is resolved, '|' will be        #
-      # considered as the binary closure instead as a part of a group name,    #
-      # leading 'cd?+' to be seen as a group name that doesn't exist.          #
+      # considered as the binary closure instead as a part of a group name     #
       (b|cd?)+ = [b|cd?]+;
 
       # This is the last group defined, so the final regular grammar           #
       # definition.                                                            #
       # Group value is read from left to right, brace pair necessary around a* #
-      # to prevent error due to remaining characters after unary closure       #
-      # definition.                                                            #
+      # to prevent error.                                                      #
       a*(b|cd?)+ = [a*] . (b|cd?)+;
 
       # Summary of group definition and composition :                          #
@@ -537,7 +240,7 @@ namespace test
       #   - An affectation sign '='                                            #
       #   - The definition (see examples above)                                #
       # - Each group definition must be terminated by a semicolon character.   #
-      # - At least one group must exist inside the section                     #
+      # - At least one must exist inside the section                           #
       # - The last group defined decides of the languages recognized by the    #
       #   grammar.                                                             #
       # - Contrary on symbols definitions, group definitions rely on           #
@@ -576,8 +279,8 @@ namespace test
     # That's it for the grammar definition string. Here, you can see that some #
     # symbols are unused. It is not an error, and they can be safely deleted.  #
 
-    # Below is an example one of the simplest regular grammar definition you   #
-    # can do :                                                                 #
+    # Below is an example of the simplest regular grammar definition you can   #
+    # do :                                                                     #
 
     # BEGIN_SYMBOLS;                                                           #
     #   a = a;                                                                 #
@@ -588,31 +291,11 @@ namespace test
     # END_GROUPS;                                                              #
 
     # That's it! This regular grammar only recognize the 'a' letter.           #
-          )grammar";
-      }
-    };
 
-    /**
-     * \brief Test all features of spark
-     */
-    static void test_all();
+    )grammar";
 
-    /**
-     * \brief Test all feature related to regular grammar facilities
-     */
-    static void test_regular_grammar();
-
-    /**
-     * \brief Test the regular_grammar type instantiation
-     */
-    static void test_regular_grammar_instantiation();
-  };
-}
-
-#endif
-
-// doxygen
-/**
- * \file
- * \brief Header of a basic testing facility.
- */
+  Transform a grammar definition string into an expression template
+  -----------------------------------------------------------------
+  Above is described how an user can define a regular grammar. Such a regular
+  grammar string can be 'transformed' into an expression template using some
+  meta feature warp exposes (integral sequences especially).

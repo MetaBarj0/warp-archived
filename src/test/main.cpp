@@ -11,6 +11,9 @@ int main( int, char *[] )
 
   // meta sequences tests
   test::sequence_algorithms_tester::test_algorithms();
+
+  // spark testing
+  test::spark_tester::test_all();
 }
 
 // doxygen

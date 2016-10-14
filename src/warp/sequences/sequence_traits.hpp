@@ -3,6 +3,7 @@
 
 #include "sequence_types.hpp"
 #include "../core/types.hpp"
+#include "../core/type_traits.hpp"
 
 #include <type_traits>
 
@@ -149,134 +150,6 @@ namespace
         < typename T::next >::value;
     };
 
-      /**
-       * \brief Intern feature checking if a specified type correspond to char
-       * buffer type. This unspecialized version is used with any type but a
-       * char buffer type. Second template parameter is necessary to prevent
-       * compile time error message related to en explicit specialization in non
-       * namespace scope definition.
-       */
-  template< class, class = warp::undefined_type >
-    struct is_char_buffer
-    {
-      /**
-       * \brief The spcified type is not a char buffer
-       */
-      static constexpr bool value = false;
-    };
-
-  /**
-   * \brief Valid char buffer type specified
-   *
-   * \tparam T_ unused
-   */
-  template< class T_ >
-    struct is_char_buffer< const char *, T_ >
-    {
-      /**
-       * \brief Valid char buffer type
-       */
-      static constexpr bool value = true;
-    };
-
-  /**
-   * \brief Valid char buffer type specified
-   *
-   * \tparam T_ unused
-   */
-  template< class T_ >
-    struct is_char_buffer< const wchar_t *, T_ >
-    {
-      /**
-       * \brief Valid char buffer type
-       */
-      static constexpr bool value = true;
-    };
-
-  /**
-   * \brief Valid char buffer type specified
-   *
-   * \tparam T_ unused
-   */
-  template< class T_ >
-    struct is_char_buffer< const char16_t *, T_ >
-    {
-      /**
-       * \brief Valid char buffer type
-       */
-      static constexpr bool value = true;
-    };
-
-  /**
-   * \brief Valid char buffer type specified
-   *
-   * \tparam T_ unused
-   */
-  template< class T_ >
-    struct is_char_buffer< const char32_t *, T_ >
-    {
-      /**
-       * \brief Valid char buffer type
-       */
-      static constexpr bool value = true;
-    };
-
-  /**
-   * \brief Valid char buffer type specified
-   *
-   * \tparam T_ unused
-   */
-  template< class T_ >
-    struct is_char_buffer< const char * const, T_ >
-    {
-      /**
-       * \brief Valid char buffer type
-       */
-      static constexpr bool value = true;
-    };
-
-  /**
-   * \brief Valid char buffer type specified
-   *
-   * \tparam T_ unused
-   */
-  template< class T_ >
-    struct is_char_buffer< const wchar_t * const, T_ >
-    {
-      /**
-       * \brief Valid char buffer type
-       */
-      static constexpr bool value = true;
-    };
-
-  /**
-   * \brief Valid char buffer type specified
-   *
-   * \tparam T_ unused
-   */
-  template< class T_ >
-    struct is_char_buffer< const char16_t * const, T_ >
-    {
-      /**
-       * \brief Valid char buffer type
-       */
-      static constexpr bool value = true;
-    };
-
-  /**
-   * \brief Valid char buffer type specified
-   *
-   * \tparam T_ unused
-   */
-  template< class T_ >
-    struct is_char_buffer< const char32_t * const, T_ >
-    {
-      /**
-       * \brief Valid char buffer type
-       */
-      static constexpr bool value = true;
-    };
-
   /**
    * \brief Meta function indicating if a specified type has a specified static
    * member named value that is a buffer of char type. Relies on SFINAE
@@ -310,7 +183,7 @@ namespace
        * \brief Relies on an internal feature to check the type of T::value
        */
       static constexpr bool value =
-        is_char_buffer< decltype( T::value ) >::value;
+        warp::is_char_buffer< decltype( T::value ) >::value;
     };
 
   /**
@@ -346,7 +219,7 @@ namespace
        * \brief Relies on an internal feature to check the type of T::value
        */
       static constexpr bool value =
-        is_char_buffer< decltype( T::value() ) >::value;
+        warp::is_char_buffer< decltype( T::value() ) >::value;
     };
 
   /**

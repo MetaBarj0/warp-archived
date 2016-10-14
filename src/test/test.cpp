@@ -585,6 +585,43 @@ void test::sequence_algorithms_tester::test_runtime_access_for()
   // std::cout << it_0->foo() << std::endl;
 }
 
+// spark tests
+void test::spark_tester::test_all()
+{
+  std::cout << "  +------------------------+" << std::endl
+            << "  | spark testing facility |" << std::endl
+            << "  +------------------------+" << std::endl
+            << std::endl;
+
+  test_regular_grammar();
+}
+
+void test::spark_tester::test_regular_grammar()
+{
+  std::cout << "    +----------------------------------+" << std::endl
+            << "    | Regular grammar facility testing |" << std::endl
+            << "    +----------------------------------+" << std::endl
+            << std::endl;
+
+  test_regular_grammar_instantiation();
+}
+
+void test::spark_tester::test_regular_grammar_instantiation()
+{
+  std::cout << "      +---------------------------------------+" << std::endl
+            << "      | Regular grammar instantiation testing |" << std::endl
+            << "      +---------------------------------------+" << std::endl
+            << std::endl;
+
+  // this doesn't work, int is not a valid regular grammar string definition
+  // type
+  // warp::spark::regular_grammar< int > g;
+  
+  // this one works well
+  warp::spark::regular_grammar< simple_grammar_string > g;
+  ( void )g;
+}
+
 // doxygen
 /**
  * \file

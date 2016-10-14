@@ -2780,7 +2780,8 @@ namespace
           // B::value is valid in all case once it exists in B. Ensure
           // expression correctness thanks to enable_if usage. here I know there
           // is one of the 2 valid solution to check
-          std::enable_if_t< is_char_buffer< decltype( B::value ) >::value >
+          std::enable_if_t
+            < warp::is_char_buffer< decltype( B::value ) >::value >
         >::type
     >
     {

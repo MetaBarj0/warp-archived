@@ -4,6 +4,7 @@
 // include features, one after another
 #include "core/core.hpp"
 #include "sequences/sequences.hpp"
+#include "spark/spark.hpp"
 
 #endif // _WARP_HPP_
 
