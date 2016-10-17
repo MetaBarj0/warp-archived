@@ -2786,7 +2786,7 @@ namespace
     >
     {
       /**
-       * \brief Trasfer work to another type, indicating how to read the buffer
+       * \brief Transfer work to another type, indicating how to read the buffer
        * hold in B
        */
       using type =
@@ -2815,7 +2815,7 @@ namespace
     >
     {
       /**
-       * \brief Trasfer work to another type, indicating how to read the buffer
+       * \brief Transfer work to another type, indicating how to read the buffer
        * hold in B
        */
       using type = 
@@ -2846,7 +2846,7 @@ namespace
     {
       /**
        * \brief Using an internal feature, dispatching the work regarding the
-       * type of value that could be a static memeber or a static method.
+       * type of value that could be a static member or a static method.
        */
       using type = typename dispatch_from_value_type< S< U, VS... >, B >::type;
     };
