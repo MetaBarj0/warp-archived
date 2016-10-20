@@ -3,16 +3,13 @@
 
 #include "regular_grammar.hpp"
 
-namespace warp
-{
 /**
  * \brief This namespace contains all stuff that is related to formal language
  * facilities that are exposed and directly usable by the client.
  */
-namespace spark
+namespace warp::spark
 {
-} // namespace spark
-} // namespace warp
+} // namespace warp::spark
 
 #endif // _WARP_SPARK_HPP_
 

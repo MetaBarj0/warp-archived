@@ -2,78 +2,44 @@
 #define _WARP_REGULAR_GRAMMAR_HPP_
 
 #include "../core/types.hpp"
-#include "regular_grammar_detail/regular_grammar_string_traits.hpp"
-#include "../sequences/sequences.hpp"
+#include "regular_grammar_traits.hpp"
 
 #include <type_traits>
 
 /**
- * \brief Holds some hidden stuff related to regular_grammar type implementation
+ * \brief Somme hidden stuff here
  */
 namespace
 {
-  /**
-   * \brief Empty type used to display an understandable error message at
-   * compile time when user try to use a regular_grammar type with an invalid
-   * regular grammar string type
-   */
-  struct invalid_regular_grammar_string_type_specified :
-    warp::empty_type {};
+struct invalid_regular_grammar_definition :
+  warp::empty_type {};
 
-  /**
-   * \brief Validator for any regular grammar string type.
-   *
-   * \tparam RGS any type needed to be checked to ensure it is a valid regular
-   * grammar string definition usable by the regular_grammar class template
-   */
-  template< class RGS >
-    struct test_grammar_string :
-    std::enable_if_t
-    <
-      warp::spark::detail::regular_grammar_string_traits< RGS >::is_valid,
-      invalid_regular_grammar_string_type_specified
-    > {};
+template< class T >
+  struct test_regular_grammar_definition :
+  std::enable_if_t
+  <
+    warp::spark::regular_grammar_definition_traits< T >::is_valid,
+    invalid_regular_grammar_definition
+  >
+  {};
+
+template< class T >
+  class regular_grammar_impl :
+  test_regular_grammar_definition< T >
+  {
+    using regular_grammar_definition =
+      typename warp::spark::regular_grammar_definition_traits< T >::
+      sequence_type;
+  };
 }
 
-namespace warp
+namespace warp::spark
 {
-namespace spark
-{
-  /**
-   * \brief Represents a regular grammar built at compile time. Provides all
-   * features needed to recognize a regular language.
-   *
-   * \tparam REGULAR_GRAMMAR_STRING a warp value-type containing exposing a
-   * static constexpr method named value, returning the regular grammar
-   * definition string
-   */
-  template< class REGULAR_GRAMMAR_STRING >
-    class regular_grammar final :
-    // ensure REGULAR_GRAMMAR_STRING type is valid
-    test_grammar_string< REGULAR_GRAMMAR_STRING >
-    {
-    public :
-    private :
-      /**
-       * \brief Gets the char type used for the regular grammar string
-       * definition
-       */
-      using char_type =
-        std::remove_pointer_t
-        < std::remove_const_t< decltype( REGULAR_GRAMMAR_STRING::value() ) > >;
-
-      /**
-       * \brief Transform the grammar string into an integral sequence.
-       *
-       * \note Currently broken on all major compiler if the string is too long
-       * :'(
-       */
-      using regular_grammar_string_sequence =
-        warp::append_char_buffer_in_t
-        < warp::integral_sequence< char_type >, REGULAR_GRAMMAR_STRING >;
-    };
-
-} // namespace spark
-} // namespace warp
+template< class T >
+  class regular_grammar :
+  regular_grammar_impl< T >
+  {
+  };
+} // namespace warp::spark
 
 #endif // _WARP_REGULAR_GRAMMAR_HPP_

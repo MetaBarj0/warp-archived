@@ -613,13 +613,12 @@ void test::spark_tester::test_regular_grammar_instantiation()
             << "      +---------------------------------------+" << std::endl
             << std::endl;
 
-  // this doesn't work, int is not a valid regular grammar string definition
-  // type
-  // warp::spark::regular_grammar< int > g;
-  
-  // this one works well
-  warp::spark::regular_grammar< simple_grammar_string > g;
-  ( void )g;
+  // testing with a array of little constexpr strings
+  warp::spark::regular_grammar< regular_grammar_strings_array > g1;
+  warp::spark::regular_grammar< regular_grammar_string > g2;
+  warp::spark::regular_grammar< regular_grammar_string_function > g3;
+
+  ( void )g1, ( void )g2, ( void )g3;
 }
 
 // doxygen
