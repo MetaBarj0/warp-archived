@@ -9,13 +9,13 @@ enable_language( CXX )
 set( CMAKE_BUILD_TYPE "Debug" CACHE STRING
      "Specify the default build type" FORCE )
 
-# Specific OSX configuration
-IF( ${CMAKE_SYSTEM_NAME} MATCHES "Darwin" )
-  set( CMAKE_CXX_COMPILER clang++ )
-  set( CMAKE_CXX_FLAGS "-W -Wall -Wextra -std=c++1z" )
-  set( CMAKE_CXX_FLAGS_DEBUG "-O0 -g" )
-  set( CMAKE_CXX_FLAGS_RELEASE "-O3" )
-ENDIF( ${CMAKE_SYSTEM_NAME} MATCHES "Darwin" )
+# Specific clang configuration
+set( CMAKE_CXX_COMPILER clang++ )
+set( CMAKE_CXX_FLAGS
+     "-W -Wall -Wextra -std=c++1z -ftemplate-depth=768" )
+
+set( CMAKE_CXX_FLAGS_DEBUG "-O0 -g" )
+set( CMAKE_CXX_FLAGS_RELEASE "-O3" )
 
 # specify binary directory outputs both for libs and executables
 # binary executables

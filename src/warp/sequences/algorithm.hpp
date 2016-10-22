@@ -81,6 +81,14 @@ namespace
     warp::empty_type {};
 
   /**
+   * \brief Type used in some SFINAE checks indicating that an invalid integral
+   * sequences are used for a merge operation. It occurs if integral sequences
+   * contain integers of different integral type.
+   */
+  struct invalid_integral_sequence_merging :
+    warp::empty_type {};
+
+  /**
    * \brief Type only used to check at compile time if T is a meta_sequence at
    * the sense of exposed by warp. It is used in non-specialized algorithms to
    * show an understandable message to the user indicating that only meta
@@ -4008,6 +4016,74 @@ template< class T, class... B >
        */
       using type = const_runtime_type_sequence< B, TS... >;
     };
+
+  /**
+   * \brief Hidden implementation of the merge feature. Will be declined in a
+   * specialization to be used with integral sequences and another
+   * specialization to be used with type sequences
+   */
+  template< class, class >
+    struct merge_sequence_impl;
+
+  /**
+   * \brief Specialization triggered when the merged feature is used with 2
+   * integral sequences. Integral types used by the 2 sequences must be
+   * identical.
+   *
+   * \tparam LS left sequence template
+   * \tparam LU integral type used in the left sequence
+   * \tparam LV value pack of the left sequence
+   * \tparam RS right sequence template
+   * \tparam RU integral type used in the right sequence
+   * \tparam RV value pack of the right sequence
+   */
+  template
+    <
+      template< class LT, LT... > class LS, class LU, LU... LV,
+      template< class RT, RT... > class RS, class RU, RU... RV
+    >
+    struct merge_sequence_impl< LS< LU, LV... >, RS< RU, RV... > > :
+    test_integral_sequence_traits< LS< LU, LV... > >,
+    test_integral_sequence_traits< RS< RU, RV... > >,
+    std::enable_if_t
+      <
+        std::is_same< LU, RU >::value,
+        invalid_integral_sequence_merging
+      >
+    {
+      /**
+       * \brief Merging means take elements of the left sequence and add element
+       * of the right sequence, then expose the resulting sequence using the
+       * left sequence template
+       */
+      using type = LS< LU, LV..., RV... >;
+    };
+
+  /**
+   * \brief Specialization triggered when the merged feature is used with 2
+   * type sequences.
+   *
+   * \tparam LS left sequence template
+   * \tparam LT left type pack containing types in the left sequence
+   * \tparam RS right sequence template
+   * \tparam LT right type pack containing types in the right sequence
+   */
+  template
+    <
+      template< class... > class LS, class... LT,
+      template< class... > class RS, class... RT
+    >
+    struct merge_sequence_impl< LS< LT... >, RS< RT... > > :
+    test_type_sequence_traits< LS< LT... > >,
+    test_type_sequence_traits< RS< RT... > >
+    {
+      /**
+       * \brief Merging means take elements of the left sequence and add element
+       * of the right sequence, then expose the resulting sequence using the
+       * left sequence template
+       */
+      using type = LS< LT..., RT... >;
+    };
 }
 
 // holds some meta predicates usable with type sequences
@@ -5829,6 +5905,33 @@ namespace warp
    */
   template< class T, class... B >
     using runtime_access_for_t = typename runtime_access_for< T, B... >::type;
+
+  /**
+   * \brief Merging feature. This algorithm will combine 2 sequences with each
+   * other. The 2 sequences must be of the same type, either 2 type sequences or
+   * 2 integral sequences. As a result, the given merged sequence will be LS.RS
+   *
+   * \tparam LS left sequence
+   * \tparam RS right sequence
+   */
+  template< class LS, class RS >
+    struct merge_sequence :
+    merge_sequence_impl< LS, RS >
+    {
+      /**
+       * \brief Uses an hidden implementation of the feature.
+       */
+      using type = typename merge_sequence_impl< LS, RS >::type;
+    };
+
+  /**
+   * \brief Template alias to gain a c++14 fashion write
+   *
+   * \tparam LS left sequence
+   * \tparam RS right sequence
+   */
+  template< class LS, class RS >
+    using merge_sequence_t = typename merge_sequence< LS, RS >::type;
 }
 
 #endif // _WARP_SEQUENCES_ALGORITHM_HPP_

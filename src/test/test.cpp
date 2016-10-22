@@ -99,6 +99,8 @@ void test::sequence_algorithms_tester::test_algorithms()
 
   test_runtime_access_for();
 
+  test_merge();
+
   std::cout << "  +------------------------+" << std::endl
             << "  | void test_algorithms() |" << std::endl
             << "  +------------------------+" << std::endl
@@ -585,6 +587,29 @@ void test::sequence_algorithms_tester::test_runtime_access_for()
   // std::cout << it_0->foo() << std::endl;
 }
 
+void test::sequence_algorithms_tester::test_merge()
+{
+  using typ_seq_0 = warp::type_sequence< char, bool >;
+  using int_seq_0 = warp::integral_sequence< char, 'a', 'b', 'c' >;
+  using typ_seq_1 = warp::type_sequence< short, int >;
+  using int_seq_1 = warp::integral_sequence< char, 'd', 'e', 'f' >;
+
+  using int_seq_2 = warp::merge_sequence_t< int_seq_0, int_seq_1 >;
+  using typ_seq_2 = warp::merge_sequence_t< typ_seq_0, typ_seq_1 >;
+
+  constexpr bool int_seq_ok =
+    std::is_same
+    < int_seq_2,
+      warp::integral_sequence< char, 'a', 'b', 'c', 'd', 'e', 'f' > >::value;
+
+  constexpr bool typ_seq_ok =
+    std::is_same
+    < typ_seq_2, warp::type_sequence< char, bool, short, int > >::value;
+
+  std::enable_if_t< int_seq_ok, int_seq_2 >{};
+  std::enable_if_t< typ_seq_ok, typ_seq_2 >{};
+}
+
 // spark tests
 void test::spark_tester::test_all()
 {
@@ -615,10 +640,18 @@ void test::spark_tester::test_regular_grammar_instantiation()
 
   // testing with a array of little constexpr strings
   warp::spark::regular_grammar< regular_grammar_strings_array > g1;
+
+  // testing with a little enough constexpr string
   warp::spark::regular_grammar< regular_grammar_string > g2;
+
+  // testing with a little enough constexpr string returned by a function
   warp::spark::regular_grammar< regular_grammar_string_function > g3;
 
-  ( void )g1, ( void )g2, ( void )g3;
+  // testing with a little enough constexpr string returned by a function
+  warp::spark::regular_grammar
+    < typename regular_grammar_sequence::sequence > g4;
+
+  ( void )g1, ( void )g2, ( void )g3, ( void )g4;
 }
 
 // doxygen
