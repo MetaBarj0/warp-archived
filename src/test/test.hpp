@@ -325,12 +325,6 @@ struct spark_tester
     static constexpr const char *array[] =
     {
       R"grammar(
-# This is a documentation line. Each documentation line must be enclosed by a  #
-# pair of ## characters. Documentation lines can be mixed together just like   #
-# this : ##another infos# #last infos. These documentation lines are just for  #
-# the user of the grammar and are not useful to create the parser. Moreover,   #
-# documentation lines can be inserted everywhere in the grammar definition but #
-# cannot be interlaced with other grammar entities like groups or symbols.     #
       )grammar",
       R"grammar(
 # You can put any end line you want and where you want as well as white spaces #
