@@ -12,7 +12,7 @@ The goal of spark is provide facilities to transcript user input in user output
 using grammars. Input can either be specified at compile time or run-time.
 
 Compile time user input has a form of integral sequence. It is especially useful
-for the user to define custome grammars. An exemple of such an user input is
+for the user to define custom grammars. An exemple of such an user input is
 showed in implementing the regular grammar of spark.
 
 Run time user input has a form of an iterable sequence formed by a pair of
@@ -25,6 +25,11 @@ accessible to the run time as well (for instance a JSON parser).
     1.1.2°) Writing symbols
       1.1.2.1°) Simple symbols, inclusive and exclusive
       1.1.2.2°) Meta character for symbol definitions
+        1.1.2.2.1°) The '-' meta character
+        1.1.2.2.2°) The '=' meta character
+        1.1.2.2.3°) The ';' meta character
+        1.1.2.2.4°) The 'white spaces' meta characters
+        1.1.2.2.5°) The '`' pairs meta character
     1.1.2°) Writing groups
   1.2°) Context-free grammars
 2°) Transcriptors
@@ -151,3 +156,18 @@ regular expression class [^0-9].
 
       1.1.2.2°) Meta character for symbol definitions
       -----------------------------------------------
+A meta character for a symbol definition is a character that has a special
+meaning. Such a character cannot be used as is in a symbol definition without
+altering the symbol definition itself. Below is a list of each meta character
+that one can find in a symbol definition and how they can be used.
+
+        1.1.2.2.1°) The '-' meta character
+        ----------------------------------
+        1.1.2.2.2°) The '=' meta character
+        ----------------------------------
+        1.1.2.2.3°) The ';' meta character
+        ----------------------------------
+        1.1.2.2.4°) The 'white spaces' meta characters
+        ----------------------------------------------
+        1.1.2.2.5°) The '`' pairs meta character
+        ----------------------------------------
