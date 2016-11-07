@@ -9,29 +9,6 @@
 namespace
 {
 /**
- * \brief A simple empty type, used to provide an understandable error message
- * when the user provides an invalid grammar string definition while
- * instantiating the regular_grammar template
- */
-struct invalid_regular_grammar_definition :
-  warp::empty_type {};
-
-/**
- * \brief Performs compile time checks using the SFINAE capabilities of the
- * compilers. It ensures that T is a valid regular grammar definition and, if
- * not, provide an understandable error message to the user at compile time
- *
- * \tparam T the regular grammar definition.
- */
-template< class T >
-  struct test_regular_grammar_definition :
-  std::enable_if_t
-  <
-    warp::spark::regular_grammar_definition_traits< T >::is_valid,
-    invalid_regular_grammar_definition
-  > {};
-
-/**
  * \brief Hidden implementation of the regular_grammar template. This type is
  * not accessible outside of its compilation unit and contains all that is
  * necessary to implement the regular_grammar concept. This type will performs
@@ -42,9 +19,15 @@ template< class T >
  * \tparam T the regular grammar definition
  */
 template< class T >
-  class regular_grammar_impl :
-  test_regular_grammar_definition< T >
+  class regular_grammar_impl
   {
+    static_assert( warp::spark::regular_grammar_definition_traits< T >::
+                     is_valid,
+                   "Specified template parameter type is not a valid "
+                   "regular grammar definition. Please, refer to the "
+                   "documentation to know how to define valid regular "
+                   "grammars usable by spark.");
+
     /**
      * \brief Define an uniformed form of regular grammar definition. At this
      * point, regular grammar definition is considered valid and is transformed

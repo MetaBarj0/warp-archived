@@ -65,7 +65,7 @@ namespace warp
     struct sfinae_type
     {
       /**
-       * \brief Always the same type is used, ensure previsibility allowinf
+       * \brief Always the same type is used, ensure previsibility allowing
        * SFINAE usage in template specializations
        */
       using type = warp::undefined_type;
