@@ -333,6 +333,12 @@ namespace warp
        * \brief A type sequence is not an integral sequence
        */
       static constexpr bool is_integral_sequence = false;
+
+      /**
+       * \brief Indicates if the sequence is empty, examining the size of the
+       * type parameter pack
+       */
+      static constexpr bool is_empty = ( sizeof...( TS ) == 0 );
     };
 
   /**
@@ -363,6 +369,12 @@ namespace warp
        */
       static constexpr bool is_integral_sequence =
         std::is_integral< U >::value;
+
+      /**
+       * \brief Indicates if the sequence is empty, examining the size of the
+       * type parameter pack
+       */
+      static constexpr bool is_empty = ( sizeof...( VS ) == 0 );
     };
 
   /**

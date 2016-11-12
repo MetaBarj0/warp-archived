@@ -70,9 +70,9 @@ namespace warp::spark
  * constexpr char buffer longer than 512 characters long.
  */
 template< class T >
-  class regular_grammar :
-  regular_grammar_impl< T >
+  class regular_grammar
   {
+    using impl = regular_grammar_impl< T >;
   };
 } // namespace warp::spark
 

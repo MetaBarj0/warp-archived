@@ -10,263 +10,6 @@
 // hidden private stuff, contains empty types used in SFINAE
 namespace
 {
-  /**
-   * \brief Empty type used to show an error message thanks to SFINAE
-   */
-  struct only_meta_sequence_types_allowed :
-    warp::empty_type {};
-
-  /**
-   * \brief Empty type used to show an error message thanks to SFINAE
-   */
-  struct invalid_integral_sequence_specified :
-    warp::empty_type {};
-
-  /**
-   * \brief Empty type used to show an error message thanks to SFINAE
-   */
-  struct invalid_type_sequence_specified :
-    warp::empty_type {};
-
-  /**
-   * \brief Type used as SFINAE checks and used if some algorithms are used on
-   * empty invalid sequences
-   */
-  struct meta_sequence_must_not_be_empty :
-    warp::empty_type {};
-
-  /**
-   * \brief Type used as SFINAE checks and used if some integral sequence
-   * related algorithms are used with an invalid meta predicate
-   */
-  struct invalid_predicate_for_integral_sequence_specified :
-    warp::empty_type {};
-
-  /**
-   * \brief Type used as SFINAE checks and used if some type sequence
-   * related algorithms are used with an invalid meta predicate
-   */
-  struct invalid_predicate_for_type_sequence_specified :
-    warp::empty_type {};
-
-  /**
-   * \brief This empty type is used in SFINAE friendly expression specifying to
-   * the user of the integral sequence generation feature that the specified
-   * generator template is incorrect This empty type is used in SFINAE friendly
-   * expression specifying to the user of the integral sequence generation
-   * feature that the specified generator template is incorrect
-   */
-  struct invalid_generator_for_integral_sequence_specified :
-    warp::empty_type {};
-
-  /**
-   * \brief Type used in some SFINAE checks indicating that an invalid type is
-   * used as a value-type containing a char buffer
-   */
-  struct invalid_char_buffer_type_specified :
-    warp::empty_type {};
-
-  /**
-   * \brief Type used in some SFINAE checks indicating that an invalid type is
-   * used as a functor for some feature designed for type sequence iteration
-   */
-  struct invalid_functor_for_type_sequence_specified :
-    warp::empty_type {};
-
-  /**
-   * \brief Type used in some SFINAE checks indicating that an invalid type is
-   * used as a functor for some feature designed for integral sequence iteration
-   */
-  struct invalid_functor_for_integral_sequence_specified :
-    warp::empty_type {};
-
-  /**
-   * \brief Type used in some SFINAE checks indicating that an invalid integral
-   * sequences are used for a merge operation. It occurs if integral sequences
-   * contain integers of different integral type.
-   */
-  struct invalid_integral_sequence_merging :
-    warp::empty_type {};
-
-  /**
-   * \brief Type only used to check at compile time if T is a meta_sequence at
-   * the sense of exposed by warp. It is used in non-specialized algorithms to
-   * show an understandable message to the user indicating that only meta
-   * sequences are allowed (via SFINAE)
-   *
-   * \tparam T the type to test traits
-   */
-  template< class T >
-    struct test_meta_sequence_traits :
-    std::enable_if_t
-      <
-        warp::meta_sequence_traits< T >::is_meta_sequence,
-        // error message appearing
-        only_meta_sequence_types_allowed
-      > {};
-
-  /**
-   * \brief Type only used to check at compile time if T is an integral sequence
-   * at the sense of exposed by warp. It is used in specialized algorithms to
-   * show an understandable message to the user indicating that invalid integral
-   * sequence use is forbidden in the specified algorithm
-   *
-   * \tparam T the type to test traits
-   */
-  template< class T >
-    struct test_integral_sequence_traits :
-    test_meta_sequence_traits< T >,
-    std::enable_if_t
-      <
-        warp::meta_sequence_traits< T >::is_integral_sequence,
-        // error message appearing
-        invalid_integral_sequence_specified
-      > {};
-
-  /**
-   * \brief Type only used to check at compile time if T is a type sequence
-   * at the sense of exposed by warp. It is used in specialized algorithms to
-   * show an understandable message to the user indicating that invalid type
-   * sequence use is forbidden in the specified algorithm
-   *
-   * \tparam T the type to test traits
-   */
-  template< class T >
-    struct test_type_sequence_traits :
-    test_meta_sequence_traits< T >,
-    std::enable_if_t
-      <
-        warp::meta_sequence_traits< T >::is_type_sequence,
-        // error message appearing
-        invalid_type_sequence_specified
-      > {};
-
-  /**
-   * \brief General form of a SFINAE check used to determine if an invalid empty
-   * sequence is used with some algorithms
-   *
-   * \tparam T the sequence type to check
-   */
-  template< class T >
-    struct test_non_empty_sequence;
-
-  /**
-   * \brief Specialization working with integral sequences
-   *
-   * \tparam S type sequence template
-   * \tparam TS type pack used in type sequence
-   */
-  template< template< class... > class S, class... TS >
-    struct test_non_empty_sequence< S< TS... > > :
-    test_type_sequence_traits< S< TS... > >,
-    std::enable_if_t
-      <
-        ( sizeof...( TS ) > 0 ),
-        meta_sequence_must_not_be_empty
-      > {};
-
-  /**
-   * \brief Specialization working with integral sequences
-   *
-   * \tparam S integral sequence template
-   * \tparam U integral type used in the integral sequence
-   * \tparam VS value pack in the integral sequence
-   */
-  template< template< class T, T... > class S, class U, U... VS >
-    struct test_non_empty_sequence< S< U, VS... > > :
-    test_integral_sequence_traits< S< U, VS... > >,
-    std::enable_if_t
-      <
-        ( sizeof...( VS ) > 0 ),
-        meta_sequence_must_not_be_empty
-      > {};
-
-  /**
-   * \brief Tests the specified type to see if it's a valid predicate usable in
-   * some algorithms related to integral sequences
-   *
-   * \tparam T An instantiated predicate template
-   */
-  template< class T >
-    struct test_integral_sequence_predicate_traits :
-    std::enable_if_t
-      <
-        warp::meta_predicate_traits< T >::is_integral_sequence_predicate,
-        invalid_predicate_for_integral_sequence_specified
-      > {};
-
-  /**
-   * \brief Tests the specified type to see if it's a valid predicate usable in
-   * some algorithms related to type sequences
-   *
-   * \tparam T An instantiated predicate template
-   */
-  template< class T >
-    struct test_type_sequence_predicate_traits :
-    std::enable_if_t
-      <
-        warp::meta_predicate_traits< T >::is_type_sequence_predicate,
-        invalid_predicate_for_type_sequence_specified
-      > {};
-
-  /**
-   * \brief Test the specified type using meta generator traits. Indicates
-   * through SFINAE if the generator specified suits well for an integral
-   * sequence generation
-   *
-   * \tparam T an instantiated generator template
-   */
-  template< class T >
-    struct test_integral_sequence_generator_traits :
-    std::enable_if_t
-    <
-        warp::meta_generator_traits< T >::is_integral_sequence_generator,
-        invalid_generator_for_integral_sequence_specified
-    > {};
-
-  /**
-   * \brief Test the specified type using meta sequence operand traits.
-   * Indicates through SFINAE if the specified type suits well for an integral
-   * sequence append char buffer feature
-   *
-   * \tparam T an assumed char buffer value type
-   */
-  template< class T >
-    struct test_char_buffer_traits :
-    std::enable_if_t
-    <
-      warp::meta_sequence_operands_traits< T >::is_char_buffer_value_type,
-      invalid_char_buffer_type_specified
-    > {};
-
-  /**
-   * \brief Test the specified type using meta functor traits. Indicates through
-   * SFINAE if the functor specified suits well for a type sequence
-   *
-   * \tparam T an instantiated functor template
-   */
-  template< class T >
-    struct test_type_sequence_functor_traits :
-    std::enable_if_t
-    <
-      warp::meta_functor_traits< T >::is_type_sequence_functor,
-      invalid_functor_for_type_sequence_specified
-    > {};
-
-  /**
-   * \brief Test the specified integral using meta functor traits. Indicates
-   * through SFINAE if the functor specified suits well for a integral sequence
-   *
-   * \tparam T an instantiated functor template
-   */
-  template< class T >
-    struct test_integral_sequence_functor_traits :
-    std::enable_if_t
-    <
-      warp::meta_functor_traits< T >::is_integral_sequence_functor,
-      invalid_functor_for_integral_sequence_specified
-    > {};
-
   template< class B, class... TS >
     struct test_base_specified_for :
     warp::empty_type {};
@@ -275,27 +18,21 @@ namespace
     struct test_base_specified_for< B, T, TS... > :
     test_base_specified_for< B, TS... >
     {
-      constexpr test_base_specified_for()
-      {
-        static_assert
-          (
-            std::is_base_of< B, T >::value,
-            "Invalid type specified as base of type inside the type sequence"
-          );
-      }
+      static_assert
+        (
+          std::is_base_of< B, T >::value,
+          "Invalid type specified as base of type inside the type sequence"
+        );
     };
 
   template< class B, class T >
     struct test_base_specified_for< B, T >
     {
-      constexpr test_base_specified_for()
-      {
-        static_assert
-          (
-            std::is_base_of< B, T >::value,
-            "Invalid type specified as base of type inside the type sequence"
-          );
-      }
+      static_assert
+        (
+          std::is_base_of< B, T >::value,
+          "Invalid type specified as base of type inside the type sequence"
+        );
     };
 
   /**
@@ -308,11 +45,15 @@ namespace
    * \tparam V the value to push in case of use with an integral sequence
    */
   template< class T, class U, U... V >
-    struct push_back_on_impl :
-    test_meta_sequence_traits< T > {};
+    struct push_back_on_impl
+    {
+      static_assert( warp::meta_sequence_traits< T >::is_meta_sequence,
+                     "Invalid type used. Onlye meta-sequences (type or "
+                     "integral sequences) are allowed." );
+    };
 
   /**
-   * \brief Speicialization working on an integral sequence.
+   * \brief Specialization working on an integral sequence.
    *
    * \tparam S an integral sequence template that must be validated by
    * test_integral_sequence_traits.
@@ -322,9 +63,13 @@ namespace
    * \tparam V the value to push
    */
   template< template< class T, T... > class S, class U, U... VS, class X, X V >
-    struct push_back_on_impl< S< U, VS... >, X, V > :
-    test_integral_sequence_traits< S< U, VS... > >
+    struct push_back_on_impl< S< U, VS... >, X, V >
     {
+      static_assert( warp::meta_sequence_traits< S< U, VS... > >::
+                       is_integral_sequence,
+                     "Invalid type used. Only integral sequence types are "
+                     "allowed." );
+        
       /**
        * \brief Exposes a sequence with the value at the end
        */
@@ -339,9 +84,12 @@ namespace
    * \tparam T the type to push
    */
   template< template< class... > class S, class...TS, class T >
-    struct push_back_on_impl< S< TS... >, T > :
-    test_type_sequence_traits< S< TS... > >
+    struct push_back_on_impl< S< TS... >, T >
     {
+      static_assert( warp::meta_sequence_traits< S< TS... > >::is_type_sequence,
+                     "Invalid type used. Only type sequence types are "
+                     "allowed." );
+        
       /**
        * \brief Exposes a type sequence with the new type at the end
        */
@@ -358,8 +106,12 @@ namespace
    * \tparam V the value to push in case of use with an integral sequence
    */
   template< class T, class U, U... V >
-    struct push_front_on_impl :
-    test_meta_sequence_traits< T > {};
+    struct push_front_on_impl
+    {
+      static_assert( warp::meta_sequence_traits< T >::is_meta_sequence,
+                     "Invalid type used. Onlye meta-sequences (type or "
+                     "integral sequences) are allowed." );
+    };
 
   /**
    * \brief Specialization working on an integral sequence.
@@ -372,9 +124,13 @@ namespace
    * \tparam V the value to push
    */
   template< template< class T, T... > class S, class U, U... VS, class X, X V >
-    struct push_front_on_impl< S< U, VS... >, X, V > :
-    test_integral_sequence_traits< S< U, VS... > >
+    struct push_front_on_impl< S< U, VS... >, X, V >
     {
+      static_assert( warp::meta_sequence_traits< S< U, VS... > >::
+                       is_integral_sequence,
+                     "Invalid type used. Only integral sequence types are "
+                     "allowed." );
+
       /**
        * \brief Exposes a sequence with the value at the beginning
        */
@@ -389,9 +145,12 @@ namespace
    * \tparam T the type to push
    */
   template< template< class... > class S, class...TS, class T >
-    struct push_front_on_impl< S< TS... >, T > :
-    test_type_sequence_traits< S< TS... > >
+    struct push_front_on_impl< S< TS... >, T >
     {
+      static_assert( warp::meta_sequence_traits< S< TS... > >::is_type_sequence,
+                     "Invalid type used. Only type sequence types are "
+                     "allowed." );
+
       /**
        * \brief Exposes a type sequence with the new type at the beginning
        */
@@ -415,9 +174,15 @@ namespace
    * \tparam TS type pack used in the type sequence (but here, it's empty)
    */
   template< template< class... > class S, class... TS >
-    struct pop_front_on_impl< S< TS... > > :
-    // this general form of type sequence is checked for non emptiness
-    test_non_empty_sequence< S< TS... > > {};
+    struct pop_front_on_impl< S< TS... > >
+    {
+      static_assert( warp::meta_sequence_traits< S< TS... > >::
+                       is_type_sequence &&
+                       ( sizeof...( TS ) > 0 )
+                     ,
+                     "Invalid type used. Only non empty type sequence types "
+                     "are allowed" );
+    };
 
   /**
    * \brief Specialization used on type sequence containing at least on type.
@@ -428,10 +193,13 @@ namespace
    * be empty.
    */
   template< template< class... > class S, class T, class...TS >
-    struct pop_front_on_impl< S< T, TS... > > :
-    // test the validity of this type sequence
-    test_type_sequence_traits< S< T, TS... > >
+    struct pop_front_on_impl< S< T, TS... > >
     {
+      static_assert( warp::meta_sequence_traits< S< T, TS... > >::
+                       is_type_sequence,
+                     "Invalid type used. Only type sequence types are "
+                     "allowed." );
+
       /**
        * \brief The first type is what you need
        */
@@ -452,9 +220,14 @@ namespace
    * \tparam VS value pack in the integral sequence (here it's empty)
    */
   template< template< class T, T... > class S, class U, U... VS >
-    struct pop_front_on_impl< S< U, VS... > > :
-    // indicates the empty sequence usage is invalid
-    test_non_empty_sequence< S< U, VS... > > {};
+    struct pop_front_on_impl< S< U, VS... > >
+    {
+      static_assert( warp::meta_sequence_traits< S< U, VS... > >::
+                       is_integral_sequence &&
+                       ( sizeof...( VS ) > 0 ),
+                     "Invalid type used. Only non empty integral sequence "
+                     "types are allowed" );
+    };
 
   /**
    * \brief Specialization working on a sequence containing at leat one value.
@@ -465,9 +238,13 @@ namespace
    * \tparam VS value pack in the integral sequence (may be empty)
    */
   template< template< class T, T... > class S, class U, U V, U...VS >
-    struct pop_front_on_impl< S< U, V, VS... > > :
-    test_integral_sequence_traits< S< U, V, VS... > >
+    struct pop_front_on_impl< S< U, V, VS... > >
     {
+      static_assert( warp::meta_sequence_traits< S< U, V, VS... > >::
+                       is_integral_sequence,
+                     "Invalid type used. Only integral sequence types are "
+                     "allowed." );
+
       /**
        * \brief The first value is what you want
        */
@@ -500,9 +277,14 @@ namespace
    * \tparam pumped types from the sequence (empty as well)
    */
   template< template< class... > class S, class... TS, class... US >
-    struct pop_back_on_impl< S< TS... >, US... > :
-    // indicates that empty sequence is not allowed
-    test_non_empty_sequence< S< TS... > > {};
+    struct pop_back_on_impl< S< TS... >, US... >
+    {
+      static_assert( warp::meta_sequence_traits< S< TS... > >::
+                       is_type_sequence &&
+                       ( sizeof...( TS ) > 0 ),
+                     "Invalid type used. Only non empty type sequence "
+                     "types are allowed" );
+    };
 
   /**
    * \brief Specialization working on type sequence containing at least on
@@ -515,10 +297,13 @@ namespace
    * to build the popped sequence
    */
   template< template< class... > class S, class T, class... TS, class... US >
-    struct pop_back_on_impl< S< T, TS... >, US... > :
-    // Always check the type_sequence traits
-    test_type_sequence_traits< S< T, TS... > >
+    struct pop_back_on_impl< S< T, TS... >, US... >
     {
+      static_assert( warp::meta_sequence_traits< S< T, TS... > >::
+                       is_type_sequence,
+                     "Invalid type used. Only type sequence types are "
+                     "allowed." );
+
       /**
        * \brief Recursively compute the sequence and pump out the first type
        * from the initial sequence to the US type pack. Types are put to build
@@ -543,10 +328,12 @@ namespace
    * types that were in the initial type sequence but the last one
    */
   template< template< class... > class S, class T, class...US >
-    struct pop_back_on_impl< S< T >, US... > :
-    // Always check the type_sequence traits
-    test_type_sequence_traits< S< T > >
+    struct pop_back_on_impl< S< T >, US... >
     {
+      static_assert( warp::meta_sequence_traits< S< T > >::is_type_sequence,
+                     "Invalid type used. Only type sequence types are "
+                     "allowed." );
+
       /**
        * \brief Build the popped type sequence from pumped out types
        */
@@ -572,10 +359,14 @@ namespace
    * \tparam VS value pack used in the sequence
    */
   template< template< class T, T... > class S, class U, U... VS >
-    struct pop_back_on_impl< S< U, VS... > > :
-    // emptiness check
-    test_non_empty_sequence< S< U, VS... > >
+    struct pop_back_on_impl< S< U, VS... > >
     {
+      static_assert( warp::meta_sequence_traits< S< U, VS... > >::
+                       is_integral_sequence &&
+                       ( sizeof...( VS ) > 0 ),
+                     "Invalid type used. Only non empty integral sequence "
+                     "types are allowed" );
+
       /**
        * \brief Delegating to another specialization, providing an empty
        * integral sequence for the pump
@@ -606,6 +397,11 @@ namespace
     struct pop_back_on_impl
     < S< U, V, VS... >, warp::integral_sequence< U, WS... > >
     {
+      static_assert( warp::meta_sequence_traits< S< U, V, VS... > >::
+                       is_integral_sequence,
+                     "Invalid type used. Only integral sequence types are "
+                     "allowed." );
+
       /**
        * \brief Recursively pop value inside the pump until it remains only one
        * value in the sequence to be popped
@@ -635,6 +431,11 @@ namespace
   template< template< class T, T... > class S, class U, U V, U... WS >
     struct pop_back_on_impl< S< U, V >, warp::integral_sequence< U, WS... > >
     {
+      static_assert( warp::meta_sequence_traits< S< U, V > >::
+                       is_integral_sequence,
+                     "Invalid type used. Only integral sequence types are "
+                     "allowed." );
+
       /**
        * \brief This is the last value of the initial integral sequence
        */
@@ -657,8 +458,12 @@ namespace
    * initial sequence
    */
   template< class T, class... TS >
-    struct reverse_on_impl :
-    test_meta_sequence_traits< T > {};
+    struct reverse_on_impl
+    {
+      static_assert( warp::meta_sequence_traits< T >::is_meta_sequence,
+                     "Invalid type used. Only meta sequence types are "
+                     "allowed." );
+    };
 
   /**
    * \brief Specialization working on a type sequence containing at leat one
@@ -670,9 +475,13 @@ namespace
    * \tparam US pumped-out type pack
    */
   template< template< class... > class S, class T, class... TS, class... US >
-    struct reverse_on_impl< S< T, TS... >, US... > :
-    test_type_sequence_traits< S< T, TS... > >
+    struct reverse_on_impl< S< T, TS... >, US... >
     {
+      static_assert( warp::meta_sequence_traits< S< T, TS... > >::
+                       is_type_sequence,
+                     "Invalid type used. Only type sequence types are "
+                     "allowed." );
+
       /**
        * \brief Remove the first type of the sequence and place it at the
        * begining of pumped types pack
@@ -688,9 +497,12 @@ namespace
    * \tparam US pumped-out type pack from the original type sequence
    */
   template< template< class... > class S, class... TS, class... US >
-    struct reverse_on_impl< S< TS... >, US... > :
-    test_type_sequence_traits< S< TS... > >
+    struct reverse_on_impl< S< TS... >, US... >
     {
+      static_assert( warp::meta_sequence_traits< S< TS... > >::is_type_sequence,
+                     "Invalid type used. Only type sequence types are "
+                     "allowed." );
+
       /**
        * \brief Use directly pumped out type, in reverse order
        */
@@ -706,9 +518,13 @@ namespace
    * \tparam VS value pack in the integral sequence
    */
   template< template< class T, T... > class S, class U, U...VS >
-    struct reverse_on_impl< S< U, VS... > > :
-    test_integral_sequence_traits< S< U, VS... > >
+    struct reverse_on_impl< S< U, VS... > >
     {
+      static_assert( warp::meta_sequence_traits< S< U, VS... > >::
+                       is_integral_sequence,
+                     "Invalid type used. Only integral sequence types are "
+                     "allowed." );
+
       /**
        * \brief Call another implementation with an internal integral sequence
        * as pump
@@ -731,9 +547,13 @@ namespace
    */
   template< template< class T, T... > class S, class U, U V, U...VS, U... WS >
     struct reverse_on_impl
-    < S< U, V, VS... >, warp::integral_sequence<U, WS... > > :
-    test_integral_sequence_traits< S< U, V, VS... > >
+    < S< U, V, VS... >, warp::integral_sequence<U, WS... > >
     {
+      static_assert( warp::meta_sequence_traits< S< U, V, VS... > >::
+                       is_integral_sequence,
+                     "Invalid type used. Only integral sequence types are "
+                     "allowed." );
+
       /**
        * \brief Pumping-out the first value from the integral sequence to the
        * pump, in reverse order
@@ -756,6 +576,11 @@ namespace
   template< template< class T, T... > class S, class U, U...VS, U... WS >
     struct reverse_on_impl< S< U, VS... >, warp::integral_sequence< U, WS... > >
     {
+      static_assert( warp::meta_sequence_traits< S< U, VS... > >::
+                       is_integral_sequence,
+                     "Invalid type used. Only integral sequence types are "
+                     "allowed." );
+
       /**
        * \brief Exposing a sequence with value picked from the pump
        */
@@ -771,8 +596,12 @@ namespace
    * signature
    */
   template< class T, template< class, class... > class, class... >
-    struct find_first_in_type_sequence_impl :
-    test_type_sequence_traits< T > {};
+    struct find_first_in_type_sequence_impl
+    {
+      static_assert( warp::meta_sequence_traits< T >::is_type_sequence,
+                     "Invalid type used. Only type sequence types are "
+                     "allowed." );
+    };
 
   /**
    * \brief Specialized version working with empty type sequence specified.
@@ -788,9 +617,12 @@ namespace
       template< class... > class S, class... TS,
       template< class, class... > class P, class... US
     >
-    struct find_first_in_type_sequence_impl< S< TS... >, P, US... > :
-    test_type_sequence_traits< S< TS... > >
+    struct find_first_in_type_sequence_impl< S< TS... >, P, US... >
     {
+      static_assert( warp::meta_sequence_traits< S< TS... > >::is_type_sequence,
+                     "Invalid type used. Only type sequence types are "
+                     "allowed." );
+
       /**
        * \brief Exposes the sequence as is as it is empty
        */
@@ -813,10 +645,18 @@ namespace
       template< class... > class S, class T, class... TS,
       template< class, class... > class P, class... US
     >
-    struct find_first_in_type_sequence_impl< S< T, TS... >, P, US... > :
-    test_type_sequence_traits< S< T, TS... > >,
-    test_type_sequence_predicate_traits< P< T, US... > >
+    struct find_first_in_type_sequence_impl< S< T, TS... >, P, US... >
     {
+      static_assert( warp::meta_sequence_traits< S< T, TS... > >::
+                       is_type_sequence,
+                     "Invalid type used. Only type sequence types are "
+                     "allowed." );
+        
+      static_assert( warp::meta_predicate_traits< P< T, US... > >::
+                       is_type_sequence_predicate,
+                     "Invalid type used. Only type sequence predicate types "
+                     "are allowed." );
+
       /**
        * \brief Using a predicate template instance and conditional type
        * deduction. Recursive search if T doesn't match the predicate value
@@ -840,8 +680,13 @@ namespace
    * sequence signature
    */
   template< class T, template< class U, U, class... > class, class... >
-    struct find_first_in_integral_sequence_impl :
-    test_integral_sequence_traits< T > {};
+    struct find_first_in_integral_sequence_impl
+    {
+      static_assert( warp::meta_sequence_traits< T >::
+                       is_integral_sequence,
+                     "Invalid type used. Only integral sequence types are "
+                     "allowed." );
+    };
 
   /**
    * \brief Specialized version working with empty integral sequence specified.
@@ -858,9 +703,13 @@ namespace
       template< class T, T... > class S, class U, U... VS,
       template< class V, V, class... > class P, class... US
     >
-    struct find_first_in_integral_sequence_impl< S< U, VS... >, P, US... > :
-    test_integral_sequence_traits< S< U, VS... > >
+    struct find_first_in_integral_sequence_impl< S< U, VS... >, P, US... >
     {
+      static_assert( warp::meta_sequence_traits< S< U, VS... > >::
+                       is_integral_sequence,
+                     "Invalid type used. Only integral sequence types are "
+                     "allowed." );
+
       /**
        * \brief Exposes the sequence as is as it is empty
        */
@@ -883,10 +732,18 @@ namespace
       template< class T, T... > class S, class U, U V, U... VS,
       template< class W, W, class... > class P, class... US
     >
-    struct find_first_in_integral_sequence_impl< S< U, V, VS... >, P, US... > :
-    test_integral_sequence_traits< S< U, V, VS... > >,
-    test_integral_sequence_predicate_traits< P< U, V, US... > >
+    struct find_first_in_integral_sequence_impl< S< U, V, VS... >, P, US... >
     {
+      static_assert( warp::meta_sequence_traits< S< U, V, VS... > >::
+                       is_integral_sequence,
+                     "Invalid type used. Only integral sequence types are "
+                     "allowed." );
+
+      static_assert( warp::meta_predicate_traits< P< U, V, US... > >::
+                       is_integral_sequence_predicate,
+                     "Invalid type used. Only integral sequence predicates are "
+                     "allowed." );
+        
       /**
        * \brief Using a predicate template instance and conditional type
        * deduction. Recursive search if V doesn't match the predicate value
@@ -910,8 +767,12 @@ namespace
    * signature
    */
   template< class T, template< class, class... > class, class... >
-    struct find_all_in_type_sequence_impl :
-    test_type_sequence_traits< T > {};
+    struct find_all_in_type_sequence_impl
+    {
+      static_assert( warp::meta_sequence_traits< T >::is_type_sequence,
+                     "Invalid type used. Only type sequence types are "
+                     "allowed." );
+    };
 
   /**
    * \brief Specialized version working with empty type sequence specified.
@@ -935,9 +796,12 @@ namespace
       S< TS... >, P,
       warp::type_sequence< US... >,
       warp::type_sequence< WS... >
-    > :
-    test_type_sequence_traits< S< TS... > >
+    >
     {
+      static_assert( warp::meta_sequence_traits< S< TS... > >::is_type_sequence,
+                     "Invalid type used. Only type sequence types are "
+                     "allowed." );
+
       /**
        * \brief Exposes the sequence made of type inside the variadic pump as
        * S< TS... > is empty
@@ -967,10 +831,18 @@ namespace
       S< T, TS... >, P,
       warp::type_sequence< US... >,
       warp::type_sequence< WS... >
-    > :
-    test_type_sequence_traits< S< T, TS... > >,
-    test_type_sequence_predicate_traits< P< T, US... > >
+    >
     {
+      static_assert( warp::meta_sequence_traits< S< T, TS... > >::
+                       is_type_sequence,
+                     "Invalid type used. Only type sequence types are "
+                     "allowed." );
+
+      static_assert( warp::meta_predicate_traits< P< T, US... > >::
+                       is_type_sequence_predicate,
+                     "Invalid type used. Only type sequence types are "
+                     "allowed." );
+
       /**
        * \brief Using a predicate template instance and conditional type
        * deduction. Recursive search until the original sequence observed is
@@ -1007,8 +879,12 @@ namespace
    * sequence signature
    */
   template< class T, template< class U, U, class... > class, class... >
-    struct find_all_in_integral_sequence_impl :
-    test_integral_sequence_traits< T > {};
+    struct find_all_in_integral_sequence_impl
+    {
+      static_assert( warp::meta_sequence_traits< T >::is_integral_sequence,
+                     "Invalid type used. Only integral sequence types are "
+                     "allowed." );
+    };
 
   /**
    * \brief Specialized version working with empty integral sequence specified.
@@ -1034,9 +910,13 @@ namespace
       S< U, VS... >, P,
       warp::type_sequence< TS... >,
       warp::integral_sequence< Q, WS... >
-    > :
-    test_integral_sequence_traits< S< U, VS... > >
+    >
     {
+      static_assert( warp::meta_sequence_traits< S< U, VS... > >::
+                       is_integral_sequence,
+                     "Invalid type used. Only integral sequence types are "
+                     "allowed." );
+
       /**
        * \brief Exposes the sequence made of integral inside the variadic pump
        * as S< U, VS... > is empty
@@ -1069,10 +949,18 @@ namespace
       S< U, V, VS... >, P,
       warp::type_sequence< TS... >,
       warp::integral_sequence< Q, WS... >
-    > :
-    test_integral_sequence_traits< S< U, V, VS... > >,
-    test_integral_sequence_predicate_traits< P< U, V, TS... > >
+    >
     {
+      static_assert( warp::meta_sequence_traits< S< U, V, VS... > >::
+                       is_integral_sequence,
+                     "Invalid type used. Only integral sequence types are "
+                     "allowed." );
+
+      static_assert( warp::meta_predicate_traits< P< U, V, TS... > >::
+                       is_integral_sequence_predicate,
+                     "Invalid type used. Only integral sequence predicates are "
+                     "allowed." );
+
       /**
        * \brief Using a predicate template instance and conditional integral
        * deduction. Recursive search until the original sequence observed is
@@ -1109,8 +997,13 @@ namespace
    * \tparam T invalid type
    */
   template< class T >
-    struct is_empty_sequence_impl :
-    test_meta_sequence_traits< T >{};
+    struct is_empty_sequence_impl
+    {
+      static_assert( warp::meta_sequence_traits< T >::is_meta_sequence,
+                     "Invalid type used. Only integral sequence types are "
+                     "allowed." );
+
+    };
 
   /**
    * \brief Specialization working with a valid type sequence template
@@ -1120,11 +1013,14 @@ namespace
    * \tparam TS type pack contained in the sequence template
    */
   template< template< class... > class S, class... TS >
-    struct is_empty_sequence_impl< S< TS... > > :
-    test_type_sequence_traits< S< TS... > >
+    struct is_empty_sequence_impl< S< TS... > >
     {
+      static_assert( warp::meta_sequence_traits< S< TS... > >::is_type_sequence,
+                     "Invalid type used. Only type sequence types are "
+                     "allowed." );
+
       /**
-       * \brief Uses this wonderfull operator
+       * \brief Uses this wonderful operator
        */
       static constexpr auto value = ( sizeof...( TS ) == 0 );
     };
@@ -1138,9 +1034,13 @@ namespace
    * \tparam VS value pack contained in the integral sequence
    */
   template< template< class T, T... > class S, class U, U... VS >
-    struct is_empty_sequence_impl< S< U, VS... > > :
-    test_integral_sequence_traits< S< U, VS... > >
+    struct is_empty_sequence_impl< S< U, VS... > >
     {
+      static_assert( warp::meta_sequence_traits< S< U, VS... > >::
+                       is_integral_sequence,
+                     "Invalid type used. Only integral sequence types are "
+                     "allowed." );
+
       /**
        * \brief Uses this wonderfull operator
        */
@@ -1156,8 +1056,12 @@ namespace
    * signature
    */
   template< class T, template< class, class... > class, class... >
-    struct remove_first_in_type_sequence_impl :
-    test_type_sequence_traits< T > {};
+    struct remove_first_in_type_sequence_impl
+    {
+      static_assert( warp::meta_sequence_traits< T >::is_type_sequence,
+                     "Invalid type used. Only type sequence types are "
+                     "allowed." );
+    };
 
   /**
    * \brief Specialized version working with empty type sequence specified.
@@ -1178,9 +1082,12 @@ namespace
     < 
       S< TS... >, P,
       warp::type_sequence< US... >, warp::type_sequence< VS... >
-    > :
-    test_type_sequence_traits< S< TS... > >
+    >
     {
+      static_assert( warp::meta_sequence_traits< S< TS... > >::is_type_sequence,
+                     "Invalid type used. Only type sequence types are "
+                     "allowed." );
+
       /**
        * \brief Exposes the sequence as is as it is empty
        */
@@ -1211,10 +1118,18 @@ namespace
       <
         S< T, TS... >, P,
         warp::type_sequence< US... >, warp::type_sequence< VS... >
-      > :
-    test_type_sequence_traits< S< T, TS... > >,
-    test_type_sequence_predicate_traits< P< T, US... > >
+      >
     {
+      static_assert( warp::meta_sequence_traits< S< T, TS... > >::
+                       is_type_sequence,
+                     "Invalid type used. Only type sequence types are "
+                     "allowed." );
+
+      static_assert( warp::meta_predicate_traits< P< T, US... > >::
+                       is_type_sequence_predicate,
+                     "Invalid type used. Only type sequence predicates are "
+                     "allowed." );
+
       /**
        * \brief Using a predicate template instance and conditional type
        * deduction. Recursive search if T doesn't match the predicate value
@@ -1241,8 +1156,13 @@ namespace
    * sequence signature
    */
   template< class T, template< class U, U, class... > class, class... >
-    struct remove_first_in_integral_sequence_impl :
-    test_integral_sequence_traits< T > {};
+    struct remove_first_in_integral_sequence_impl
+    {
+      static_assert( warp::meta_sequence_traits< T >::
+                       is_integral_sequence,
+                     "Invalid type used. Only integral sequence types are "
+                     "allowed." );
+    };
 
   /**
    * \brief Specialized version working with empty integral sequence specified.
@@ -1266,9 +1186,13 @@ namespace
     <
       S< U, VS... >, P,
       warp::type_sequence< US... >, warp::integral_sequence< Q, WS... >
-    > :
-    test_integral_sequence_traits< S< U, VS... > >
+    >
     {
+      static_assert( warp::meta_sequence_traits< S< U, VS... > >::
+                       is_integral_sequence,
+                     "Invalid type used. Only integral sequence types are "
+                     "allowed." );
+
       /**
        * \brief Exposes the sequence as is as it is empty
        */
@@ -1298,10 +1222,18 @@ namespace
     <
       S< U, V, VS... >, P,
       warp::type_sequence< US... >, warp::integral_sequence< Q, WS... >
-    > :
-    test_integral_sequence_traits< S< U, V, VS... > >,
-    test_integral_sequence_predicate_traits< P< U, V, US... > >
+    >
     {
+      static_assert( warp::meta_sequence_traits< S< U, V, VS... > >::
+                       is_integral_sequence,
+                     "Invalid type used. Only integral sequence types are "
+                     "allowed." );
+
+      static_assert( warp::meta_predicate_traits< P< U, V, US... > >::
+                       is_integral_sequence_predicate,
+                     "Invalid type used. Only integral sequence predicates are "
+                     "allowed." );
+
       /**
        * \brief Using a predicate template instance and conditional type
        * deduction. Recursive search if V doesn't match the predicate value
@@ -1328,8 +1260,12 @@ namespace
    * signature
    */
   template< class T, template< class, class... > class, class... >
-    struct remove_all_in_type_sequence_impl :
-    test_type_sequence_traits< T > {};
+    struct remove_all_in_type_sequence_impl
+    {
+      static_assert( warp::meta_sequence_traits< T >::is_type_sequence,
+                     "Invalid type used. Only type sequence types are "
+                     "allowed." );
+    };
 
   /**
    * \brief Specialized version working with empty type sequence specified.
@@ -1352,9 +1288,12 @@ namespace
     <
       S< TS... >, P,
       warp::type_sequence< US... >, warp::type_sequence< WS... >
-    > :
-    test_type_sequence_traits< S< TS... > >
+    >
     {
+      static_assert( warp::meta_sequence_traits< S< TS... > >::is_type_sequence,
+                     "Invalid type used. Only type sequence types are "
+                     "allowed." );
+
       /**
        * \brief Exposes the sequence made of type inside the variadic pump as
        * S< TS... > is empty
@@ -1386,10 +1325,18 @@ namespace
       S< T, TS... >, P,
       warp::type_sequence< US... >,
       warp::type_sequence< WS... >
-    > :
-    test_type_sequence_traits< S< T, TS... > >,
-    test_type_sequence_predicate_traits< P< T, US... > >
+    >
     {
+      static_assert( warp::meta_sequence_traits< S< T, TS... > >::
+                       is_type_sequence,
+                     "Invalid type used. Only type sequence types are "
+                     "allowed." );
+
+      static_assert( warp::meta_predicate_traits< P< T, US... > >::
+                       is_type_sequence_predicate,
+                     "Invalid type used. Only type sequence predicates are "
+                     "allowed." );
+
       /**
        * \brief Using a predicate template instance and conditional type
        * deduction. Recursive search until the original sequence observed is
@@ -1424,8 +1371,13 @@ namespace
    * sequence signature
    */
   template< class T, template< class U, U, class... > class, class... >
-    struct remove_all_in_integral_sequence_impl :
-    test_integral_sequence_traits< T > {};
+    struct remove_all_in_integral_sequence_impl
+    {
+      static_assert( warp::meta_sequence_traits< T >::
+                       is_integral_sequence,
+                     "Invalid type used. Only integral sequence types are "
+                     "allowed." );
+    };
 
   /**
    * \brief Specialized version working with empty integral sequence specified.
@@ -1450,9 +1402,13 @@ namespace
     <
       S< U, VS... >, P,
       warp::type_sequence< TS... >, warp::integral_sequence< Q, WS... >
-    > :
-    test_integral_sequence_traits< S< U, VS... > >
+    >
     {
+      static_assert( warp::meta_sequence_traits< S< U, VS... > >::
+                       is_integral_sequence,
+                     "Invalid type used. Only integral sequence types are "
+                     "allowed." );
+
       /**
        * \brief Exposes the sequence made of integral inside the variadic pump
        * as S< U, VS... > is empty
@@ -1484,10 +1440,18 @@ namespace
     <
       S< U, V, VS... >, P,
       warp::type_sequence< TS... >, warp::integral_sequence< Q, WS... >
-    > :
-    test_integral_sequence_traits< S< U, V, VS... > >,
-    test_integral_sequence_predicate_traits< P< U, V, TS... > >
+    >
     {
+      static_assert( warp::meta_sequence_traits< S< U, V, VS... > >::
+                       is_integral_sequence,
+                     "Invalid type used. Only integral sequence types are "
+                     "allowed." );
+
+      static_assert( warp::meta_predicate_traits< P< U, V, TS... > >::
+                       is_integral_sequence_predicate,
+                     "Invalid type used. Only integral sequence predicates are "
+                     "allowed." );
+
       /**
        * \brief Using a predicate template instance and conditional integral
        * deduction. Recursive search until the original sequence observed is
@@ -1525,8 +1489,12 @@ namespace
    */
   template
     < class T, template< class, class... > class, class... >
-    struct sort_type_sequence_impl :
-    test_type_sequence_traits< T > {};
+    struct sort_type_sequence_impl
+    {
+      static_assert( warp::meta_sequence_traits< T >::is_type_sequence,
+                     "Invalid type used. Only type sequence types are "
+                     "allowed." );
+    };
 
   /**
    * \brief Specialization working with an empty type sequence. Just test traits
@@ -1542,9 +1510,12 @@ namespace
       template< class... > class S,
       template< class, class... > class P, class... TS
     >
-    struct sort_type_sequence_impl< S<>, P, TS... > :
-    test_type_sequence_traits< S<> >
+    struct sort_type_sequence_impl< S<>, P, TS... >
     {
+      static_assert( warp::meta_sequence_traits< S<> >::is_type_sequence,
+                     "Invalid type used. Only type sequence types are "
+                     "allowed." );
+
       /**
        * \brief Exposes the empty sequence as is
        */
@@ -1565,9 +1536,12 @@ namespace
       template< class... > class S, class T,
       template< class, class... > class P, class... TS
     >
-    struct sort_type_sequence_impl< S< T >, P, TS... > :
-    test_type_sequence_traits< S< T > >
+    struct sort_type_sequence_impl< S< T >, P, TS... >
     {
+      static_assert( warp::meta_sequence_traits< S< T > >::is_type_sequence,
+                     "Invalid type used. Only type sequence types are "
+                     "allowed." );
+
       /**
        * \brief Nothing to do there is only one element in the sequence.
        */
@@ -1591,10 +1565,18 @@ namespace
       template< class... > class S, class T, class U, class... TS,
       template< class, class... > class P, class... US
     >
-    struct sort_type_sequence_impl< S< T, U, TS... >, P, US... > :
-    test_type_sequence_traits< S< T, U, TS... > >,
-    test_type_sequence_predicate_traits< P< T, U, US... > >
+    struct sort_type_sequence_impl< S< T, U, TS... >, P, US... >
     {
+      static_assert( warp::meta_sequence_traits< S< T, U, TS... > >::
+                       is_type_sequence,
+                     "Invalid type used. Only type sequence types are "
+                     "allowed." );
+
+      static_assert( warp::meta_predicate_traits< P< T, U, US... > >::
+                       is_type_sequence_predicate,
+                     "Invalid type used. Only type sequence predicates are "
+                     "allowed." );
+
       /**
        * \brief The sorter template is the one that will perform the sort
        * operation several times. It will sort using the bubble sort algorithm.
@@ -1645,9 +1627,7 @@ namespace
           S_< T_, U_, TS_... >,
           P_,
           warp::type_sequence< US_... >, warp::type_sequence< VS_... >
-        > :
-        test_type_sequence_traits< S_< T_, U_, TS_... > >,
-        test_type_sequence_predicate_traits< P< T_, U_, US_... > >
+        >
         {
           /**
            * \brief Use the predicate and build the next input sequence to be
@@ -1722,9 +1702,7 @@ namespace
           S_< T_, U_ >,
           P_,
           warp::type_sequence< US_... >, warp::type_sequence< VS_... >
-        > :
-        test_type_sequence_traits< S_< T_, U_ > >,
-        test_type_sequence_predicate_traits< P< T_, U_, US_... > >
+        >
         {
           /**
            * \brief First, sort the 2 element and add them to the sorted
@@ -1784,8 +1762,7 @@ namespace
           S_< T_, U_, TS_... >,
           P_,
           warp::type_sequence< US_... >, warp::type_sequence<>
-        > :
-        test_type_sequence_traits< S< T_, U_, TS_... > >
+        >
         {
           /**
            * \brief Exposes the sorted sequence, using the sequence template
@@ -1822,8 +1799,13 @@ namespace
    */
   template
     < class T, template< class U, U, class... > class, class... >
-    struct sort_integral_sequence_impl :
-    test_integral_sequence_traits< T > {};
+    struct sort_integral_sequence_impl
+    {
+      static_assert( warp::meta_sequence_traits< T >::
+                       is_integral_sequence,
+                     "Invalid type used. Only integral sequence types are "
+                     "allowed." );
+    };
 
   /**
    * \brief Specialization working with an empty integral sequence. Just test
@@ -1840,9 +1822,13 @@ namespace
       template< class T, T... > class S, class U, U... VS,
       template< class V, V, class... > class P, class... TS
     >
-    struct sort_integral_sequence_impl< S< U, VS... >, P, TS... > :
-    test_integral_sequence_traits< S< U, VS... > >
+    struct sort_integral_sequence_impl< S< U, VS... >, P, TS... >
     {
+      static_assert( warp::meta_sequence_traits< S< U, VS... > >::
+                       is_integral_sequence,
+                     "Invalid type used. Only integral sequence types are "
+                     "allowed." );
+
       /**
        * \brief Exposes the empty sequence as is
        */
@@ -1864,9 +1850,13 @@ namespace
       template< class T, T... > class S, class U, U V,
       template< class W, W, class... > class P, class... TS
     >
-    struct sort_integral_sequence_impl< S< U, V >, P, TS... > :
-    test_integral_sequence_traits< S< U, V > >
+    struct sort_integral_sequence_impl< S< U, V >, P, TS... >
     {
+      static_assert( warp::meta_sequence_traits< S< U, V > >::
+                       is_integral_sequence,
+                     "Invalid type used. Only integral sequence types are "
+                     "allowed." );
+
       /**
        * \brief Nothing to do there is only one element in the sequence.
        */
@@ -1891,10 +1881,18 @@ namespace
       template< class T, T... > class S, class U, U V, U W, U... VS,
       template< class X, X, class... > class P, class... TS
     >
-    struct sort_integral_sequence_impl< S< U, V, W, VS... >, P, TS... > :
-    test_integral_sequence_traits< S< U, V, W, VS... > >,
-    test_integral_sequence_predicate_traits< P< U, V, TS... > >
+    struct sort_integral_sequence_impl< S< U, V, W, VS... >, P, TS... >
     {
+      static_assert( warp::meta_sequence_traits< S< U, V, W, VS... > >::
+                       is_integral_sequence,
+                     "Invalid type used. Only integral sequence types are "
+                     "allowed." );
+
+      static_assert( warp::meta_predicate_traits< P< U, V, TS... > >::
+                       is_integral_sequence_predicate,
+                     "Invalid type used. Only integral sequence predicates are "
+                     "allowed." );
+
       /**
        * \brief The sorter template is the one that will perform the sort
        * operation several times. It will sort using the bubble sort algorithm.
@@ -1949,9 +1947,7 @@ namespace
           S_< U_, V_, W_, VS_... >,
           P_,
           warp::type_sequence< US_... >, warp::integral_sequence< U_, WS_... >
-        > :
-        test_integral_sequence_traits< S_< U_, V_, W_, VS_... > >,
-        test_integral_sequence_predicate_traits< P< U_, V_, US_... > >
+        >
         {
           /**
            * \brief Create a pure value type as it is a standard way to act for
@@ -2036,9 +2032,7 @@ namespace
           S_< U_, V_, W_ >,
           P_,
           warp::type_sequence< TS_... >, warp::integral_sequence< U_, VS_... >
-        > :
-        test_integral_sequence_traits< S_< U_, V_, W_ > >,
-        test_integral_sequence_predicate_traits< P< U_, V_, TS_... > >
+        >
         {
           /**
            * \brief Create a pure value type as it is a standard way to act for
@@ -2105,8 +2099,7 @@ namespace
           S_< U_, V_, W_, VS_... >,
           P_,
           warp::type_sequence< TS_... >, warp::integral_sequence< U_ >
-        > :
-        test_integral_sequence_traits< S< U_, V_, W_, VS_... > >
+        >
         {
           /**
            * \brief Exposes the sorted sequence, using the sequence template
@@ -2140,8 +2133,12 @@ namespace
    * \tparam T Any type but a valid type sequence
    */
   template< class S, template< class, class... > class, class, class, class >
-    struct partition_type_sequence_impl :
-    test_type_sequence_traits< S > {};
+    struct partition_type_sequence_impl
+    {
+      static_assert( warp::meta_sequence_traits< S >::is_type_sequence,
+                     "Invalid type used. Only type sequence types are "
+                     "allowed." );
+    };
 
   /**
    * \brief Specialization used with a valid type sequence that is empty. Check
@@ -2164,9 +2161,12 @@ namespace
     <
       S< TS... >, P, warp::type_sequence< US... >,
       warp::type_sequence< VS... >, warp::type_sequence< WS... >
-    > :
-    test_type_sequence_traits< S< TS... > >
+    >
     {
+      static_assert( warp::meta_sequence_traits< S< TS... > >::is_type_sequence,
+                     "Invalid type used. Only type sequence types are "
+                     "allowed." );
+
       /**
        * \brief The type sequence is empty, either provided by the user or
        * emptied by a recursive process. Exposes a type sequence containing
@@ -2198,10 +2198,18 @@ namespace
     <
       S< T, TS... >, P, warp::type_sequence< US... >,
       warp::type_sequence< VS... >, warp::type_sequence< WS... >
-    > :
-    test_type_sequence_traits< S< T, TS... > >,
-    test_type_sequence_predicate_traits< P< T, US... > >
+    >
     {
+      static_assert( warp::meta_sequence_traits< S< T, TS... > >::
+                       is_type_sequence,
+                     "Invalid type used. Only type sequence types are "
+                     "allowed." );
+
+      static_assert( warp::meta_predicate_traits< P< T, US... > >::
+                       is_type_sequence_predicate,
+                     "Invalid type used. Only type sequence predicates are "
+                     "allowed." );
+
       /**
        * \brief Exposes a type that is conditionally determined regarding the
        * predicate result with the first type of the sequence
@@ -2233,8 +2241,13 @@ namespace
    */
   template
     < class T, template< class U, U, class... > class, class, class, class >
-    struct partition_integral_sequence_impl :
-    test_integral_sequence_traits< T > {};
+    struct partition_integral_sequence_impl
+    {
+      static_assert( warp::meta_sequence_traits< T >::
+                       is_integral_sequence,
+                     "Invalid type used. Only integral sequence types are "
+                     "allowed." );
+    };
 
   /**
    * \brief Specialized version working with an integral sequence that is empty.
@@ -2261,9 +2274,13 @@ namespace
     <
       S< U, VS... >, P, warp::type_sequence< TS... >,
       warp::integral_sequence< V, WS... >, warp::integral_sequence< V, XS... >
-    > :
-    test_integral_sequence_traits< S< U, VS... > >
+    >
     {
+      static_assert( warp::meta_sequence_traits< S< U, VS... > >::
+                       is_integral_sequence,
+                     "Invalid type used. Only integral sequence types are "
+                     "allowed." );
+
       /**
        * \brief Empty sequence provided, concatenate partitionned values, first
        * those matching the predicate, then those that don't match; preserve
@@ -2299,10 +2316,18 @@ namespace
     <
       S< U, V, VS... >, P, warp::type_sequence< TS... >,
       warp::integral_sequence< X, WS... >, warp::integral_sequence< X, XS... >
-    > :
-    test_integral_sequence_traits< S< U, V, VS... > >,
-    test_integral_sequence_predicate_traits< P< U, V, TS... > >
+    >
     {
+      static_assert( warp::meta_sequence_traits< S< U, V, VS... > >::
+                       is_integral_sequence,
+                     "Invalid type used. Only integral sequence types are "
+                     "allowed." );
+
+      static_assert( warp::meta_predicate_traits< P< U, V, TS... > >::
+                       is_integral_sequence_predicate,
+                     "Invalid type used. Only integral sequence predicates are "
+                     "allowed." );
+
       /**
        * \brief Recursively exposes the sequence, partially partitionned
        * regarding the predicate matching for V
@@ -2498,9 +2523,12 @@ namespace
    * \tparam T any type but a valid meta sequence type
    */
   template< class T >
-    struct unique_on_impl :
-    // gives an understandable compile time error message
-    test_meta_sequence_traits< T > {};
+    struct unique_on_impl
+    {
+      static_assert( warp::meta_sequence_traits< T >::is_meta_sequence,
+                     "Invalid type used. Only meta sequence types are "
+                     "allowed." );
+    };
 
   /**
    * \brief Specialization working with a type sequence. Forward to a more
@@ -2510,10 +2538,12 @@ namespace
    * \tparam TS... type pack used in the type sequence
    */
   template< template< class... > class S, class... TS >
-    struct unique_on_impl< S< TS... > > :
-    // testing if the specified type sequence is valid
-    test_type_sequence_traits< S< TS... > >
+    struct unique_on_impl< S< TS... > >
     {
+      static_assert( warp::meta_sequence_traits< S< TS... > >::is_type_sequence,
+                     "Invalid type used. Only type sequence types are "
+                     "allowed." );
+
       /**
        * \brief Relies on a more specific feature, passing an empty  variadic
        * pump
@@ -2532,10 +2562,13 @@ namespace
    * \tparam VS... integral pack used in the integral sequence
    */
   template< template< class T, T... > class S, class U, U... VS >
-    struct unique_on_impl< S< U, VS... > > :
-    // testing if the specified integral sequence is valid
-    test_integral_sequence_traits< S< U, VS... > >
+    struct unique_on_impl< S< U, VS... > >
     {
+      static_assert( warp::meta_sequence_traits< S< U, VS... > >::
+                       is_integral_sequence,
+                     "Invalid type used. Only integral sequence types are "
+                     "allowed." );
+
       /**
        * \brief Relies on a more specific feature, passing an empty  variadic
        * pump
@@ -2573,10 +2606,13 @@ namespace
       std::size_t C, template< class T, T... > class S, class U, U... VS,
       template< class... > class G, class... TS
     >
-    struct generate_integral_sequence_impl< C, S< U, VS... >, G< TS... > > :
-    // checks the generator validity. Issues an error at compile time if invalid
-    test_integral_sequence_generator_traits< G< TS... > >
+    struct generate_integral_sequence_impl< C, S< U, VS... >, G< TS... > >
     {
+      static_assert( warp::meta_generator_traits< G< TS... > >::
+                       is_integral_sequence_generator,
+                     "Invalid type used. Only integral sequence generators are "
+                     "allowed." );
+
       /**
        * \brief Alias on the instantiation of the generator
        */
@@ -2620,10 +2656,13 @@ namespace
       template< class T, T... > class S, class U, U... VS,
       template< class... > class G, class... TS
     >
-    struct generate_integral_sequence_impl< 0, S< U, VS... >, G< TS... > > :
-    // checks the generator validity. Issues an error at compile time if invalid
-    test_integral_sequence_generator_traits< G< TS... > >
+    struct generate_integral_sequence_impl< 0, S< U, VS... >, G< TS... > >
     {
+      static_assert( warp::meta_generator_traits< G< TS... > >::
+                       is_integral_sequence_generator,
+                     "Invalid type used. Only integral sequence generators are "
+                     "allowed." );
+
       /**
        * \brief Siply exposes the sequence
        */
@@ -2637,8 +2676,13 @@ namespace
    * \tparam B type containing a char buffer
    */
   template< class S, class B >
-    struct append_char_buffer_in_impl :
-    test_integral_sequence_traits< S > {};
+    struct append_char_buffer_in_impl
+    {
+      static_assert( warp::meta_sequence_traits< S >::
+                       is_integral_sequence,
+                     "Invalid type used. Only integral sequence types are "
+                     "allowed." );
+    };
 
   /**
    * \brief Dispatcher used after all checks have been made on the specified
@@ -2848,10 +2892,18 @@ namespace
       template< class T, T... > class S, class U, U... VS,
       class B
     >
-    struct append_char_buffer_in_impl< S< U, VS... >, B > :
-    test_integral_sequence_traits< S< U, VS... > >,
-    test_char_buffer_traits< B >
+    struct append_char_buffer_in_impl< S< U, VS... >, B >
     {
+      static_assert( warp::meta_sequence_traits< S< U, VS... > >::
+                       is_integral_sequence,
+                     "Invalid type used. Only integral sequence types are "
+                     "allowed." );
+
+      static_assert( warp::meta_sequence_operands_traits< B >::
+                       is_char_buffer_value_type,
+                     "Invalid type used. Only integral sequence types are "
+                     "allowed." );
+
       /**
        * \brief Using an internal feature, dispatching the work regarding the
        * type of value that could be a static member or a static method.
@@ -2979,8 +3031,12 @@ namespace
    * \tparam TS type pack used as functor arguments
    */
   template< class S, template< class, class... > class F, class... TS >
-    struct for_each_type_in_impl :
-    test_type_sequence_traits< S > {};
+    struct for_each_type_in_impl
+    {
+      static_assert( warp::meta_sequence_traits< S >::is_type_sequence,
+                     "Invalid type used. Only type sequence types are "
+                     "allowed." );
+    };
 
   /**
    * \brief Specialization of the for each feature for type sequence that is
@@ -2998,9 +3054,17 @@ namespace
       template< class... > class S,
       template< class, class... > class F, class... US
     >
-    struct for_each_type_in_impl< S<>, F, US... > :
-    test_type_sequence_traits< S<> >,
-    test_non_empty_sequence< S<> > {};
+    struct for_each_type_in_impl< S<>, F, US... >
+    {
+      static_assert( warp::meta_sequence_traits< S<> >::is_type_sequence,
+                     "Invalid type used. Only type sequence types are "
+                     "allowed." );
+
+      static_assert( ! warp::meta_sequence_traits< S<> >::is_empty,
+                     "Invalid type used. Only non empty type sequence types "
+                     "are allowed."
+                     );
+    };
 
   /**
    * \brief Specialization triggered when used with a type sequence containing
@@ -3017,11 +3081,18 @@ namespace
       template< class... > class S, class T, class... TS,
       template< class, class... > class F, class... US
     >
-    struct for_each_type_in_impl< S< T, TS... >, F, US... > :
-    test_type_sequence_traits< S< T, TS... > >,
-    // functor internal structure will be used, check it
-    test_type_sequence_functor_traits< F< T, US... > >
+    struct for_each_type_in_impl< S< T, TS... >, F, US... >
     {
+      static_assert( warp::meta_sequence_traits< S< T, TS... > >::
+                       is_type_sequence,
+                     "Invalid type used. Only type sequence types are "
+                     "allowed." );
+
+      static_assert( warp::meta_functor_traits< F< T, US... > >::
+                       is_type_sequence_functor,
+                     "Invalid type used. Only type sequence functors are "
+                     "allowed." );
+
       /**
        * \brief instantiate the functor template with the currently explored
        * type.
@@ -3045,8 +3116,13 @@ namespace
    * \tparam TS integral pack used as functor arguments
    */
   template< class S, template< class T, T V, class... > class F, class... TS >
-    struct for_each_value_in_impl :
-    test_integral_sequence_traits< S > {};
+    struct for_each_value_in_impl
+    {
+      static_assert( warp::meta_sequence_traits< S >::
+                       is_integral_sequence,
+                     "Invalid type used. Only integral sequence types are "
+                     "allowed." );
+    };
 
   /**
    * \brief Specialization of the for each feature for integral sequence that is
@@ -3065,9 +3141,18 @@ namespace
       template< class T, T...VS > class S, class U,
       template< class V, V, class... > class F, class... TS
     >
-    struct for_each_value_in_impl< S< U >, F, TS... > :
-    test_integral_sequence_traits< S< U > >,
-    test_non_empty_sequence< S< U > > {};
+    struct for_each_value_in_impl< S< U >, F, TS... >
+    {
+      static_assert( warp::meta_sequence_traits< S< U > >::
+                       is_integral_sequence,
+                     "Invalid type used. Only integral sequence types are "
+                     "allowed." );
+
+      static_assert( warp::meta_sequence_traits< S< U > >::
+                       is_empty,
+                     "Invalid type used. Only non empty integral sequence "
+                     "types are allowed.");
+    };
 
   /**
    * \brief Specialization triggered when used with an integral sequence
@@ -3085,11 +3170,18 @@ namespace
       template< class T, T...VS > class S, class U, U V, U... VS,
       template< class W, W, class... > class F, class... TS
     >
-    struct for_each_value_in_impl< S< U, V, VS... >, F, TS... > :
-    test_integral_sequence_traits< S< U, V, VS... > >,
-    // functor internal structure will be used, check it
-    test_integral_sequence_functor_traits< F< U, V, TS... > >
+    struct for_each_value_in_impl< S< U, V, VS... >, F, TS... >
     {
+      static_assert( warp::meta_sequence_traits< S< U, V, VS... > >::
+                       is_integral_sequence,
+                     "Invalid type used. Only integral sequence types are "
+                     "allowed." );
+
+      static_assert( warp::meta_functor_traits< F< U, V, TS... > >::
+                       is_integral_sequence_functor,
+                     "Invalid type used. Only integral sequence functors are "
+                     "allowed." );
+
       /**
        * \brief instantiate the functor template with the currently explored
        * value.
@@ -3114,8 +3206,13 @@ namespace
    * sequence.
    */
 template< class T, class... B >
-    struct runtime_access_for_impl :
-    test_meta_sequence_traits< T > {};
+    struct runtime_access_for_impl
+    {
+      static_assert( warp::meta_sequence_traits< T >::
+                       is_meta_sequence,
+                     "Invalid type used. Only meta sequence types are "
+                     "allowed." );
+    };
 
   /**
    * \brief Specialization dealing with an integral sequence. It exposes an
@@ -3127,9 +3224,13 @@ template< class T, class... B >
    * \tparam VS the integral pack used in the integral sequence
    */
   template< template< class T, T... > class S, class U, U... VS >
-    struct runtime_access_for_impl< S< U, VS... > > :
-    test_integral_sequence_traits< S< U, VS... > >
+    struct runtime_access_for_impl< S< U, VS... > >
     {
+      static_assert( warp::meta_sequence_traits< S< U, VS... > >::
+                       is_integral_sequence,
+                     "Invalid type used. Only integral sequence types are "
+                     "allowed." );
+
       /**
        * \brief this type embbeds a std::array constant instance containing all
        * values within the sequence at construction
@@ -4007,9 +4108,12 @@ template< class T, class... B >
    * contained in the type sequence.
    */
   template< template< class... > class S, class... TS, class B >
-    struct runtime_access_for_impl< S< TS... >, B > :
-    test_type_sequence_traits< S< TS... > >
+    struct runtime_access_for_impl< S< TS... >, B >
     {
+      static_assert( warp::meta_sequence_traits< S< TS... > >::is_type_sequence,
+                     "Invalid type used. Only type sequence types are "
+                     "allowed." );
+
       /**
        * \brief Exposes the container type, containing a default instance for
        * each type in the sequence, specifying the base type to use
@@ -4042,15 +4146,22 @@ template< class T, class... B >
       template< class LT, LT... > class LS, class LU, LU... LV,
       template< class RT, RT... > class RS, class RU, RU... RV
     >
-    struct merge_sequence_impl< LS< LU, LV... >, RS< RU, RV... > > :
-    test_integral_sequence_traits< LS< LU, LV... > >,
-    test_integral_sequence_traits< RS< RU, RV... > >,
-    std::enable_if_t
-      <
-        std::is_same< LU, RU >::value,
-        invalid_integral_sequence_merging
-      >
+    struct merge_sequence_impl< LS< LU, LV... >, RS< RU, RV... > >
     {
+      static_assert( warp::meta_sequence_traits< LS< LU, LV... > >::
+                       is_integral_sequence,
+                     "Invalid type used. Only integral sequence types are "
+                     "allowed." );
+
+      static_assert( warp::meta_sequence_traits< RS< RU, RV... > >::
+                       is_integral_sequence,
+                     "Invalid type used. Only integral sequence types are "
+                     "allowed." );
+
+      static_assert( std::is_same< LU, RU >::value,
+                     "Invalid integral sequences specified for a merge. "
+                     "Integral type used must be the same." );
+
       /**
        * \brief Merging means take elements of the left sequence and add element
        * of the right sequence, then expose the resulting sequence using the
@@ -4073,10 +4184,18 @@ template< class T, class... B >
       template< class... > class LS, class... LT,
       template< class... > class RS, class... RT
     >
-    struct merge_sequence_impl< LS< LT... >, RS< RT... > > :
-    test_type_sequence_traits< LS< LT... > >,
-    test_type_sequence_traits< RS< RT... > >
+    struct merge_sequence_impl< LS< LT... >, RS< RT... > >
     {
+      static_assert( warp::meta_sequence_traits< LS< LT... > >::
+                       is_type_sequence,
+                     "Invalid type used. Only type sequence types are "
+                     "allowed." );
+
+      static_assert( warp::meta_sequence_traits< RS< RT... > >::
+                       is_type_sequence,
+                     "Invalid type used. Only type sequence types are "
+                     "allowed." );
+
       /**
        * \brief Merging means take elements of the left sequence and add element
        * of the right sequence, then expose the resulting sequence using the
@@ -5007,8 +5126,7 @@ namespace warp
    * \tparam V the value to push
    */
   template< class T, class U, U V >
-    struct push_back_on< T, U, V > :
-    push_back_on_impl< T, U, V >
+    struct push_back_on< T, U, V >
     {
       /**
        * \brief Exposed the result, computed in a hidden type
@@ -5023,8 +5141,7 @@ namespace warp
    * \tparam U the type to push
    */
   template< class T, class U >
-    struct push_back_on< T, U > :
-    push_back_on_impl< T, U >
+    struct push_back_on< T, U >
     {
       /**
        * \brief Exposed the result, computed in a hidden type
@@ -5060,8 +5177,7 @@ namespace warp
    * \tparam V the value to push
    */
   template< class T, class U, U V >
-    struct push_front_on< T, U, V > :
-    push_front_on_impl< T, U, V >
+    struct push_front_on< T, U, V >
     {
       /**
        * \brief Exposed the result, computed in a hidden type
@@ -5076,8 +5192,7 @@ namespace warp
    * \tparam U the type to push
    */
   template< class T, class U >
-    struct push_front_on< T, U > :
-    push_front_on_impl< T, U >
+    struct push_front_on< T, U >
     {
       /**
        * \brief Exposed the result, computed in a hidden type
@@ -5099,8 +5214,13 @@ namespace warp
    * \tparam T the type that must be a meta_sequence
    */
   template< class T >
-    struct pop_front_on :
-    test_meta_sequence_traits< T > {};
+    struct pop_front_on
+    {
+      static_assert( warp::meta_sequence_traits< T >::
+                       is_meta_sequence,
+                     "Invalid type used. Only meta sequence types are "
+                     "allowed." );
+    };
 
   /**
    * \brief Specialization working well with a type sequence. Calculations and
@@ -5110,8 +5230,7 @@ namespace warp
    * \tparam TS type pack used in the type sequence
    */
   template< template< class... > class S, class... TS >
-    struct pop_front_on< S< TS... > > :
-      pop_front_on_impl< S< TS... > >
+    struct pop_front_on< S< TS... > >
     {
       /**
        * \brief Rely on hidden implementation to get it
@@ -5133,8 +5252,7 @@ namespace warp
    * \tparam VS value pack used in the integral sequence
    */
   template< template< class T, T... > class S, class U, U... VS >
-    struct pop_front_on< S< U, VS... > > :
-    pop_front_on_impl< S< U, VS... > >
+    struct pop_front_on< S< U, VS... > >
     {
       /**
        * \brief Rely on hidden implementation to get it
@@ -5173,9 +5291,13 @@ namespace warp
    * \tparam T the type that must be a meta_sequence
    */
   template< class T >
-    struct pop_back_on :
-    // testing meta_sequence traits
-    test_meta_sequence_traits< T > {};
+    struct pop_back_on
+    {
+      static_assert( warp::meta_sequence_traits< T >::
+                       is_meta_sequence,
+                     "Invalid type used. Only meta sequence types are "
+                     "allowed." );
+    };
 
   /**
    * \brief Specialization working well with a type sequence. Calculations and
@@ -5185,8 +5307,7 @@ namespace warp
    * \tparam TS type pack used in the type sequence
    */
   template< template< class... > class S, class... TS >
-    struct pop_back_on< S< TS... > > :
-    pop_back_on_impl< S< TS... > >
+    struct pop_back_on< S< TS... > >
     {
       /**
        * \brief Rely on hidden implementation to get it
@@ -5208,8 +5329,7 @@ namespace warp
    * \tparam VS value pack used in the integral sequence
    */
   template< template< class T, T... > class S, class U, U... VS >
-    struct pop_back_on< S< U, VS... > > :
-    pop_back_on_impl< S< U, VS... > >
+    struct pop_back_on< S< U, VS... > >
     {
       /**
        * \brief Rely on hidden implementation to get it
@@ -5247,8 +5367,7 @@ namespace warp
    * \tparam T the type that must be a meta_sequence
    */
   template< class T >
-    struct reverse_on :
-    reverse_on_impl< T >
+    struct reverse_on
     {
       /**
        * \brief Delegates calculation to a hidden implementation
@@ -5274,8 +5393,7 @@ namespace warp
    * \tparam TS type pack used as argument for the predicate template
    */
   template< class T, template< class, class... > class P, class... TS >
-    struct find_first_in_type_sequence :
-    find_first_in_type_sequence_impl< T, P, TS... >
+    struct find_first_in_type_sequence
     {
       /**
        * \brief Relies on a hidden implementation to get a sequence starting by
@@ -5304,8 +5422,7 @@ namespace warp
    * \tparam TS type pack used as argument for the predicate template
    */
   template< class T, template< class U, U, class... > class P, class... TS >
-    struct find_first_in_integral_sequence :
-    find_first_in_integral_sequence_impl< T, P, TS... >
+    struct find_first_in_integral_sequence
     {
       /**
        * \brief Relies on a hidden implementation to get a sequence starting by
@@ -5334,9 +5451,7 @@ namespace warp
    * \tparam TS type pack used as argument for the predicate template
    */
   template< class T, template< class, class... > class P, class... TS >
-    struct find_all_in_type_sequence :
-    find_all_in_type_sequence_impl
-      < T, P, type_sequence< TS... >, type_sequence<> >
+    struct find_all_in_type_sequence
     {
       /**
        * \brief Relies on a hidden implementation to get a sequence full of
@@ -5369,9 +5484,7 @@ namespace warp
    * \tparam TS type pack used as argument for the predicate template
    */
   template< class T, template< class U, U, class... > class P, class... TS >
-    struct find_all_in_integral_sequence :
-    find_all_in_integral_sequence_impl
-      < T, P, type_sequence< TS... >, integral_sequence< int > >
+    struct find_all_in_integral_sequence
     {
       /**
        * \brief Relies on a hidden implementation to get a sequence filled with
@@ -5405,8 +5518,7 @@ namespace warp
    * \tparam T the sequence to check
    */
   template< class T >
-    struct is_empty_sequence :
-    is_empty_sequence_impl< T >
+    struct is_empty_sequence
     {
       /**
        * \brief Value exposed relies on an hidden implementation
@@ -5424,9 +5536,7 @@ namespace warp
    * \tparam TS type pack used as argument for the predicate template
    */
   template< class T, template< class, class... > class P, class... TS >
-    struct remove_first_in_type_sequence :
-    remove_first_in_type_sequence_impl
-    < T, P, type_sequence< TS... >, type_sequence<> >
+    struct remove_first_in_type_sequence
     {
       /**
        * \brief Relies on a hidden implementation to get a sequence without the
@@ -5456,9 +5566,7 @@ namespace warp
    * \tparam TS type pack used as argument for the predicate template
    */
   template< class T, template< class U, U, class... > class P, class... TS >
-    struct remove_first_in_integral_sequence :
-    remove_first_in_integral_sequence_impl
-    < T, P, type_sequence< TS... >, integral_sequence< int > >
+    struct remove_first_in_integral_sequence
     {
       /**
        * \brief Relies on a hidden implementation to get a sequence without the
@@ -5488,9 +5596,7 @@ namespace warp
    * \tparam TS type pack used as argument for the predicate template
    */
   template< class T, template< class, class... > class P, class... TS >
-    struct remove_all_in_type_sequence :
-    remove_all_in_type_sequence_impl
-      < T, P, type_sequence< TS... >, type_sequence<> >
+    struct remove_all_in_type_sequence
     {
       /**
        * \brief Relies on a hidden implementation to get a sequence cleared of
@@ -5523,9 +5629,7 @@ namespace warp
    * \tparam TS type pack used as argument for the predicate template
    */
   template< class T, template< class U, U, class... > class P, class... TS >
-    struct remove_all_in_integral_sequence :
-    remove_all_in_integral_sequence_impl
-      < T, P, type_sequence< TS... >, integral_sequence< int > >
+    struct remove_all_in_integral_sequence
     {
       /**
        * \brief Relies on a hidden implementation to get a sequence cleared of
@@ -5557,8 +5661,7 @@ namespace warp
    * \tparam TS type pack used in the predicate
    */
   template< class T, template< class, class... > class P, class... TS >
-    struct sort_type_sequence :
-    sort_type_sequence_impl< T, P, TS... >
+    struct sort_type_sequence
     {
       /**
        * \brief Uses the hidden implementation type exposition
@@ -5586,8 +5689,7 @@ namespace warp
    * \tparam TS type pack used in the predicate
    */
   template< class T, template< class U, U, class... > class P, class... TS >
-    struct sort_integral_sequence :
-    sort_integral_sequence_impl< T, P, TS... >
+    struct sort_integral_sequence
     {
       /**
        * \brief Relies on hidden implementation
@@ -5615,12 +5717,7 @@ namespace warp
    * \tparam TS type pack used as arguments in the predicate
    */
   template< class T, template< class, class... > class P, class... TS >
-    struct partition_type_sequence :
-    partition_type_sequence_impl
-    <
-      T, P, type_sequence< TS... >,
-      type_sequence<>, type_sequence<>
-    >
+    struct partition_type_sequence
     {
       /**
        * \brief relies on a hidden implementation
@@ -5655,12 +5752,7 @@ namespace warp
    * \tparam TS type pack used as arguments in the predicate
    */
   template< class T, template< class U, U, class... > class P, class... TS >
-    struct partition_integral_sequence :
-    partition_integral_sequence_impl
-    <
-      T, P, type_sequence< TS... >,
-      integral_sequence< int >, integral_sequence< int >
-    >
+    struct partition_integral_sequence
     {
       /**
        * \brief Recursively deduce the next partition iteration
@@ -5693,8 +5785,7 @@ namespace warp
    * \tparam T the supposed sequence in which remove duplicated elements
    */
   template< class T >
-    struct unique_on :
-    unique_on_impl< T >
+    struct unique_on
     {
       /**
        * \brief Uses hidden implementation
@@ -5719,9 +5810,7 @@ namespace warp
    * \tparam TS type pack used as parameters for the generator template
    */
   template< std::size_t C, template< class... > class G, class... TS >
-    struct generate_signed_integral_sequence :
-    generate_integral_sequence_impl
-    < C, warp::integral_sequence< signed char >, G< TS... > >
+    struct generate_signed_integral_sequence
     {
       /**
        * \brief relies on the hidden implementation, instantiating the generator
@@ -5789,8 +5878,7 @@ namespace warp
    * \tparam B the value-type containing the char buffer to append
    */
   template< class S, class B >
-    struct append_char_buffer_in :
-    append_char_buffer_in_impl< S, B >
+    struct append_char_buffer_in
     {
       /**
        * \brief Relies-on an hidden feature
@@ -5819,8 +5907,7 @@ namespace warp
    * \tparam TS type pack used as functor arguments
    */
   template< class S, template< class, class... > class F, class... TS >
-    struct for_each_type_in :
-    for_each_type_in_impl< S, F, TS... >
+    struct for_each_type_in
     {
       /**
        * \brief Relies-on an internal hidden implementation for both check and
@@ -5840,8 +5927,7 @@ namespace warp
    * \tparam TS type pack used as functor arguments
    */
   template< class S, template< class T, T, class... > class F, class... TS >
-    struct for_each_value_in :
-    for_each_value_in_impl< S, F, TS... >
+    struct for_each_value_in
     {
       /**
        * \brief Relies-on an internal hidden implementation for both check and
@@ -5885,8 +5971,7 @@ namespace warp
    * sequence.
    */
   template< class T, class... B >
-    struct runtime_access_for :
-    runtime_access_for_impl< T, B... >
+    struct runtime_access_for
     {
       /**
        * \brief Uses an hidden implementation of the feature.
@@ -5915,8 +6000,7 @@ namespace warp
    * \tparam RS right sequence
    */
   template< class LS, class RS >
-    struct merge_sequence :
-    merge_sequence_impl< LS, RS >
+    struct merge_sequence
     {
       /**
        * \brief Uses an hidden implementation of the feature.
