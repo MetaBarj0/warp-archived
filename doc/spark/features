@@ -207,10 +207,15 @@ These are a special beast. First, they are used to escape the meta-meaning of
 other meta-character (including the '`'). Second, they have to be used as pair
 to be effective : each meta-character inside a pair of '`' loose immediately its
 meta-meaning. They can only be used in the right hand side of a symbol
-definition and the opening '`' must be the first character. If not specified at
-first character, the '`' immediately looses its meta-meaning. Using a pair of
-'`' with noting inside is invalid. If you want to escape the '`' character, it
-must be the first character specified right after the opening '`' of the pair.
+definition and the opening '`' must be the first character for an inclusive
+symbol definition. It must be the first character specified after the '-' in the
+case of an exclusive symbol definition. If not specified at first character
+after the '-' meta-character, the '`' immediately looses its meta-meaning (only
+applies when defining an exclusive symbol). Using a pair of '`' with nothing
+inside is invalid. If you want to escape the '`' character, it must be the first
+character specified right after the opening '`' of the pair both for an
+exclusive symbol definition and an inclusive symbol definition (that can only
+take care of an unique letter anyway).
 More examples of usage later.
 
       1.1.2.3°) Defining symbols with macros
@@ -221,14 +226,18 @@ are here to solve these issues.
 
         1.1.2.3.1°) The BASIC_SYMBOLS macro
         -----------------------------------
-This macro is designed to be used as a shortcut to define several inclusive
+This macro is designed to be used as a shortcut to define several INCLUSIVE
 symbols at once. The way it works is simple, it defines as much as symbols
-specified those the name is strictly equal to the letter that is recognized. It
-is good to know that there is some limit in letter used with this method. All
+specified those the name is strictly equal to the letter that is recognized. As
+usula, this statement must be terminated by a ';' meta-character.
+It is good to know that there is some limit in letter used with this method. All
 rules that are in place for symbol names apply on symbol definition with this
 macro. As a result, you cannot use white spaces and the '=' letter with this
 macro as it could lead to attempt to create symbol with a white space or an '='
-name, that is illegal. Here is an example of this macro usage :
+name, that is illegal. Using this macro is also a way to escape the meta-meaning
+of some meta-characters (except '=' and white spaces). As above, the usage of
+this macro is restricted in a symbol definition block.
+Here is an example of this macro usage :
 
 BASIC_SYMBOLS helowrd;
 
@@ -242,5 +251,5 @@ w = w;
 r = r;
 d = d;
 
-I'm sure it won't be hard to convince you that using this macro is helpful hen
+I'm sure it won't be hard to convince you that using this macro is helpful when
 dealing with simple inclusive symbols.
