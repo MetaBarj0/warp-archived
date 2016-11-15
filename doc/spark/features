@@ -6,7 +6,7 @@ First, deal with regular grammar, then with context-free grammars.
 Parsers exposed will be used with generator features, allowing infinite
 transformation of recognized languages. These generator features must be usable
 both with regular grammars and context-free grammars.
-spark is : transcription algorithms, grammars, transcripters.
+spark is : transcription algorithms, grammars, transcriptors.
 spark deals with : user input at compile-time and run-time.
 The goal of spark is provide facilities to transcript user input in user output
 using grammars. Input can either be specified at compile time or run-time.
@@ -33,6 +33,20 @@ accessible to the run time as well (for instance a JSON parser).
       1.1.2.3°) Defining symbols with macros
         1.1.2.3.1°) The BASIC_SYMBOLS macro
     1.1.2°) Writing groups
+      1.1.2.1°) Name resolution lookup
+      1.1.2.2°) Rules to write valid groups
+      1.1.2.3°) Use closure in group definitions
+        1.1.2.3.1°) Unary closures
+          1.1.2.3.1.1°) One to one
+          1.1.2.3.1.2°) One to many
+          1.1.2.3.1.3°) Zero to one
+          1.1.2.3.1.4°) Zero to many
+        1.1.2.3.2°) Binary closures
+          1.1.2.3.2.1°) Concatenation
+          1.1.2.3.2.2°) Alternation
+      1.1.2.4°) Defining groups with macros
+        1.1.2.4.1°) The CONCATENATE_GROUPS macro
+        1.1.2.4.2°) The ALTERNATE_GROUPS macro
   1.2°) Context-free grammars
 2°) Transcriptors
   2.1°) Transcriptors for compile-time
@@ -156,6 +170,8 @@ hand side of the symbol definition begin with a '-' character.
 An exclusive symbol definition can recognize all character but those specified
 after the '-' meta-character, here, this symbol can recognize any letter but 0,
 '1','2','3','4','5','6','7','8' and '9'.
+Note that symbol name must be unique throughout the symbol definitino block.
+Giving the same name to several symbol is invalid.
 
       1.1.2.2°) Meta character for symbol definitions
       -----------------------------------------------
@@ -253,3 +269,6 @@ d = d;
 
 I'm sure it won't be hard to convince you that using this macro is helpful when
 dealing with simple inclusive symbols.
+
+    1.1.2°) Writing groups
+    ----------------------
