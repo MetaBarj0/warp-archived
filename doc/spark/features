@@ -30,6 +30,8 @@ accessible to the run time as well (for instance a JSON parser).
         1.1.2.2.3°) The ';' meta character
         1.1.2.2.4°) The 'white spaces' meta characters
         1.1.2.2.5°) The '`' pairs meta character
+      1.1.2.3°) Defining symbols with macros
+        1.1.2.3.1°) The BASIC_SYMBOLS macro
     1.1.2°) Writing groups
   1.2°) Context-free grammars
 2°) Transcriptors
@@ -142,6 +144,7 @@ Pretty simple isn't it? This line define a symbol named 'a', recognizing the 'a'
 letter. The left hand side of this definition is the symbol name. An equal sign
 define the value of a symbol, the right hand side is the symbol value. The
 finishing semicolon is mandatory and denotes the end of the symbol definition.
+An inclusive symbol definition can only recognize a single letter, here the 'a'.
 
 Below is another example of symbol definition, but, this is an exclusive one
 that is defined here :
@@ -149,10 +152,10 @@ that is defined here :
 no_digit = -0123456789;
 
 Here, the symbol name is 'no_digit'. It is an exclusive symbol because the right
-hand side of the symbol definition begin with a '-' character. Such a character
-is called a meta-character and has a special meaning. The meaning of '-' is "all
-but letters specified after it". The symbol defined above is similar to the
-regular expression class [^0-9].
+hand side of the symbol definition begin with a '-' character.
+An exclusive symbol definition can recognize all character but those specified
+after the '-' meta-character, here, this symbol can recognize any letter but 0,
+'1','2','3','4','5','6','7','8' and '9'.
 
       1.1.2.2°) Meta character for symbol definitions
       -----------------------------------------------
@@ -163,11 +166,81 @@ that one can find in a symbol definition and how they can be used.
 
         1.1.2.2.1°) The '-' meta character
         ----------------------------------
+Allows the definition of exclusive symbols. An exclusive symbol is a symbol that
+recognizes all but letter specified, just like the negative character class of a
+regular expression.
+To obtain its meta-meaning, the '-' symbol must be specified as the first
+character in the right hand-side of the symbol definition. If placed elsewhere
+in the symbol definition, it loses its meta-meaning and is considered as a raw
+'-' character.
+
         1.1.2.2.2°) The '=' meta character
         ----------------------------------
+The assignation meta-character is the link between a symbol name and the letter
+it recognize or letters it doesn't recognize. To obtain its meta-meaning the '='
+character must be placed between the symbol name and the symbol defintion. As a
+result, the '=' character is illegal in a symbol name and subsequent uses of '='
+in the symbol definition are treated just as raws '=' characters.
+
         1.1.2.2.3°) The ';' meta character
         ----------------------------------
+This is the end of symbol definition character. Each symbol definition must be
+terminated by a ';'. Though it is a meta-character, the ';' gains its
+meta-meaning only at the ultimate end of a symbol definition and, as a result,
+can be used in symbol names.
+
         1.1.2.2.4°) The 'white spaces' meta characters
         ----------------------------------------------
+These meta-characters are a bit special as they don't possess a real
+meta-meaning. Therefore, they can be used as separator to enhance the
+readability of symbol definitions. A white space character is either a space
+(' '), an horizontal tab ('\t') or an end of line ('\r', '\n'). Besides being
+used to enance readability of symbol definitions, they also can be used between
+mais grammar definition entities (documentation blocks, symbol and group
+defintion blocks, symbol and group definitions, symbol and group names and their
+definition at right hand side). As a consequence, white space meta-characters
+cannot be used as symbol names.
+
         1.1.2.2.5°) The '`' pairs meta character
         ----------------------------------------
+These are a special beast. First, they are used to escape the meta-meaning of
+other meta-character (including the '`'). Second, they have to be used as pair
+to be effective : each meta-character inside a pair of '`' loose immediately its
+meta-meaning. They can only be used in the right hand side of a symbol
+definition and the opening '`' must be the first character. If not specified at
+first character, the '`' immediately looses its meta-meaning. Using a pair of
+'`' with noting inside is invalid. If you want to escape the '`' character, it
+must be the first character specified right after the opening '`' of the pair.
+More examples of usage later.
+
+      1.1.2.3°) Defining symbols with macros
+      --------------------------------------
+Examples above show how to define symbols with an unitary manner. Defining a lot
+of symbol this way could be cumbersome and error-prone. Symbol definition macros
+are here to solve these issues.
+
+        1.1.2.3.1°) The BASIC_SYMBOLS macro
+        -----------------------------------
+This macro is designed to be used as a shortcut to define several inclusive
+symbols at once. The way it works is simple, it defines as much as symbols
+specified those the name is strictly equal to the letter that is recognized. It
+is good to know that there is some limit in letter used with this method. All
+rules that are in place for symbol names apply on symbol definition with this
+macro. As a result, you cannot use white spaces and the '=' letter with this
+macro as it could lead to attempt to create symbol with a white space or an '='
+name, that is illegal. Here is an example of this macro usage :
+
+BASIC_SYMBOLS helowrd;
+
+The BASIC_SYMBOLS usage above is strictly similar to :
+
+h = h;
+e = e;
+l = l;
+o = o;
+w = w;
+r = r;
+d = d;
+
+I'm sure it won't be hard to convince you that using this macro is helpful hen
+dealing with simple inclusive symbols.
