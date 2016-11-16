@@ -24,7 +24,7 @@ accessible to the run time as well (for instance a JSON parser).
     1.1.1°) Main entities of regular grammar definition string
     1.1.2°) Writing symbols
       1.1.2.1°) Simple symbols, inclusive and exclusive
-      1.1.2.2°) Meta character for symbol definitions
+      1.1.2.2°) Meta-characters for symbol definitions
         1.1.2.2.1°) The '-' meta character
         1.1.2.2.2°) The '=' meta character
         1.1.2.2.3°) The ';' meta character
@@ -32,21 +32,23 @@ accessible to the run time as well (for instance a JSON parser).
         1.1.2.2.5°) The '`' pairs meta character
       1.1.2.3°) Defining symbols with macros
         1.1.2.3.1°) The BASIC_SYMBOLS macro
-    1.1.2°) Writing groups
-      1.1.2.1°) Name resolution lookup
-      1.1.2.2°) Rules to write valid groups
-      1.1.2.3°) Use closure in group definitions
-        1.1.2.3.1°) Unary closures
-          1.1.2.3.1.1°) One to one
-          1.1.2.3.1.2°) One to many
-          1.1.2.3.1.3°) Zero to one
-          1.1.2.3.1.4°) Zero to many
-        1.1.2.3.2°) Binary closures
-          1.1.2.3.2.1°) Concatenation
-          1.1.2.3.2.2°) Alternation
-      1.1.2.4°) Defining groups with macros
-        1.1.2.4.1°) The CONCATENATE_GROUPS macro
-        1.1.2.4.2°) The ALTERNATE_GROUPS macro
+    1.1.3°) Writing groups
+      1.1.3.1°) Rules to write valid groups
+      1.1.3.2°) Use closure in group definitions
+        1.1.3.2.1°) Unary closures
+          1.1.3.2.1.1°) Name resolution lookup
+          1.1.3.2.1.2°) One to one
+          1.1.3.2.1.3°) One to many
+          1.1.3.2.1.4°) Zero to one
+          1.1.3.2.1.5°) Zero to many
+        1.1.3.2.2°) Binary closures
+          1.1.3.2.2.1°) Name resolution lookup
+          1.1.3.2.2.2°) Concatenation
+          1.1.3.2.2.3°) Alternation
+      1.1.3.3°) Meta characters for group definitions
+      1.1.3.4°) Defining groups with macros
+        1.1.3.4.1°) The CONCATENATE_GROUPS macro
+        1.1.3.4.2°) The ALTERNATE_GROUPS macro
   1.2°) Context-free grammars
 2°) Transcriptors
   2.1°) Transcriptors for compile-time
@@ -138,7 +140,8 @@ auto warp_regular_grammar_definition_string =
 
     1.1.2°) Writing symbols
     -----------------------
-This section describes how to write symbol defintions inside a symbol block.
+This section describes how to write symbol defintions inside a symbol definition
+block.
 A symbol is a logical object that can be compared to a single letter (for
 instance a 'b'). A symbol can be a letter or anything but some letters.
 
@@ -173,8 +176,8 @@ after the '-' meta-character, here, this symbol can recognize any letter but 0,
 Note that symbol name must be unique throughout the symbol definitino block.
 Giving the same name to several symbol is invalid.
 
-      1.1.2.2°) Meta character for symbol definitions
-      -----------------------------------------------
+      1.1.2.2°) Meta-characters for symbol definitions
+      ------------------------------------------------
 A meta character for a symbol definition is a character that has a special
 meaning. Such a character cannot be used as is in a symbol definition without
 altering the symbol definition itself. Below is a list of each meta character
@@ -211,7 +214,7 @@ These meta-characters are a bit special as they don't possess a real
 meta-meaning. Therefore, they can be used as separator to enhance the
 readability of symbol definitions. A white space character is either a space
 (' '), an horizontal tab ('\t') or an end of line ('\r', '\n'). Besides being
-used to enance readability of symbol definitions, they also can be used between
+used to enhance readability of symbol definitions, they also can be used between
 mais grammar definition entities (documentation blocks, symbol and group
 defintion blocks, symbol and group definitions, symbol and group names and their
 definition at right hand side). As a consequence, white space meta-characters
@@ -270,5 +273,93 @@ d = d;
 I'm sure it won't be hard to convince you that using this macro is helpful when
 dealing with simple inclusive symbols.
 
-    1.1.2°) Writing groups
+    1.1.3°) Writing groups
     ----------------------
+This section describes how to write group definitions inside a group definition
+block. A group is a logical object on which user can apply a closure. A group is
+made of few things, formerly, a name, a symbol or another group, a closure to
+apply on it. As a group element can be a symbol, it explains why symbols must be
+defined before groups. It doesn't exist several types of group but groups behave
+differently regarding the closure that is applied on it.
+Syntax to write group definitions is quite similar to the symbol definition one.
+It just has been added few new meta-character to represent the closure
+operations that can be applied on groups. However, name resolution lookups are
+made to ensure the validity of group definition thus, the order the user write
+group definitions definitely matters.
+As one of the main entity of the grammar definition, groups are the first class
+citizens of it and, hold a crucial role in a language recognition. Indeed, the
+LAST group that is defined in the group definition block of the grammar is the
+one that recognizes the full language that is input by the user. Sub-sections
+belows present how to build valid group definitions.
+Here is the basic anatomy of one of a the most simple group definition :
+
+group_name = symbol_name ;
++--------- + +---------- +
+|          | |           `->This is the terminal meta-character giving an end to
+|          | |              the group definition.
+|          | `->This is a symbol name used in the group definition statement.
+|          |    A symbol with this name must be defined in the symbol definition
+|          |    block
+|          `->This is the affectation symbol. It is a meta-character with the
+|             same meta-meaning as it has for a symbol definition.
+`->This is the group name. It must be unique througout the group definition
+   block
+
+The group defined above is one of the simple group you can define. It only apply
+a one to one closure on an existing symbol.
+
+      1.1.3.1°) Rules to write valid groups
+      -------------------------------------
+Like as symbol definition, user has to respect a set of rule to ensure writing
+valid group definition.
+First, a group definition can only be written within a group definition block.
+Then, group's name has to respect the same rules as the symbol's name that is :
+- no white space character (' ', '\t', '\n', '\r')
+- no '=' character
+Then, a group name must be followed by an '=' meta-character affecting a group
+definition to the group name (just like a symbol definition).
+Then, the group definition righ hand side statement must be written.
+Finally, a terminal ';' must be written to end the group definition.
+
+      1.1.3.2°) Use closure in group definitions
+      ------------------------------------------
+The main feature that is given to a group is the ability to apply closure on
+either a previously defined symbol or group. These closure could also be called
+quantifiers and are very similar to quantifers used in regular expressions.
+There are two kind of closure :
+- Unary, that apply on a single entity (either a symbol or a group)
+- Binary, that only apply on two entity of group type.
+Thus, using binary in a group definition using a symbol is invalid.
+Hence, rules that must be respected to define a group may change, depending the
+closure type that is used to define the group.
+
+        1.1.3.2.1°) Unary closures
+        --------------------------
+This kind of closure is usable with group using either a symbol or a group as
+operand. It operates on an unique entity, that's why it's called unary.
+Such closures can be represented as quantifier in the regular expression world.
+Below is a description of each closure. As this kind of closure can operate on
+both symbol and group, it dictates how the name lookup works when resolving the
+operand name that can be either a group or a symbol.
+
+          1.1.3.2.1.1°) Name resolution lookup
+          ------------------------------------
+This process is related on how to find the entity targeted by the name specified
+in the group on which the unary closure apply. As unary closure can perform on
+both symbol or group, the name resolution could take place in two ways :
+- if a group is found with the name specified in the group definition, the name
+  resolution lookup is finished and the found group will be used to apply the
+  closure on.
+- otherwise the name resolution lookup does ot find any group, the process is
+  repeated in the symbol definition block. If a symbol is found whith the name
+  specified in the group definition, the name resolution lookup is finished and
+  the found symbol will be used to apply the closure on.
+It is important to note that the name resolution lookup proceed in the order
+specified above : first an attempt to find a group in the group definition block
+is done, then, if no group is found, the name resolution lookup takes place in
+the symbol definition block.
+At the end, if not any entity, either symbol or group is found, the grammar is
+considered as invalid.
+
+          1.1.3.2.1.2°) One to one
+          ------------------------
