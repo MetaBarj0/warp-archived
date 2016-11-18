@@ -363,3 +363,61 @@ considered as invalid.
 
           1.1.3.2.1.2°) One to one
           ------------------------
+This closure is somewhat a no-operation. It is not related to any known regular
+expression quantifier. It can be considered as a '1 factor' for an arithmetic
+expression. As a result, applying this closure on a symbol or a group do...
+well... nothing on particular.
+In a group definition, this closure has no meta-character to represent it. Thus,
+not specifying a closure meta-character for a group definition means to use the
+one-one closure.
+For example :
+
+a = a;
+
+Above is a group definition using the 'a' group or symbol and applying a one-one
+closure on it.
+
+          1.1.3.2.1.3°) One to many
+          -------------------------
+This closure is one of the fundamental ones (with one to one and zero to one).
+It consist to make a repetition with the group or the symbol that is specified
+as operand in the group definition. In that sense, it is strictly identical to
+the '+' quantifier of a regular expression. By the way, the meta-character that
+represents this closure is '+'.
+As an example :
+
+a+ = a+;
+
+Is a group definition defining the group names 'a+' and applying the one to many
+closure on the a group or symbol.
+
+          1.1.3.2.1.4°) Zero to one
+          -------------------------
+One of the fundamental closure (with one to one and zero to many). This closure
+consist to make the group or symbol operand in the group definition optional. It
+is strongly related with the '?' quantifier of regular expression world.
+For instance :
+
+a? = a?
+
+Defines the group repeating the group or the symbol named 'a' zero or one time.
+It won't be a suprise if I told you that the meta-character to use in order to
+apply this closure in your group definition is '?'.
+
+          1.1.3.2.1.5°) Zero to many
+          --------------------------
+Despite its name, the zero to many is not stricto sensu a closure but a
+composition of two existing and previsously presented closures. Actually,
+applying this closure on a group or symbol operand has the same effect to apply
+first a one to many closure then a zero to one closures. Anyway, this closure
+has its own meta-character that is '*'; the same as the regular expression's
+Kleen's star.
+Using it in a group definition gives :
+
+a* = a*;
+
+Above is defined a group named 'a*' applying the zero to many closure on the a
+group or symbol.
+
+        1.1.3.2.2°) Binary closures
+        ---------------------------
