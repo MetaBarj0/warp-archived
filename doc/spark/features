@@ -29,7 +29,8 @@ accessible to the run time as well (for instance a JSON parser).
         1.1.2.2.2°) The '=' meta character
         1.1.2.2.3°) The ';' meta character
         1.1.2.2.4°) The 'white spaces' meta characters
-        1.1.2.2.5°) The '`' pairs meta character
+        1.1.2.2.5°) The '`' pair meta character
+        1.1.2.2.6°) The '.' meta character
       1.1.2.3°) Defining symbols with macros
         1.1.2.3.1°) The BASIC_SYMBOLS macro
     1.1.3°) Writing groups
@@ -46,6 +47,12 @@ accessible to the run time as well (for instance a JSON parser).
           1.1.3.2.2.2°) Concatenation
           1.1.3.2.2.3°) Alternation
       1.1.3.3°) Meta characters for group definitions
+        1.1.3.3.1°) The '=' meta character
+        1.1.3.3.2°) The ';' meta character
+        1.1.3.3.3°) The 'white spaces' meta characters
+        1.1.3.3.4°) The '`' pair meta character
+        1.1.3.3.5°) The '.' meta character
+        1.1.3.3.6°) The '|' meta character
       1.1.3.4°) Defining groups with macros
         1.1.3.4.1°) The CONCATENATE_GROUPS macro
         1.1.3.4.2°) The ALTERNATE_GROUPS macro
@@ -220,8 +227,8 @@ defintion blocks, symbol and group definitions, symbol and group names and their
 definition at right hand side). As a consequence, white space meta-characters
 cannot be used as symbol names.
 
-        1.1.2.2.5°) The '`' pairs meta character
-        ----------------------------------------
+        1.1.2.2.5°) The '`' pair meta character
+        ---------------------------------------
 These are a special beast. First, they are used to escape the meta-meaning of
 other meta-character (including the '`'). Second, they have to be used as pair
 to be effective : each meta-character inside a pair of '`' loose immediately its
@@ -237,6 +244,12 @@ exclusive symbol definition and an inclusive symbol definition (that can only
 take care of an unique letter anyway).
 More examples of usage later.
 
+        1.1.2.2.6°) The '.' meta character
+        ----------------------------------
+This meta-character represents the 'any' character. It can be compared to the
+'.' in the regular expression world. This meta-character gains its meta-meaning
+in the definition of an inclusive symbol only.
+
       1.1.2.3°) Defining symbols with macros
       --------------------------------------
 Examples above show how to define symbols with an unitary manner. Defining a lot
@@ -248,7 +261,7 @@ are here to solve these issues.
 This macro is designed to be used as a shortcut to define several INCLUSIVE
 symbols at once. The way it works is simple, it defines as much as symbols
 specified those the name is strictly equal to the letter that is recognized. As
-usula, this statement must be terminated by a ';' meta-character.
+usual, this statement must be terminated by a ';' meta-character.
 It is good to know that there is some limit in letter used with this method. All
 rules that are in place for symbol names apply on symbol definition with this
 macro. As a result, you cannot use white spaces and the '=' letter with this
@@ -421,3 +434,53 @@ group or symbol.
 
         1.1.3.2.2°) Binary closures
         ---------------------------
+This kind of closure can be used in a group definition using two other groups as
+operand. It is unusable on symbol operands. Attempting to use this kind of
+closure on only one group operand is invalid. As these closure can only be used
+on group operands, it dictates how the name lookup works when resolving the
+operand name that can only be a group.
+
+          1.1.3.2.2.1°) Name resolution lookup
+          ------------------------------------
+This process is related on how to find the entity targeted by the name specified
+in the group on which the binary closure apply. As binary closure can perform on
+group operand only, the name resolution takes place only in the group definition
+block. If not any group is found using the name of the group operand, the group
+definition is considered as invalid.
+
+          1.1.3.2.2.2°) Concatenation
+          ---------------------------
+This closure, when applied, simply concatenate two groups with each other,
+forming a more complex group. The resulting group is actually the one specified
+by the first operand concatenated with the one specified as the second operand.
+The meta-character associated to this closure is '.'
+For instance :
+
+ab = a.b;
+
+Above, a group name 'ab' is created resulting of the concatenation of group 'a'
+with group 'b'.
+Thus, the group name 'ab' recognizes the language that is itself recognized by
+the group 'a' directly followed by the language recognized by the group 'b'.
+
+          1.1.3.2.2.3°) Alternation
+          -------------------------
+This closure represents a choice. When used with two group operands, it creates
+a group composed of the alternation of the first operand and the last operand.
+It can be seen as the alternation of the regular expression. The meta-character
+used by this closure is the '|' character.
+As an example :
+
+a|b = a|b;
+
+Above, a group names 'a|b' is created, making an alternative between the 'a' and
+the 'b' group.
+Thus, the group 'a|b' recognizes either the language recognized by the group 'a'
+or the language recognized by the group 'b'.
+
+      1.1.3.3°) Meta characters for group definitions
+      -----------------------------------------------
+A meta character for a group definition is a character that has a special
+meaning. Such a character cannot be used as is in a group definition without
+altering the group definition itself. Below is a list of each meta character
+that one can find in a group definition and how they can be used.
