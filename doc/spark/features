@@ -3,9 +3,9 @@ Main features of spark
 
 Build parsers at compile time and expose them both at compile-time and run-time.
 First, deal with regular grammar, then with context-free grammars.
-Parsers exposed will be used with generator features, allowing infinite
-transformation of recognized languages. These generator features must be usable
-both with regular grammars and context-free grammars.
+Parsers exposed will be used with transcription features, allowing infinite
+transformation of recognized languages. These transcription features must be
+usable both with regular grammars and context-free grammars.
 spark is : transcription algorithms, grammars, transcriptors.
 spark deals with : user input at compile-time and run-time.
 The goal of spark is provide facilities to transcript user input in user output
@@ -56,6 +56,7 @@ accessible to the run time as well (for instance a JSON parser).
       1.1.3.4°) Defining groups with macros
         1.1.3.4.1°) The CONCATENATE_GROUPS macro
         1.1.3.4.2°) The ALTERNATE_GROUPS macro
+    1.1.4°) Examples of grammar definition
   1.2°) Context-free grammars
 2°) Transcriptors
   2.1°) Transcriptors for compile-time
@@ -76,7 +77,8 @@ declined in two versions : regular and context-free.
 The spark's regular grammar is the first that has been designed. A regular
 grammar is defined by a string or an array of char in the world of C++.
 Moreover, the grammar definition must be defined at compile time and be formed
-with very precise elements with a strict syntax.
+with very precise elements with a strict syntax. Note that the regular grammar
+definition is a regular language on its own.
 
     1.1.1°) Main entities of regular grammar definition string
     ----------------------------------------------------------
@@ -86,15 +88,16 @@ First, there is the document line or document block. It consists in a string
 delimited by a starting sequence of '/*', without quotes and ending with the
 sequence '*/', without quotes. It is just like a C multi-line comment. Any
 character is allowed between these delimiters.
-The document block is simply ignored while grammar is used to recognize an
-language. It can be placed anywhere between grammar's entity definitions.
+The document block is simply ignored while grammar is used to recognize a
+language. It can be placed anywhere between grammar's entity definitions and
+their respective components.
 Documentation block have no special meaning in the grammar interpretation, it
 only serves a documentation purposes for one who design/read the grammar.
 
 Next, we have the symbol definitions block. This is a mandatory element of a
 grammar definition. A symbol block definition is defined by a starting macro
 named 'BEGIN_SYMBOLS;' (without quotes) and ends with an ending macro named
-'END_SYMBOLS;' (without quotes). Between these 2 macro usage, there are symbols
+'END_SYMBOLS;' (without quotes). Between these two macro usage, there are symbols
 definitions. Note the ';' character at the end of each macro. This is the end
 statement character and it is mandatory.
 Any regular grammar definition must contain one and only one symbol block
@@ -103,17 +106,17 @@ definition.
 Next, we have the group definitions block. This is a mandatory element of a
 grammar definition. A group block definition is defined by a starting macro
 named 'BEGIN_GROUPS;' (without quotes) and ends with an ending macro named
-'END_GROUPS;' (without quotes). Between these 2 macro usage, there are groups
+'END_GROUPS;' (without quotes). Between these two macro usage, there are groups
 definitions. Note the ';' character at the end of each macro. This is the end
 statement character and it is mandatory.  Any regular grammar definition must
 contain one and only one group block definition.
 
 Finally, there is another main entity that is similar to the document line in
 its meaning. This is the white space characters. White space characters are the
-space : ' ', the horizontal tab : '	', the end line characters : '\n' and '\r'.
+space : ' ', the horizontal tab : '\t', the end line characters : '\n' and '\r'.
 Like the documentation block, the white space characters don't have any meaning
-in grammar interpretation but they could be used as symbols if escaped (we'll
-see that later)
+in grammar interpretation but they could be used in symbol definitions if they
+are  escaped (we'll see that later).
 
 To summarize, a warp regular grammar definition string is built with :
 - one or several documentation blocks placed between grammar entities,
@@ -121,10 +124,9 @@ To summarize, a warp regular grammar definition string is built with :
   block,
 - one and only one group definition block, defined after the symbol definition
   block,
-- one or several white space characters.
+- one or several white space characters placed between grammar entities.
 
-Here is an overview of a warp regular grammar definition string, in C++ the
-language :
+Here is an overview of a warp regular grammar definition string, coded in C++ :
 
 auto warp_regular_grammar_definition_string =
   "/* This is an overview. Go ahead and read next chapters in order to see how"
@@ -147,7 +149,7 @@ auto warp_regular_grammar_definition_string =
 
     1.1.2°) Writing symbols
     -----------------------
-This section describes how to write symbol defintions inside a symbol definition
+This section describes how to write symbol definitions inside a symbol definition
 block.
 A symbol is a logical object that can be compared to a single letter (for
 instance a 'b'). A symbol can be a letter or anything but some letters.
@@ -166,7 +168,7 @@ a = a;
 
 Pretty simple isn't it? This line define a symbol named 'a', recognizing the 'a'
 letter. The left hand side of this definition is the symbol name. An equal sign
-define the value of a symbol, the right hand side is the symbol value. The
+define an assignation for a symbol, the right hand side is the symbol value. The
 finishing semicolon is mandatory and denotes the end of the symbol definition.
 An inclusive symbol definition can only recognize a single letter, here the 'a'.
 
@@ -178,9 +180,9 @@ no_digit = -0123456789;
 Here, the symbol name is 'no_digit'. It is an exclusive symbol because the right
 hand side of the symbol definition begin with a '-' character.
 An exclusive symbol definition can recognize all character but those specified
-after the '-' meta-character, here, this symbol can recognize any letter but 0,
+after the '-' meta-character, here, this symbol can recognize any letter but '0',
 '1','2','3','4','5','6','7','8' and '9'.
-Note that symbol name must be unique throughout the symbol definitino block.
+Note that symbol name must be unique throughout the symbol definition block.
 Giving the same name to several symbol is invalid.
 
       1.1.2.2°) Meta-characters for symbol definitions
@@ -204,16 +206,18 @@ in the symbol definition, it loses its meta-meaning and is considered as a raw
         ----------------------------------
 The assignation meta-character is the link between a symbol name and the letter
 it recognize or letters it doesn't recognize. To obtain its meta-meaning the '='
-character must be placed between the symbol name and the symbol defintion. As a
+character must be placed between the symbol name and the symbol definition. As a
 result, the '=' character is illegal in a symbol name and subsequent uses of '='
-in the symbol definition are treated just as raws '=' characters.
+in the symbol definition at right hand-side are treated just as raws '='
+characters.
 
         1.1.2.2.3°) The ';' meta character
         ----------------------------------
 This is the end of symbol definition character. Each symbol definition must be
 terminated by a ';'. Though it is a meta-character, the ';' gains its
 meta-meaning only at the ultimate end of a symbol definition and, as a result,
-can be used in symbol names.
+can be used in symbol names. However, it cannot be used in a symbol right-hand
+side definition expression unless it is escaped.
 
         1.1.2.2.4°) The 'white spaces' meta characters
         ----------------------------------------------
@@ -222,16 +226,16 @@ meta-meaning. Therefore, they can be used as separator to enhance the
 readability of symbol definitions. A white space character is either a space
 (' '), an horizontal tab ('\t') or an end of line ('\r', '\n'). Besides being
 used to enhance readability of symbol definitions, they also can be used between
-mais grammar definition entities (documentation blocks, symbol and group
-defintion blocks, symbol and group definitions, symbol and group names and their
-definition at right hand side). As a consequence, white space meta-characters
-cannot be used as symbol names.
+main grammar definition entities (documentation blocks, symbol and group
+definition blocks, symbol and group definitions, symbol and group names and
+their definitions at right hand side). As a consequence, white space
+meta-characters cannot be used in symbol names.
 
         1.1.2.2.5°) The '`' pair meta character
         ---------------------------------------
 These are a special beast. First, they are used to escape the meta-meaning of
-other meta-character (including the '`'). Second, they have to be used as pair
-to be effective : each meta-character inside a pair of '`' loose immediately its
+other meta-characters (including the '`'). Second, they have to be used as pair
+to be effective : any meta-character inside a pair of '`' loose immediately its
 meta-meaning. They can only be used in the right hand side of a symbol
 definition and the opening '`' must be the first character for an inclusive
 symbol definition. It must be the first character specified after the '-' in the
@@ -254,7 +258,8 @@ in the definition of an inclusive symbol only.
       --------------------------------------
 Examples above show how to define symbols with an unitary manner. Defining a lot
 of symbol this way could be cumbersome and error-prone. Symbol definition macros
-are here to solve these issues.
+are here to solve these issues. A symbol definition macro can only be used
+inside a symbol definition block.
 
         1.1.2.3.1°) The BASIC_SYMBOLS macro
         -----------------------------------
@@ -290,10 +295,10 @@ dealing with simple inclusive symbols.
     ----------------------
 This section describes how to write group definitions inside a group definition
 block. A group is a logical object on which user can apply a closure. A group is
-made of few things, formerly, a name, a symbol or another group, a closure to
-apply on it. As a group element can be a symbol, it explains why symbols must be
-defined before groups. It doesn't exist several types of group but groups behave
-differently regarding the closure that is applied on it.
+made of few things, formerly, a name, one or two symbol or group, a closure to
+apply on these. As a group element can be a symbol, it explains why symbols must
+be defined before groups. It doesn't exist several types of group but groups
+behave differently regarding the closure that is applied on it.
 Syntax to write group definitions is quite similar to the symbol definition one.
 It just has been added few new meta-character to represent the closure
 operations that can be applied on groups. However, name resolution lookups are
@@ -337,23 +342,25 @@ Finally, a terminal ';' must be written to end the group definition.
       1.1.3.2°) Use closure in group definitions
       ------------------------------------------
 The main feature that is given to a group is the ability to apply closure on
-either a previously defined symbol or group. These closure could also be called
-quantifiers and are very similar to quantifers used in regular expressions.
+either a previously defined symbol or group. Some of these closure could also be
+called quantifiers and are very similar to quantifers used in regular
+expressions.
 There are two kind of closure :
 - Unary, that apply on a single entity (either a symbol or a group)
 - Binary, that only apply on two entity of group type.
-Thus, using binary in a group definition using a symbol is invalid.
+Thus, using a binary closure in a group definition using one or two symbol is
+invalid.
 Hence, rules that must be respected to define a group may change, depending the
 closure type that is used to define the group.
 
         1.1.3.2.1°) Unary closures
         --------------------------
 This kind of closure is usable with group using either a symbol or a group as
-operand. It operates on an unique entity, that's why it's called unary.
+operand. It operates on an unique symbol, that's why it's called unary.
 Such closures can be represented as quantifier in the regular expression world.
 Below is a description of each closure. As this kind of closure can operate on
-both symbol and group, it dictates how the name lookup works when resolving the
-operand name that can be either a group or a symbol.
+both symbol and group, it dictates how the name lookup resolution works when
+resolving the operand name that can be either a group or a symbol.
 
           1.1.3.2.1.1°) Name resolution lookup
           ------------------------------------
@@ -363,10 +370,10 @@ both symbol or group, the name resolution could take place in two ways :
 - if a group is found with the name specified in the group definition, the name
   resolution lookup is finished and the found group will be used to apply the
   closure on.
-- otherwise the name resolution lookup does ot find any group, the process is
-  repeated in the symbol definition block. If a symbol is found whith the name
-  specified in the group definition, the name resolution lookup is finished and
-  the found symbol will be used to apply the closure on.
+- if the name resolution lookup does not find any group, the process is repeated
+  in the symbol definition block. If a symbol is found whith the name specified
+  in the group definition, the name resolution lookup is finished and the found
+  symbol will be used to apply the closure on.
 It is important to note that the name resolution lookup proceed in the order
 specified above : first an attempt to find a group in the group definition block
 is done, then, if no group is found, the name resolution lookup takes place in
@@ -379,7 +386,7 @@ considered as invalid.
 This closure is somewhat a no-operation. It is not related to any known regular
 expression quantifier. It can be considered as a '1 factor' for an arithmetic
 expression. As a result, applying this closure on a symbol or a group do...
-well... nothing on particular.
+well... nothing in particular.
 In a group definition, this closure has no meta-character to represent it. Thus,
 not specifying a closure meta-character for a group definition means to use the
 one-one closure.
@@ -387,13 +394,13 @@ For example :
 
 a = a;
 
-Above is a group definition using the 'a' group or symbol and applying a one-one
-closure on it.
+Above is a group definition using the 'a' symbol and applying a one-one closure
+on it.
 
           1.1.3.2.1.3°) One to many
           -------------------------
 This closure is one of the fundamental ones (with one to one and zero to one).
-It consist to make a repetition with the group or the symbol that is specified
+It consists in making a repetition with the group or the symbol that is specified
 as operand in the group definition. In that sense, it is strictly identical to
 the '+' quantifier of a regular expression. By the way, the meta-character that
 represents this closure is '+'.
@@ -402,12 +409,12 @@ As an example :
 a+ = a+;
 
 Is a group definition defining the group names 'a+' and applying the one to many
-closure on the a group or symbol.
+closure on the 'a' group or symbol.
 
           1.1.3.2.1.4°) Zero to one
           -------------------------
-One of the fundamental closure (with one to one and zero to many). This closure
-consist to make the group or symbol operand in the group definition optional. It
+One of the fundamental closure (with one to one and one to many). This closure
+consist in makng the group or symbol operand in the group definition optional. It
 is strongly related with the '?' quantifier of regular expression world.
 For instance :
 
@@ -420,7 +427,7 @@ apply this closure in your group definition is '?'.
           1.1.3.2.1.5°) Zero to many
           --------------------------
 Despite its name, the zero to many is not stricto sensu a closure but a
-composition of two existing and previsously presented closures. Actually,
+composition of two existing and previously presented closures. Actually,
 applying this closure on a group or symbol operand has the same effect to apply
 first a one to many closure then a zero to one closures. Anyway, this closure
 has its own meta-character that is '*'; the same as the regular expression's
@@ -429,7 +436,7 @@ Using it in a group definition gives :
 
 a* = a*;
 
-Above is defined a group named 'a*' applying the zero to many closure on the a
+Above is defined a group named 'a*' applying the zero to many closure on the 'a'
 group or symbol.
 
         1.1.3.2.2°) Binary closures
@@ -484,3 +491,141 @@ A meta character for a group definition is a character that has a special
 meaning. Such a character cannot be used as is in a group definition without
 altering the group definition itself. Below is a list of each meta character
 that one can find in a group definition and how they can be used.
+
+        1.1.3.3.1°) The '=' meta character
+        ----------------------------------
+The assignation meta-character is the link between a group name and its
+definition. To obtain its meta-meaning the '=' character must be placed between
+the group name and the group definition. As a result, the '=' character is
+illegal in a group name and subsequent uses of '=' in the group definition are
+treated just as raws '=' characters.
+
+        1.1.3.3.2°) The ';' meta character
+        ----------------------------------
+This is the end of group definition character. Each group definition must be
+terminated by a ';'. Though it is a meta-character, the ';' gains its
+meta-meaning only at the ultimate end of a group definition and, as a result,
+can be used in group names. Thus, you cannot use the ';' character in a group
+definition right hand side expression without escape it.
+
+        1.1.3.3.3°) The 'white spaces' meta characters
+        ----------------------------------------------
+These meta-characters are a bit special as they don't possess a real
+meta-meaning. Therefore, they can be used as separator to enhance the
+readability of group definitions. A white space character is either a space
+(' '), an horizontal tab ('\t') or an end of line ('\r', '\n'). Besides being
+used to enhance readability of group definitions, they also can be used between
+main grammar definition entities (documentation blocks, symbol and group
+definition blocks, symbol and group definitions, symbol and group names and
+their definitions at right hand side). As a consequence, white space
+meta-characters cannot be used in group names.
+
+        1.1.3.3.4°) The '`' pair meta character
+        ---------------------------------------
+These are a special beast. First, they are used to escape the meta-meaning of
+other meta-character (including the '`'). Second, they have to be used as pair
+to be effective : each meta-character inside a pair of '`' loose immediately its
+meta-meaning. They can only be used in the right hand side of a group definition
+and the opening '`' must be the first character of a group definition. Using a
+pair of '`' with nothing inside is invalid. If you want to escape the '`'
+character, it must be the first character specified right after the opening '`'
+of the pair. More examples of usage later.
+
+        1.1.3.3.5°) The '.' meta character
+        ----------------------------------
+This meta-character represents the concatenation closure. To gains its
+meta-meaning, it has to be specified at the right hand-side of a group
+definition and between two group names. Thus, it can be safely used in a group
+name without any meta-meaning annoyance.
+
+        1.1.3.3.6°) The '|' meta character
+        ----------------------------------
+This meta-character represents the alternation closure. To gains its
+meta-meaning, it has to be specified at the right-hand side of a group
+definition and between two group names. Thus, it can be safely used in a group
+name without any meta-meaning annoyance.
+
+      1.1.3.4°) Defining groups with macros
+      -------------------------------------
+Examples above show how to define groups with an unitary manner. Defining a lot
+of groups this way could be cumbersome and error-prone. Group definition macros
+are here to solve these issues. A group definition macro can only be used inside
+a group definition block.
+
+        1.1.3.4.1°) The CONCATENATE_GROUPS macro
+        ----------------------------------------
+This macro is designed to simplify the writing of group concatenation. The way
+it works is pretty simple :
+- first, decide on a name to give to the resulting group,
+- then use at least two existing groups to concatenate.
+The effect of this macro is similar to defining several group using the
+concatenation closure. Actually, as the concatenation closure is binary, it can
+only accept two group operands. As a result it could be really cumbersome and
+error prone to define a group, even if it only recognizes a word.
+Below are examples of this macro usage versus its counterpart in using
+concatenation meta-character only. These examples are shown, considering each
+one-letter defined group are existing and recognize the used letter ('h' group
+recognizes 'h' letter for example) :
+- first, the macro usage :
+
+CONCATENATE_GROUPS hello h e l l o;
+
+- then the concatenate closure meta-character use :
+
+he    = h.e;
+ll    = l.l;
+hell  = he.ll;
+hello = hell.o;
+
+- or one could define :
+
+he    = h.e;
+hel   = he.l;
+hell  = hel.l;
+hello = hell.o;
+
+I think I can safely assume the first way is pretty preferable to use rather
+than the second and third one. However, this macro does not deprecate usage of
+concatenation closure meta-character. It is complementary as you will see in
+example section (1.1.4°).
+In all cases, the language recognized is the same : 'hello'.
+
+        1.1.3.4.2°) The ALTERNATE_GROUPS macro
+        --------------------------------------
+Like the CONCATENATE_GROUPS, the ALTERNATE_GROUPS macro is designed to define
+several group at once using the alternation closure. This macro is very similar
+in how it works :
+- first, decide on a name to give to the resulting group,
+- then use at least two existing groups to alternate.
+The effect of this macro is similar to defining several group using the
+alternation closure. Actually, as the alternation closure is binary, it can
+only accept two group operands. As a result it could be really cumbersome and
+error prone to define a group, especially if that group is designed to give a
+choice between several simple letters.
+Below are examples of this macro usage versus its counterpart in using
+alternation meta-character only. These examples are showing how to simulate a
+regular expression character class using groups. Group operands used are assumed
+to be defined and representing a single letter :
+- first, the macro usage :
+
+ALTERNATE_GROUPS digit 0 1 2 3 4 5 6 7 8 9;
+
+- then, one possibility using the alternation closure :
+
+01       = 0|1;
+23       = 2|3;
+45       = 4|5;
+67       = 6|7;
+89       = 8|9;
+0123     = 01|23;
+4567     = 45|67;
+01234567 = 0123|4567;
+digit    = 01234567|89;
+
+These examples are showing that it is clearly preferable to use the
+ALTERNATE_GROUPS macro to simulate regular expression character classes that
+using the plain closure method. However, this macro does not deprecate the use
+of the closure on its own. It is complementary as you will see in example
+section (1.1.4°). In all cases above, the result is the same, the group 'digit'
+recognize any digit letter, just like '[0-9]' regular expression character
+class.
