@@ -54,9 +54,17 @@ accessible to the run time as well (for instance a JSON parser).
         1.1.3.3.5°) The '.' meta character
         1.1.3.3.6°) The '|' meta character
       1.1.3.4°) Defining groups with macros
-        1.1.3.4.1°) The CONCATENATE_GROUPS macro
-        1.1.3.4.2°) The ALTERNATE_GROUPS macro
+        1.1.3.4.1°) The SYMBOLS_AS_GROUPS macro
+        1.1.3.4.2°) The UNARY_CLOSURE_ON macro
+        1.1.3.4.3°) The BINARY_CLOSURE_ON macro
     1.1.4°) Examples of grammar definition
+      1.1.4.1°) C++ type containing the grammar definition
+        1.1.4.1.1°) Type exposing a 'value' member
+        1.1.4.1.2°) Type exposing a 'value' function
+        1.1.4.1.3°) Type exposing a 'array' member
+      1.1.4.2°) Some grammar examples
+        1.1.4.2.1°) Some grammar examples
+          1.1.4.2.1.1°) 'a*(b|cd?)+'
   1.2°) Context-free grammars
 2°) Transcriptors
   2.1°) Transcriptors for compile-time
@@ -78,7 +86,7 @@ The spark's regular grammar is the first that has been designed. A regular
 grammar is defined by a string or an array of char in the world of C++.
 Moreover, the grammar definition must be defined at compile time and be formed
 with very precise elements with a strict syntax. Note that the regular grammar
-definition is a regular language on its own.
+definition is a regular language on its own and is read from left to right.
 
     1.1.1°) Main entities of regular grammar definition string
     ----------------------------------------------------------
@@ -273,7 +281,10 @@ macro. As a result, you cannot use white spaces and the '=' letter with this
 macro as it could lead to attempt to create symbol with a white space or an '='
 name, that is illegal. Using this macro is also a way to escape the meta-meaning
 of some meta-characters (except '=' and white spaces). As above, the usage of
-this macro is restricted in a symbol definition block.
+this macro is restricted in a symbol definition block. Note that using white
+space characters as separator between symbol names is not necessary here because
+an inclusive symbol recognize an unique letter. However, using white space
+between symbol names is not an error
 Here is an example of this macro usage :
 
 BASIC_SYMBOLS helowrd;
@@ -552,51 +563,76 @@ of groups this way could be cumbersome and error-prone. Group definition macros
 are here to solve these issues. A group definition macro can only be used inside
 a group definition block.
 
-        1.1.3.4.1°) The CONCATENATE_GROUPS macro
-        ----------------------------------------
-This macro is designed to simplify the writing of group concatenation. The way
-it works is pretty simple :
-- first, decide on a name to give to the resulting group,
-- then use at least two existing groups to concatenate.
-The effect of this macro is similar to defining several group using the
-concatenation closure. Actually, as the concatenation closure is binary, it can
-only accept two group operands. As a result it could be really cumbersome and
-error prone to define a group, even if it only recognizes a word.
-Below are examples of this macro usage versus its counterpart in using
-concatenation meta-character only. These examples are shown, considering each
-one-letter defined group are existing and recognize the used letter ('h' group
-recognizes 'h' letter for example) :
-- first, the macro usage :
+        1.1.3.4.1°) The SYMBOLS_AS_GROUPS macro
+        ---------------------------------------
+The purpose of this macro is to define several group using several symbols.
+Specified symbols will be applied with the one to one unary closure and
+resulting groups will have the same name as each symbol used.
+The name resolution lookup that proceed only takes place in the symbol
+definition block for this macro.
+As an example :
 
-CONCATENATE_GROUPS hello h e l l o;
+SYMBOLS_AS_GROUPS a b c d;
 
-- then the concatenate closure meta-character use :
+defines four groups named 'a, b, c and d' respectively applying the one to one
+unary closure on each symbols used as operand. Note that you must use a white
+space character to separate each operand used in the macro. Indeed, symbol names
+can be several letters defined.
 
-he    = h.e;
-ll    = l.l;
-hell  = he.ll;
-hello = hell.o;
+        1.1.3.4.2°) The UNARY_CLOSURE_ON macro
+        --------------------------------------
+This macro will applying the specified unary closure on specified symbol or
+group and create a group name built with the symbol name and a user-specified
+suffix. This macro works for all unary closure but the one to one, because the
+one to one closure has not any meta-character to represent it. If you want to
+apply the one to one closure on several symbol, use SYMBOLS_AS_GROUPS macro
+instead (see 1.1.3.4.1°). Same rules apply for the name resolution lookup as
+the ones that apply when applying an unary closure on a symbol or group
+(see 1.1.3.2.1.1°).
+Note that the rules applying on suffix are the same that the ones applying to
+symbol or group names.
+As an example :
 
-- or one could define :
+UNARY_CLOSURE_ON_GROUPS ? ? a b c d;
 
-he    = h.e;
-hel   = he.l;
-hell  = hel.l;
-hello = hell.o;
+defines four groups named 'a?, b?, c? and d?' resulting of the application of
+the zero to one unary closure on 'a, b, c, and d' symbols or groups. Note that
+using white space characters as separator between each macro operand is
+absolutely necessary. Indeed, specified symbol or group names may be
+several-letters defined. However, it is not mandatory to use a white space
+character separator between the closure to apply and the suffix but it can
+improve readability.
+
+        1.1.3.4.3°) The BINARY_CLOSURE_ON macro
+        ---------------------------------------
+This macro will apply the specified binary closure on specified group and will
+create new group whose the name is user-specified. About the name resolution
+lookup, same rules apply as rules applying on binary closure (see 1.1.3.2.2.1°).
+Note that the rules applying on specified name are the same that the ones
+applying to symbol or group names.
+
+As an example :
+
+BINARY_CLOSURE_ON . concatenated_group a b c d;
+
+creates a group named 'concatenated_group' and defined with the concatenation of
+groups 'a, b, c and d'. This new group will recognize languages recognized by
+each group the closure is applied on following each other, in their respective
+order.
+Considering groups a, b, c and d exist, the macro usage
+above has the same effect as :
+
+ab = a.b;
+cd = c.d;
+concatenated_group = ab.cd;
 
 I think I can safely assume the first way is pretty preferable to use rather
-than the second and third one. However, this macro does not deprecate usage of
+than the second one. However, this macro does not deprecate usage of
 concatenation closure meta-character. It is complementary as you will see in
 example section (1.1.4°).
-In all cases, the language recognized is the same : 'hello'.
 
-        1.1.3.4.2°) The ALTERNATE_GROUPS macro
-        --------------------------------------
-Like the CONCATENATE_GROUPS, the ALTERNATE_GROUPS macro is designed to define
-several group at once using the alternation closure. This macro is very similar
-in how it works :
-- first, decide on a name to give to the resulting group,
-- then use at least two existing groups to alternate.
+Another example but using the alternation closure :
+
 The effect of this macro is similar to defining several group using the
 alternation closure. Actually, as the alternation closure is binary, it can
 only accept two group operands. As a result it could be really cumbersome and
@@ -608,7 +644,7 @@ regular expression character class using groups. Group operands used are assumed
 to be defined and representing a single letter :
 - first, the macro usage :
 
-ALTERNATE_GROUPS digit 0 1 2 3 4 5 6 7 8 9;
+BINARY_CLOSURE_ON | digit 0 1 2 3 4 5 6 7 8 9;
 
 - then, one possibility using the alternation closure :
 
@@ -629,3 +665,191 @@ of the closure on its own. It is complementary as you will see in example
 section (1.1.4°). In all cases above, the result is the same, the group 'digit'
 recognize any digit letter, just like '[0-9]' regular expression character
 class.
+Note that using white space characters as separator between each macro operand
+is absolutely necessary. Indeed, specified symbol or group names may be
+several-letters defined. However, it is not mandatory to use a white space
+character separator between the closure to apply and the suffix but it can
+improve readability.
+
+    1.1.4°) Examples of grammar definition
+    --------------------------------------
+The content of this section will contain some examples about how to write more
+or less usefull warp regular grammar strings. As you may seen above, grammar
+string are actually C++ char buffers and can be written with different manner.
+In any case, the grammar definition string must be contained in a type (class or
+struct), exposing some specific constexpr static members or function.
+
+      1.1.4.1°) C++ type containing the grammar definition
+      ----------------------------------------------------
+This type will be used in spark's transcription algorithms (more on that later).
+Here, you'll see the different manner to declare such a type.
+
+        1.1.4.1.1°) Type exposing a 'value' member
+        ------------------------------------------
+struct tiny_grammar
+{
+  // note the usage of constexpr static here
+  // the auto is resolved to be const char *
+  // tiny_grammar::value give access to the regular grammar definition string
+  static constexpr auto value =
+    "BEGIN_SYMBOLS;"
+    "a=a;"
+    "END_SYMBOLS;"
+    "BEGIN_GROUPS"
+    "a=a;"
+    "END_GROUPS";
+};
+
+Above is defined a grammar recognizing the 'a' language. Not very useful but it
+is a meaningful example on how to define a regular grammar definition through a
+type exposing a 'value' constexpr static member.
+
+        1.1.4.1.2°) Type exposing a 'value' function
+        --------------------------------------------
+struct tiny_grammar
+{
+  // note the usage of constexpr static here
+  // the auto is resolved to be const char *
+  // tiny_grammar::value give access to the regular grammar definition string
+  static constexpr auto value()
+  {
+    return
+      "BEGIN_SYMBOLS;"
+      "a=a;"
+      "END_SYMBOLS;"
+      "BEGIN_GROUPS"
+      "a=a;"
+      "END_GROUPS";
+  }
+};
+
+Above is defined a grammar recognizing the 'a' language. Not very useful but it
+is a meaningful example on how to define a regular grammar definition through a
+type exposing a 'value' constexpr static function.
+
+        1.1.4.1.3°) Type exposing a 'array' member
+        ------------------------------------------
+This last flavour has been designed to workaround some limitations/bugs about
+constepxr operation support on various compilers (so far gcc and clang). The
+purpose here is to define an array that will contain one or several constexpr
+char buffer that are limited in term of length in order to avoid some
+warning/crash/to heavy memory usage we could have by using lengthy constexpr
+strings.
+Indeed, under the hood, these constexpr char buffers are transformed into
+integral sequence and, though it's not really complex, it is a compile time (so
+recursive) operation that force the compiler to work hard and ask for a lot of
+resource. If you're curious, you can attempt to gauge the limit of your
+compiler/platform by using lengthy grammar definition string against an array of
+port of grammar. Anyway, here's such a type :
+
+struct tiny_grammar
+{
+  // the type of the array must be specified here
+  // but the good news : size doesn't as the content is inlined
+  static constexpr const char *array[] =
+  {
+    // first element of the array
+    "BEGIN_SYMBOLS;"
+    "a=a;"
+    "END_SYMBOLS;",
+
+    // last element
+    "BEGIN_GROUPS"
+    "a=a;"
+    "END_GROUPS"
+  };
+};
+
+      1.1.4.2°) Some grammar examples
+      -------------------------------
+This section will define some grammar string in order to give an overview on how
+it works. The examples below will only show the grammar definition strings
+outside of their respective types, for the sake of clarity. However, some
+documentation block will be included in grammar definition string, to explain
+how it works.
+
+          1.1.4.2.1.1°) 'a*(b|cd?)+'
+          --------------------------
+In the title, there is a regular expression. We'll see how to transform this
+simple regular expression to a regular grammar definition string.
+
+This first version does not make use of macro
+
+/* OK this is the symbol definition block. Mandatory and unique */
+BEGIN_SYMBOLS;
+  a = a; /* a symbol for the 'a' letter */
+  b = b; /* b symbol for the 'b' letter */
+  c = c; /* c symbol for the 'c' letter */
+  d = d; /* d symbol for the 'd' letter */
+  ' = '; /* ' symbol for the ''' letter */
+END_SYMBOLS;
+
+/* OK this is the group definition block. Mandatory and unique */
+BEGIN_GROUPS;
+  a* = a*; /* applying zero to many closure on 'a' symbol */
+  b = b; /* applying one to one closure on 'b' symbol */
+  c = c; /* applying one to one closure on 'c' symbol */
+  d? = d?; /* applying zero to one closure on 'd' symbol */
+  ' = '; /* applying one to one closure on ''' symbol */
+  cd? = c.d?; /* concatenates 'c' and 'd?' groups */
+  b|cd? = b|cd?; /* alternates 'b' and 'cd?' groups */
+
+  /* Applying the one to many closure on the 'b|cd?' group.
+   * The group name is escaped because of the usage of '|' in the group name
+   * that is a meta-character for an alternation closure. If the group were not
+   * escape, it wouldn't be a one to many closure that would be applied but an
+   * alternation involving the 'b' group and the 'cd?+' group. It won't be valid
+   * because the 'cd?+' group does not exist. */
+  (b|cd?)+ = `b|cd?`+; 
+
+  /* The 'a*' group is escaped here. Otherwise it will lead to an invalid group
+   * definition because the closure detected would be zero to many (the star of
+   * 'a' group) so, as it is an unary closure, anything but a ';' symbol lead to
+   * an error. */
+  a*(b|cd?)+ = `a*`.(b|cd?)+;
+
+  /* no excaping is needed here, simple concatenation */
+  'a*(b|cd?)+ = '.a*(b|cd?)+;
+
+  /* escaping here is mandatory on the first group because of the use of the '+'
+   * finishing character. Anyway, this is the last group defined and it defines
+   * all languages taht are recognized by the grammar. */
+  'a*(b|cd?)+' = `'a*.(b|cd?)+`.';
+END_GROUPS;
+
+The second version makes use of macros and is more compact :
+
+BEGIN_SYMBOLS;
+  /* one line to define 5 inclusive symbols. */
+  BASIC_SYMBOLS abcd';
+END_SYMBOLS;
+
+BEGIN_GROUPS;
+  /* simple zero to many closure on 'a' symbol */
+  a* = a*;
+
+  /* defines 3 groups in one line, using the one to one closure. Groups will be
+   * named 'b' 'c' and ''' */
+  SYMBOLS_AS_GROUPS b c ';
+
+  /* applying zero to one on 'd' symbol */
+  d? = d?;
+
+  /* simple concatenation of 'c' and 'd?' groups */
+  cd? = c.d?;
+
+  /* simple alternation of 'b' and 'cd?' groups */
+  b|cd? = b|cd?;
+
+  /* applying one to many closure on the group. Escaping is needed here because
+   * of the finishing '+' character */
+  (b|cd?)+ = `b|cd?`+;
+
+  /* concatenate 3 group in one line, removing the need of escaping. */
+  BINARY_CLOSURE_ON . 'a*(b|cd?)+' ' a* (b|cd?)+ ';
+END_GROUPS;
+
+  1.2°) Context-free grammars
+  ---------------------------
+So far, not enough elements have been thought about to clearly specify how CFG
+should work. More on that later.
