@@ -66,12 +66,13 @@ accessible to the run time as well (for instance a JSON parser).
         1.1.4.2.1°) Some grammar examples
           1.1.4.2.1.1°) 'a*(b|cd?)+'
   1.2°) Context-free grammars
-2°) Transcriptors
-  2.1°) Transcriptors for compile-time
-  2.2°) Transcriptors for run-time
-3°) Transcription algorithms
-  3.1°) Transcription algorithms for compile-time
-  3.2°) Transcription algorithms for run-time
+2°) Transcription algorithms
+  2.1°) Transcription algorithms for compile-time
+  2.2°) Transcription algorithms for run-time
+3°) Transcriptors
+  3.1°) Transcriptors for compile-time
+  3.2°) Transcriptors for run-time
+4°) Implementing the regular grammar as study case
 
 1°) Grammars
 ------------
@@ -813,7 +814,7 @@ BEGIN_GROUPS;
 
   /* escaping here is mandatory on the first group because of the use of the '+'
    * finishing character. Anyway, this is the last group defined and it defines
-   * all languages taht are recognized by the grammar. */
+   * all languages that are recognized by the grammar. */
   'a*(b|cd?)+' = `'a*.(b|cd?)+`.';
 END_GROUPS;
 
@@ -853,3 +854,23 @@ END_GROUPS;
   ---------------------------
 So far, not enough elements have been thought about to clearly specify how CFG
 should work. More on that later.
+
+2°) Transcription algorithms
+----------------------------
+Transcription algorithms are entities of spark that are responsible to transform
+an input language to something else while parsing the input using a defined
+grammar. It's one of the main entity of spark and is closely related with the
+user input (the language), the grammar (recognizes or not the language) and the
+transcriptors (responsible to output something transformed from the language
+being parsed by the grammar).
+It exists two-flavored transcription algorithms and the flavor to use depends of
+the nature of the user input. If the specified user input (language) is defined
+at compile time (so it has a form of integral sequence) then, it will be the
+compile time flavor transcription algorithm that will be used. Otherwise, if the
+specified user input (language) is defined at runtime and is iterable, then
+there will be the runtime transcription algorith that will be used. Actually the
+nature of the language dictates the nature of both transcription algorithm and
+transcriptors to use.
+
+  2.1°) Transcription algorithms for compile-time
+  -----------------------------------------------
