@@ -391,6 +391,30 @@ END_GROUPS;
   };
 
   /**
+   * \brief This is a minimalistic regular grammar definition
+   */
+  struct minimal_interesting_regular_grammar
+  {
+    /**
+     * \brief this grammar is similar to the 'a*(b|cd?)+' regular expression. It
+     * is small enough to not need to be split in an array
+     */
+    static constexpr auto value =
+      "BEGIN_SYMBOLS;"
+        "BASIC_SYMBOLS abcd';"
+      "END_SYMBOLS;"
+      "BEGIN_GROUPS;"
+        "a* = a*;"
+        "SYMBOLS_AS_GROUPS b c ';"
+        "d? = d?;"
+        "cd? = c.d?;"
+        "b|cd? = b|cd?;"
+        "(b|cd?)+ = `b|cd?`+;"
+        "BINARY_CLOSURE_ON . 'a*(b|cd?)+' ' a* (b|cd?)+ ';"
+      "END_GROUPS;";
+  };
+
+  /**
    * \brief Test all features of spark
    */
   static void test_all();
@@ -404,6 +428,16 @@ END_GROUPS;
    * \brief Test the regular_grammar type instantiation
    */
   static void test_regular_grammar_instantiation();
+
+  /**
+   * \brief testing the transcription algorithm to use at compile time
+   */
+  static void test_compile_time_transcription();
+
+  /**
+   * \brief testing the transcription algorithm to use at run time
+   */
+  static void test_run_time_transcription();
 };
 }
 

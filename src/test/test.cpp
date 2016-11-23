@@ -619,6 +619,9 @@ void test::spark_tester::test_all()
             << std::endl;
 
   test_regular_grammar();
+
+  test_compile_time_transcription();
+  test_run_time_transcription();
 }
 
 void test::spark_tester::test_regular_grammar()
@@ -647,11 +650,30 @@ void test::spark_tester::test_regular_grammar_instantiation()
   // testing with a little enough constexpr string returned by a function
   warp::spark::regular_grammar< regular_grammar_string_function > g3;
 
-  // testing with a little enough constexpr string returned by a function
+  // testing with an integral sequence
   warp::spark::regular_grammar
     < typename regular_grammar_sequence::sequence > g4;
 
-  ( void )g1, ( void )g2, ( void )g3, ( void )g4;
+  // testing a realistic minimalistic grammar
+  warp::spark::regular_grammar< minimal_interesting_regular_grammar > g5;
+
+  ( void )g1, ( void )g2, ( void )g3, ( void )g4, ( void )g5;
+}
+
+void test::spark_tester::test_compile_time_transcription()
+{
+  std::cout << "      +------------------------------------------+" << std::endl
+            << "      | spark compile time transcription testing |" << std::endl
+            << "      +------------------------------------------+" << std::endl
+            << std::endl;
+}
+
+void test::spark_tester::test_run_time_transcription()
+{
+  std::cout << "      +--------------------------------------+" << std::endl
+            << "      | spark run time transcription testing |" << std::endl
+            << "      +--------------------------------------+" << std::endl
+            << std::endl;
 }
 
 // doxygen
