@@ -73,6 +73,9 @@ accessible to the run time as well (for instance a JSON parser).
   3.1°) Transcriptors for compile-time
   3.2°) Transcriptors for run-time
 4°) Implementing the regular grammar as study case
+  4.1°) Checking validity of grammar
+  4.2°) C++ type system for regular grammars
+    4.2.1°) The symbol type
 
 1°) Grammars
 ------------
@@ -874,3 +877,51 @@ transcriptors to use.
 
   2.1°) Transcription algorithms for compile-time
   -----------------------------------------------
+
+4°) Implementing the regular grammar as study case
+--------------------------------------------------
+Regarding how regular grammar works, it is easy to make a parallel between the
+main grammar entities and template types. At least, I can extract the group and
+the symbol entities and make template type that could be parametered with some
+constants.
+Considering that, it's important to note that entity specified in transcription
+algorithms come from the user world. The language specified is defined by the
+user, the grammar is defined by the user and, the transcriptors are defined by
+the user. Thus, all of these must be checked for validity, especially the
+grammar.
+
+  4.1°) Checking validity of grammar
+  ----------------------------------
+From the spark's user point of view, a regular grammar definition is one of the
+operand to use in transcription algorithms (other operands being the language
+and the transcriptors).
+When the user use the grammar in a transcription algorithm, the grammar template
+is instantiated and a rough check is made about the grammar definition traits.
+For instance, the grammar type must expose either a static constexpr value
+member/function which the type or the returning type respectively is a char
+buffer or a static constexpr array containing char buffers (see 1.1.4.1°).
+Once the grammar passes this test, it must be transformed into something able to
+parse the user-input language. And guess what is the most suitable to transform
+something into another thing? A transcription algorithm for sure! And in order
+to do so, the regular grammar definition string need to be transformed into an
+integral sequence. This integral sequence will be used as a compile-time user
+input. In other word, the grammar become a language. But what is able to parse
+that language if there is not anymore grammar?
+
+  4.2°) C++ type system for regular grammars
+  ------------------------------------------
+Main entities of a grammar are the symbols and the groups. A C++ type system
+will be created using these concepts.
+
+    4.2.1°) The symbol type
+    -----------------------
+Regarding the symbol definition in a regular grammar (see 1.1.2°) you can see
+the symbol can have several types :
+- inclusive : recognizing a specific letter whose type depends on the type of
+  the regular grammar definition string
+- exclusive : recognizing all but specified characters. Types of letter depends
+  of the type of the regular grammar definition string
+- any : recognize anything.
+Regarding these facts, it's easy to imagine a set of enumerator to describe
+symbol types, then, create a set of template specialization for the symbol type.
+

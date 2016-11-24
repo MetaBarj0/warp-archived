@@ -2901,7 +2901,7 @@ namespace
 
       static_assert( warp::meta_sequence_operands_traits< B >::
                        is_char_buffer_value_type,
-                     "Invalid type used. Only integral sequence types are "
+                     "Invalid type used. Only char buffer value types are "
                      "allowed." );
 
       /**
@@ -3196,7 +3196,7 @@ namespace
     };
 
   /**
-   * \brief Non specialized version that deals with any type but nor avalid
+   * \brief Non specialized version that deals with any type but a valid
    * integral sequence nor a valid type sequence
    *
    * \tparam T any type but a valid type or integral sequence
@@ -3208,8 +3208,7 @@ namespace
 template< class T, class... B >
     struct runtime_access_for_impl
     {
-      static_assert( warp::meta_sequence_traits< T >::
-                       is_meta_sequence,
+      static_assert( warp::meta_sequence_traits< T >::is_meta_sequence,
                      "Invalid type used. Only meta sequence types are "
                      "allowed." );
     };
@@ -3248,9 +3247,23 @@ template< class T, class... B >
         /**
          * \brief Allows range for loops. relies on std::array exposition
          *
+         * \return address of the first element in the underlying array
+         */
+        constexpr auto cbegin() const { return array_.cbegin(); }
+
+        /**
+         * \brief Allows range for loops. relies on std::array exposition
+         *
          * \return address of the element after the end in the underlying array
          */
         constexpr auto end() const { return array_.end(); }
+
+        /**
+         * \brief Allows range for loops. relies on std::array exposition
+         *
+         * \return address of the element after the end in the underlying array
+         */
+        constexpr auto cend() const { return array_.cend(); }
 
       private :
         /**
@@ -3474,6 +3487,14 @@ template< class T, class... B >
   template< class, class... >
     class const_runtime_type_sequence;
 
+  /**
+   * \brief An iterator type used on a non empty const_runtime_type_sequence
+   * container. 
+   *
+   * \tparam B the value type of the iterator
+   * \tparam T first type of a non empty type sequence
+   * \tparam TS type pack, remainings type of the type sequence
+   */
   template< class B, class T, class... TS >
     class const_runtime_type_sequence_const_iterator< B, T, TS... >
     {
@@ -3889,7 +3910,6 @@ template< class T, class... B >
         }
       }
     };
-
 
   /**
    * \brief This specialization of container only works on an empty type
@@ -5067,7 +5087,7 @@ namespace warp
    *
    * \tparam T integral type used in the integral sequence
    * \tparam V the currently explored value
-   * \tparam S the current sul of all value exploredbut V
+   * \tparam S the current sum of all value exploredbut V
    * \tparam C the count of element explored
    */
   template< class T, T V, T S, std::size_t C >
@@ -5102,6 +5122,119 @@ namespace warp
               std::integral_constant< std::size_t, C + 1 >
             >
         >;
+    };
+
+  /**
+   * \brief Functor applying on an integral sequence and useable with the
+   * for_each_value_in algorithm. Give the number of element inside the
+   * sequence. This unspecialized version open the way for more specialized
+   * ones.
+   *
+   * \tparam T integral type used in the sequence
+   */
+  template< class T, T, class... >
+    struct count_integral;
+
+  /**
+   * \brief Specialization used when the first element of the sequence is
+   * explored.
+   *
+   * \tparam T the integral type used in the sequence
+   * \tparam V the first value of the sequence
+   */
+  template< class T, T V >
+    struct count_integral< T, V >
+    {
+      /**
+       * \brief Current size of the sequence being explored, no value has been
+       * explored yet
+       */
+      static constexpr std::size_t value = 0;
+
+      /**
+       * \brief Mandatory type exposition, get the next result afeter the first
+       * value has been explored
+       */
+      using next =
+        count_integral< T, V, std::integral_constant< std::size_t, 1 > >;
+    };
+
+  /**
+   * \brief Specialization after the first element of the sequence has been
+   * explored
+   *
+   * \tparam T the integral type used in the sequence
+   * \tparam V the current value of the sequence being explored
+   * \tparam S the current calculated size of the sequence
+   */
+  template< class T, T V, std::size_t S >
+    struct count_integral< T, V, std::integral_constant< std::size_t, S > >
+    {
+      /**
+       * \brief Before next element, if any, expose this value as size of the
+       * sequence
+       */
+      static constexpr auto value = S;
+
+      /**
+       * \brief Next calculation
+       */
+      using next =
+        count_integral< T, V, std::integral_constant< std::size_t, S + 1 > >;
+    };
+
+  /**
+   * \brief Functor applying on a type sequence and useable with the
+   * for_each_type_in algorithm. Give the number of element inside the sequence.
+   * This unspecialized version open the way for more specialized ones.
+   */
+  template< class, class... >
+    struct count_type;
+
+  /**
+   * \brief Specialization used when the first element of the sequence is
+   * explored.
+   *
+   * \tparam T the first type of the sequence
+   */
+  template< class T >
+    struct count_type< T >
+    {
+      /**
+       * \brief Current size of the sequence being explored, no type has been
+       * explored yet
+       */
+      static constexpr std::size_t value = 0;
+
+      /**
+       * \brief Mandatory type exposition, get the next result afeter the first
+       * value has been explored
+       */
+      using next =
+        count_type< T, std::integral_constant< std::size_t, 1 > >;
+    };
+
+  /**
+   * \brief Specialization after the first element of the sequence has been
+   * explored
+   *
+   * \tparam V the current type of the sequence being explored
+   * \tparam S the current calculated size of the sequence
+   */
+  template< class T, std::size_t S >
+    struct count_type < T, std::integral_constant< std::size_t, S > >
+    {
+      /**
+       * \brief Before next element, if any, expose this value as size of the
+       * sequence
+       */
+      static constexpr auto value = S;
+
+      /**
+       * \brief Next calculation
+       */
+      using next =
+        count_type< T, std::integral_constant< std::size_t, S + 1 > >;
     };
 
   /**

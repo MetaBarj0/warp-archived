@@ -1,5 +1,5 @@
-#ifndef _WARP_REGULAR_GRAMMAR_TRAITS_HPP_
-#define _WARP_REGULAR_GRAMMAR_TRAITS_HPP_
+#ifndef _WARP_SPARK_REGULAR_GRAMMAR_TRAITS_HPP_
+#define _WARP_SPARK_REGULAR_GRAMMAR_TRAITS_HPP_
 
 #include "../core/type_traits.hpp"
 #include "../sequences/algorithm.hpp"
@@ -147,55 +147,62 @@ namespace
 
 namespace warp::spark
 {
-/**
- * \brief Traits class dealing with a regular grammar definition type. This
- * unspecialized version deal with regular grammar definition type exposing
- * either a value or a value() or an array member within.
- *
- * \tparam T the regular grammar definition of form value type or array type
- */
-template< class T >
-  struct regular_grammar_definition_traits
-  {
-    /**
-     * \brief Ensures that T::value, t::value() or t::array expressions are of
-     * valid char buffer type, using dedicated traits classes. Ensures also that
-     * T exposes exclusively one of these form, not several.
-     */
-    static constexpr bool is_valid =
-      char_buffer_value_traits< T >::is_valid ^
-      char_buffer_array_traits< T >::is_valid;
+  /**
+   * \brief Traits class dealing with a regular grammar definition type. This
+   * unspecialized version deal with regular grammar definition type exposing
+   * either a value or a value() or an array member within.
+   *
+   * \tparam T the regular grammar definition of form value type or array type
+   */
+  template< class T >
+    struct regular_grammar_definition_traits
+    {
+      /**
+       * \brief Ensures that T::value, t::value() or t::array expressions are of
+       * valid char buffer type, using dedicated traits classes. Ensures also
+       * that T exposes exclusively one of these form, not several.
+       */
+      static constexpr bool is_valid =
+        char_buffer_value_traits< T >::is_valid ^
+        char_buffer_array_traits< T >::is_valid;
 
-    /**
-     * \brief Once the validity of T is established, uniform the regular grammar
-     * definition string into an integral sequence.
-     */
-    using sequence_type = typename build_sequence_from< T >::type;
-  };
+      /**
+       * \brief Once the validity of T is established, uniform the regular
+       * grammar definition string into an integral sequence.
+       */
+      using sequence_type = typename build_sequence_from< T >::type;
+    };
 
-/**
- * \brief This specialization deals with a regular grammar definition already
- * having the form of an integral sequence. Some compile time computations are
- * unnecessary here and this type only ensures that the integral type used in
- * the sequence is a valid char type.
- *
- * \tparam S integral sequence template
- * \tparam C integral type used in the sequence
- * \tparam VS value pack contained in the integral sequence
- */
-template< template< class T, T... > class S, class C, C... VS >
-  struct regular_grammar_definition_traits< S< C, VS... > >
-  {
-    /**
-     * \brief Ensures the integral type of the sequence is a valid char type
-     */
-    static constexpr bool is_valid = is_char< C >::value;
+  /**
+   * \brief This specialization deals with a regular grammar definition already
+   * having the form of an integral sequence. Some compile time computations are
+   * unnecessary here and this type only ensures that the integral type used in
+   * the sequence is a valid char type.
+   *
+   * \tparam S integral sequence template
+   * \tparam C integral type used in the sequence
+   * \tparam VS value pack contained in the integral sequence
+   */
+  template< template< class T, T... > class S, class C, C... VS >
+    struct regular_grammar_definition_traits< S< C, VS... > >
+    {
+      /**
+       * \brief Ensures the integral type of the sequence is a valid char type
+       */
+      static constexpr bool is_valid = is_char< C >::value;
 
-    /**
-     * \brief Finally, exposes the sequence as is, no computations needed
-     */
-    using sequence_type = S< C, VS... >;
-  };
+      /**
+       * \brief Finally, exposes the sequence as is, no computations needed
+       */
+      using sequence_type = S< C, VS... >;
+    };
 }
 
-#endif // _WARP_REGULAR_GRAMMAR_TRAITS_HPP_
+#endif // _WARP_SPARK_REGULAR_GRAMMAR_TRAITS_HPP_
+
+// doxygen
+/**
+ * \file
+ * \brief This file contains types exposing traits relative to regular_grammar
+ * type.
+ */

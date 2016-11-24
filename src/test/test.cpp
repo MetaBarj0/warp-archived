@@ -523,6 +523,14 @@ void test::sequence_algorithms_tester::test_for_each()
     typename warp::for_each_type_in_t
     < typ_seq_0, warp::first_biggest_type >::type;
 
+  static constexpr auto count_type =
+    warp::for_each_type_in_t
+    < typ_seq_0, warp::count_type >::value;
+
+  static constexpr auto count_integral =
+    warp::for_each_value_in_t
+    < int_seq_0, warp::count_integral >::value;
+
   ( void )average;
   ( void )sum;
   ( void )min;
@@ -531,6 +539,8 @@ void test::sequence_algorithms_tester::test_for_each()
   ( void )std::enable_if_t< true, first_strictest_alignment_type >{};
   ( void )biggest_type_size;
   ( void )std::enable_if_t< true, biggest_type >{};
+  ( void ) count_type;
+  ( void ) count_integral;
 }
 
 void test::sequence_algorithms_tester::test_runtime_access_for()

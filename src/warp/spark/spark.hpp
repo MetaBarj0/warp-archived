@@ -1,5 +1,5 @@
-#ifndef _WARP_SPARK_HPP_
-#define _WARP_SPARK_HPP_
+#ifndef _WARP_SPARK_SPARK_HPP_
+#define _WARP_SPARK_SPARK_HPP_
 
 #include "regular_grammar.hpp"
 
@@ -11,7 +11,7 @@ namespace warp::spark
 {
 } // namespace warp::spark
 
-#endif // _WARP_SPARK_HPP_
+#endif // _WARP_SPARK_SPARK_HPP_
 
 // doxygen
 /**
