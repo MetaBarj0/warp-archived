@@ -2,6 +2,7 @@
 #define _WARP_SPARK_SPARK_HPP_
 
 #include "regular_grammar.hpp"
+#include "regular_grammar_traits.hpp"
 
 /**
  * \brief This namespace contains all stuff that is related to formal language

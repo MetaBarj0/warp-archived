@@ -2,44 +2,9 @@
 #define _WARP_SPARK_REGULAR_GRAMMAR_HPP_
 
 #include "../core/types.hpp"
-#include "regular_grammar_traits.hpp"
 #include "regular_grammar_type_system.hpp"
 
 #include <type_traits>
-
-namespace
-{
-  /**
-   * \brief Hidden implementation of the regular_grammar template. This type is
-   * not accessible outside of its compilation unit and contains all that is
-   * necessary to implement the regular_grammar concept. This type will performs
-   * all compile time checks to ensure the regular grammar definition validity
-   * and, if appropriate, provide and understandable error message at compile
-   * time.
-   *
-   * \tparam T the regular grammar definition
-   */
-  template< class T >
-    struct regular_grammar_impl
-    {
-      static_assert( warp::spark::regular_grammar_definition_traits< T >::
-                       is_valid,
-                     "Specified regular grammar definition string (T template "
-                     "parameter) is not a valid. Please, refer to the "
-                     "documentation to know how to define valid regular "
-                     "grammars usable by spark." );
-
-      /**
-       * \brief Define an uniformed form of regular grammar definition. At this
-       * point, regular grammar definition is considered valid and is
-       * transformed into an integral sequence containing each characters of the
-       * regular grammar definition using a dedicated traits class.
-       */
-      using regular_grammar_definition_sequence =
-        typename warp::spark::regular_grammar_definition_traits< T >::
-        sequence_type;
-    };
-}
 
 namespace warp::spark
 {
@@ -52,8 +17,10 @@ namespace warp::spark
    * automata as underlying structure to represent such grammars. Other
    * representations will be discussed for other grammar types.
    *
-   * \tparam T A value type or array type. Such type can be simple class or
-   * struct containing either :
+   * \tparam T A value type or array type or an integral sequence. Such type can
+   * be simple class or struct containing either :
+   * - an integral sequence containing each character of the regular grammar
+   *   definition string
    * - a static value member of constexpr constant char buffer type
    * \code
    * struct grammar_string { static constexpr auto value = "..."; };
@@ -73,18 +40,6 @@ namespace warp::spark
   template< class T >
     class regular_grammar
     {
-      /**
-       * \brief Alias on the hidden implementation
-       */
-      using impl = regular_grammar_impl< T >;
-
-      /**
-       * \brief Exposing the integral sequence containing each character of the
-       * regular grammar definition string. This sequence will be used as
-       * compile-time input language and transformed into an expression template
-       * usable as grammar for client input.
-       */
-      using sequence = typename impl::regular_grammar_definition_sequence;
     };
 } // namespace warp::spark
 

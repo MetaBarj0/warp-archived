@@ -1,6 +1,7 @@
 #ifndef _WARP_SPARK_REGULAR_GRAMMAR_TRAITS_HPP_
 #define _WARP_SPARK_REGULAR_GRAMMAR_TRAITS_HPP_
 
+#include "regular_grammar.hpp"
 #include "../core/type_traits.hpp"
 #include "../sequences/algorithm.hpp"
 
@@ -100,7 +101,7 @@ namespace
         < warp::integral_sequence< char_type >, N - 1 >::type;
     };
 
-  template< class, class = warp::sfinae_type<>::type >
+  template< class, bool, class = warp::sfinae_type<>::type >
     struct build_sequence_from
     {
       using type = warp::undefined_type;
@@ -109,7 +110,7 @@ namespace
   template< class T >
     struct build_sequence_from
     <
-      T,
+      T, true,
       typename warp::sfinae_type
         <
           std::enable_if_t
@@ -126,7 +127,7 @@ namespace
 
   template< class T >
     struct build_sequence_from
-    < T, typename warp::sfinae_type< decltype( T::value() ) >::type >
+    < T, true, typename warp::sfinae_type< decltype( T::value() ) >::type >
     {
       using char_type = std::remove_pointer_t< decltype( T::value() ) >;
 
@@ -137,7 +138,7 @@ namespace
 
   template< class T >
     struct build_sequence_from
-    < T, typename warp::sfinae_type< decltype( T::array ) >::type >
+    < T, true, typename warp::sfinae_type< decltype( T::array ) >::type >
     {
       using array_type = decltype( T::array );
 
@@ -170,7 +171,7 @@ namespace warp::spark
        * \brief Once the validity of T is established, uniform the regular
        * grammar definition string into an integral sequence.
        */
-      using sequence_type = typename build_sequence_from< T >::type;
+      using sequence = typename build_sequence_from< T, is_valid >::type;
     };
 
   /**
@@ -194,7 +195,16 @@ namespace warp::spark
       /**
        * \brief Finally, exposes the sequence as is, no computations needed
        */
-      using sequence_type = S< C, VS... >;
+      using sequence = S< C, VS... >;
+    };
+
+  template< class T >
+    struct regular_grammar_traits;
+
+  template< class T >
+    struct regular_grammar_traits< regular_grammar< T > >
+    {
+      using grammar_definition = T;
     };
 }
 

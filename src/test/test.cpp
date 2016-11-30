@@ -668,6 +668,13 @@ void test::spark_tester::test_regular_grammar_instantiation()
   warp::spark::regular_grammar< minimal_interesting_regular_grammar > g5;
 
   ( void )g1, ( void )g2, ( void )g3, ( void )g4, ( void )g5;
+
+  // testing traits
+  using rgt = warp::spark::regular_grammar_traits< decltype( g5 ) >;
+  using rgdt =
+    warp::spark::regular_grammar_definition_traits< rgt::grammar_definition >;
+
+  static_assert( rgdt::is_valid, "invalid regular grammar type");
 }
 
 void test::spark_tester::test_compile_time_transcription()
