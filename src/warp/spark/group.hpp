@@ -20,33 +20,33 @@ namespace warp::spark
     alternation
   };
 
+  /**
+   * \brief Representing all unary closure types a group can have in its type
+   * definition. Unary closures are quantifiers such as the kleen's star
+   **/
+  enum class group_unary_closures
+  {
     /**
-     * \brief Representing all unary closure types a group can have in its type
-     * definition. Unary closures are quantifiers such as the kleen's star
+     * \brief Representing the '?' quantifier closure in a regular expression
      **/
-    enum class group_unary_closures
-    {
-      /**
-       * \brief Representing the '?' quantifier closure in a regular expression
-       **/
-      zero_one,
+    zero_one,
 
-      /**
-       * \brief Representing the no quantifier closure in a regular expression
-       **/
-      one_one,
+    /**
+     * \brief Representing the no quantifier closure in a regular expression
+     **/
+    one_one,
 
-      /**
-       * \brief Representing the quantifier '*' closure in a regular expression.
-       * Also know as the Kleen's star closure.
-       **/
-      zero_many,
+    /**
+     * \brief Representing the quantifier '*' closure in a regular expression.
+     * Also know as the Kleen's star closure.
+     **/
+    zero_many,
 
-      /**
-       * \brief Representing the quantifier '+' closure in a regular expression.
-       **/
-      one_many
-    };
+    /**
+     * \brief Representing the quantifier '+' closure in a regular expression.
+     **/
+    one_many
+  };
 }
 
 #endif // _WARP_SPARK_GROUP_HPP_

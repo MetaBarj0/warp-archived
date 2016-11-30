@@ -51,7 +51,7 @@ namespace warp::spark
     class symbol< NAME, symbol_types::inclusive, LETTER_SEQUENCE >
     {
       // check type and content of NAME
-      static_assert( meta_sequence_traits< NAME >::integral_sequence,
+      static_assert( meta_sequence_traits< NAME >::is_integral_sequence,
                      "The symbol's name (NAME template parameter) is intended "
                      "to be an integral sequence." );
 
@@ -60,19 +60,16 @@ namespace warp::spark
                      "empty." );
 
       // checking the type of LETTER_SEQUENCE
-      static_assert( meta_sequence_traits< LETTER_SEQUENCE >::integral_sequence,
+      static_assert( meta_sequence_traits< LETTER_SEQUENCE >::
+                       is_integral_sequence,
                      "The letter sequence recognized by the symbol "
                      "(LETTER_SEQUENCE template parameter) is intended to be "
                      "an integral sequence." );
 
-      /**
-       * \brief Alias on the letter sequence after removed all duplicated values
-       */
-      using letter_sequence_unique = unique_on_t< LETTER_SEQUENCE >;
-
       // checking the size of LETTER_SEQUENCE
       static_assert( for_each_value_in_t
-                       < letter_sequence_unique, count_integral >::value == 1,
+                       < unique_on_t< LETTER_SEQUENCE >, count_integral >::
+                       value == 1,
                      "The letter sequence recognized by the symbol "
                      "(LETTER_SEQUENCE template parameter) must contain only "
                      " one element. Inclusive symbols can recognize only one "
@@ -91,7 +88,7 @@ namespace warp::spark
     class symbol< NAME, symbol_types::exclusive, LETTER_SEQUENCE >
     {
       // check type and content of NAME
-      static_assert( meta_sequence_traits< NAME >::integral_sequence,
+      static_assert( meta_sequence_traits< NAME >::is_integral_sequence,
                      "The symbol's name (NAME template parameter) is intended "
                      "to be an integral sequence." );
 
@@ -100,7 +97,8 @@ namespace warp::spark
                      "empty." );
 
       // checking the type and content of LETTER_SEQUENCE
-      static_assert( meta_sequence_traits< LETTER_SEQUENCE >::integral_sequence,
+      static_assert( meta_sequence_traits< LETTER_SEQUENCE >::
+                       is_integral_sequence,
                      "The letter sequence recognized by the symbol "
                      "(LETTER_SEQUENCE template parameter) is intended to be "
                      "an integral sequence." );
@@ -120,7 +118,7 @@ namespace warp::spark
     class symbol< NAME, symbol_types::any >
     {
       // check type and content of NAME
-      static_assert( meta_sequence_traits< NAME >::integral_sequence,
+      static_assert( meta_sequence_traits< NAME >::is_integral_sequence,
                      "The symbol's name (NAME template parameter) is intended "
                      "to be an integral sequence." );
 
