@@ -6,8 +6,11 @@
 #include "../sequences/algorithm.hpp"
 
 #include <cstdlib>
-#include <type_traits>
+#include <type_traitsi
 
+/**
+ * \todo most of this code will be moved out to regular_grammar.hpp
+ */
 namespace
 {
   template< class T >
