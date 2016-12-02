@@ -6,7 +6,7 @@
 #include "../sequences/algorithm.hpp"
 
 #include <cstdlib>
-#include <type_traitsi
+#include <type_trait>
 
 /**
  * \todo most of this code will be moved out to regular_grammar.hpp
