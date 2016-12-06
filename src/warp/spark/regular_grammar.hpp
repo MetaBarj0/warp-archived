@@ -4,6 +4,52 @@
 #include "../core/types.hpp"
 #include "regular_grammar_type_system.hpp"
 
+namespace
+{
+  template< class T >
+    struct char_buffer_value_traits
+    {
+      static constexpr bool is_valid =
+        warp::has_static_char_buffer_value_member< T >::value ^
+        warp::has_static_char_buffer_value_method< T >::value;
+    };
+
+  template< class >
+    struct is_char_buffer_array
+    {
+      static constexpr bool value = false;
+    };
+
+  template< class T, std::size_t N >
+    struct is_char_buffer_array< T[ N ] >
+    {
+      static constexpr bool value =
+        ( N > 0 ) &&
+        ( warp::is_char_buffer< T >::value );
+    };
+
+  template< class, class = typename warp::sfinae_type<>::type >
+    struct has_static_char_buffer_array_member
+    {
+      static constexpr bool value = false;
+    };
+
+  template< class T >
+    struct has_static_char_buffer_array_member
+    < T, typename warp::sfinae_type< decltype( T::array ) >::type >
+    {
+      static constexpr bool value =
+        is_char_buffer_array< decltype( T::array ) >::value;
+    };
+
+  template< class T >
+    struct char_buffer_array_traits
+    {
+      static constexpr bool is_valid =
+        has_static_char_buffer_array_member< T >::value;
+    };
+}
+
 namespace warp::spark
 {
   /**
@@ -34,9 +80,20 @@ namespace warp::spark
   template< template< class C, C... > class S, class T, T... VS >
     class regular_grammar< S< T, VS... > >
     {
-      /**
-       * \todo ensure correctness of the integral sequence type
-       */
+      template< class >
+        friend struct regular_grammar_traits;
+
+      // ensure the provided type is a valid integral sequence
+      static_assert( is_char< T >::value,
+                     "Invalid template parameter specified. The provided "
+                     "sequence (S template parameter) is intended to be an "
+                     "integral sequence parameterized with a char type.");
+
+      // an empty integral sequence cannot contain a valid regular grammar
+      // definition
+      static_assert( ! warp::is_empty_sequence< S< T, VS... > >::value,
+                     "Empty integral sequence cannot be valid regular grammar "
+                     "definition." );
 
       /**
        * \todo transform this grammar into a group expression template here
@@ -80,9 +137,15 @@ namespace warp::spark
   template< class T >
     class regular_grammar
     {
-      /**
-       * \todo ensure correctness of the value or array type
-       */
+      template< class >
+        friend struct regular_grammar_traits;
+      
+      // ensure the correctness of T
+      static_assert( char_buffer_value_traits< T >::is_valid ^
+                       char_buffer_array_traits< T >::is_valid,
+                    "Invalid grammar definition specified (T template "
+                    "parameter). Ensure to follow the documentation to know "
+                    "how to build a valid regular grammar definition type.");
 
       /**
        * \todo Use the type provided by the specialization using an integral

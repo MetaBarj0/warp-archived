@@ -13,49 +13,6 @@
  */
 namespace
 {
-  template< class T >
-    struct char_buffer_value_traits
-    {
-      static constexpr bool is_valid =
-        warp::has_static_char_buffer_value_member< T >::value ^
-        warp::has_static_char_buffer_value_method< T >::value;
-    };
-
-  template< class >
-    struct is_char_buffer_array
-    {
-      static constexpr bool value = false;
-    };
-
-  template< class T, std::size_t N >
-    struct is_char_buffer_array< T[ N ] >
-    {
-      static constexpr bool value =
-        ( N > 0 ) &&
-        ( warp::is_char_buffer< T >::value );
-    };
-
-  template< class, class = typename warp::sfinae_type<>::type >
-    struct has_static_char_buffer_array_member
-    {
-      static constexpr bool value = false;
-    };
-
-  template< class T >
-    struct has_static_char_buffer_array_member
-    < T, typename warp::sfinae_type< decltype( T::array ) >::type >
-    {
-      static constexpr bool value =
-        is_char_buffer_array< decltype( T::array ) >::value;
-    };
-
-  template< class T >
-    struct char_buffer_array_traits
-    {
-      static constexpr bool is_valid =
-        has_static_char_buffer_array_member< T >::value;
-    };
-
   template< class, class >
     struct join_array_in_sequence;
 
@@ -104,7 +61,7 @@ namespace
         < warp::integral_sequence< char_type >, N - 1 >::type;
     };
 
-  template< class, bool, class = warp::sfinae_type<>::type >
+  template< class, class = warp::sfinae_type<>::type >
     struct build_sequence_from
     {
       using type = warp::undefined_type;
@@ -113,7 +70,7 @@ namespace
   template< class T >
     struct build_sequence_from
     <
-      T, true,
+      T,
       typename warp::sfinae_type
         <
           std::enable_if_t
@@ -130,7 +87,7 @@ namespace
 
   template< class T >
     struct build_sequence_from
-    < T, true, typename warp::sfinae_type< decltype( T::value() ) >::type >
+    < T, typename warp::sfinae_type< decltype( T::value() ) >::type >
     {
       using char_type = std::remove_pointer_t< decltype( T::value() ) >;
 
@@ -141,7 +98,7 @@ namespace
 
   template< class T >
     struct build_sequence_from
-    < T, true, typename warp::sfinae_type< decltype( T::array ) >::type >
+    < T, typename warp::sfinae_type< decltype( T::array ) >::type >
     {
       using array_type = decltype( T::array );
 
@@ -162,19 +119,10 @@ namespace warp::spark
     struct regular_grammar_definition_traits
     {
       /**
-       * \brief Ensures that T::value, t::value() or t::array expressions are of
-       * valid char buffer type, using dedicated traits classes. Ensures also
-       * that T exposes exclusively one of these form, not several.
+       * \brief Uniforms the regular grammar definition string into an integral
+       * sequence.
        */
-      static constexpr bool is_valid =
-        char_buffer_value_traits< T >::is_valid ^
-        char_buffer_array_traits< T >::is_valid;
-
-      /**
-       * \brief Once the validity of T is established, uniform the regular
-       * grammar definition string into an integral sequence.
-       */
-      using sequence = typename build_sequence_from< T, is_valid >::type;
+      using sequence = typename build_sequence_from< T >::type;
     };
 
   /**
@@ -191,11 +139,6 @@ namespace warp::spark
     struct regular_grammar_definition_traits< S< C, VS... > >
     {
       /**
-       * \brief Ensures the integral type of the sequence is a valid char type
-       */
-      static constexpr bool is_valid = is_char< C >::value;
-
-      /**
        * \brief Finally, exposes the sequence as is, no computations needed
        */
       using sequence = S< C, VS... >;
@@ -204,10 +147,12 @@ namespace warp::spark
   template< class T >
     struct regular_grammar_traits;
 
-  template< class T >
-    struct regular_grammar_traits< regular_grammar< T > >
+  template< template< class > class G, class T >
+    struct regular_grammar_traits< G< T > >
     {
       using grammar_definition = T;
+
+      using group_type = typename G< T >::group_type;
     };
 }
 

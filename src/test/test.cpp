@@ -671,10 +671,11 @@ void test::spark_tester::test_regular_grammar_instantiation()
 
   // testing traits
   using rgt = warp::spark::regular_grammar_traits< decltype( g5 ) >;
-  using rgdt =
-    warp::spark::regular_grammar_definition_traits< rgt::grammar_definition >;
+  using rgd = typename rgt::grammar_definition;
+  using rgdt = typename warp::spark::regular_grammar_definition_traits< rgd >;
+  using rgds = typename rgdt::sequence;
 
-  static_assert( rgdt::is_valid, "invalid regular grammar type");
+  static_assert( warp::meta_sequence_traits< rgds >::is_integral_sequence, "" );
 }
 
 void test::spark_tester::test_compile_time_transcription()
