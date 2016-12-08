@@ -8,9 +8,6 @@
 #include <cstdlib>
 #include <type_traits>
 
-/**
- * \todo most of this code will be moved out to regular_grammar.hpp
- */
 namespace
 {
   template< class, class >
@@ -144,14 +141,32 @@ namespace warp::spark
       using sequence = S< C, VS... >;
     };
 
-  template< class T >
+  /**
+   * \brief This class exposes some stuff relative to regular grammar types.
+   * unspecialized version.
+   */
+  template< class >
     struct regular_grammar_traits;
 
+  /**
+   * \brief Specialized version of traits class working with any type having a
+   * template signature of a regular grammar type
+   *
+   * \tparam G template of a regular grammar
+   * \tparam T the regular grammar definition type
+   */
   template< template< class > class G, class T >
     struct regular_grammar_traits< G< T > >
     {
+      /**
+       * \brief Exposing the grammar definition
+       */
       using grammar_definition = T;
 
+      /**
+       * \brief Exposing the group type. group is part of the regular grammar
+       * type system.
+       */
       using group_type = typename G< T >::group_type;
     };
 }

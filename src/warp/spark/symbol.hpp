@@ -30,35 +30,32 @@ namespace warp::spark
   /**
    * \brief General form of the type representing a regular grammar symbol
    *
-   * \tparam NAME the name of this symbol, intended to be an integral sequence
+   * \tparam ID_TYPE integral type of the symbol's id
+   * \tparam ID numerical identifier of this symbol
    * \tparam SYMBOL_TYPE member of the scoped enum symbol_types giving the type
    * of the symbol on wich this type is working on.
    * \tparam LETTER_SEQUENCE sequence of characters containing either the letter
    * the symbol is recognizing or the set of letter the symbol can't recognize
    **/
-  template< class NAME,  symbol_types SYMBOL_TYPE, class... LETTER_SEQUENCE >
+  template
+    <
+      class ID_TYPE, ID_TYPE ID,
+      symbol_types SYMBOL_TYPE, class... LETTER_SEQUENCE
+    >
     class symbol;
 
   /**
    * \brief Specific specialization working with inclusive symbol type.
    * Inclusive symbol recognizes a single letter.
    *
-   * \tparam NAME the name of this symbol, intended to be an integral sequence
+   * \tparam ID_TYPE integral type of the symbol's id
+   * \tparam ID numerical identifier of this symbol
    * \tparam LETTER_SEQUENCE sequence of characters containing the letter the
    * symbol is recognizing
    **/
-  template< class NAME, class LETTER_SEQUENCE >
-    class symbol< NAME, symbol_types::inclusive, LETTER_SEQUENCE >
+  template< class ID_TYPE, ID_TYPE ID, class LETTER_SEQUENCE >
+    class symbol< ID_TYPE, ID, symbol_types::inclusive, LETTER_SEQUENCE >
     {
-      // check type and content of NAME
-      static_assert( meta_sequence_traits< NAME >::is_integral_sequence,
-                     "The symbol's name (NAME template parameter) is intended "
-                     "to be an integral sequence." );
-
-      static_assert( ! is_empty_sequence< NAME >::value,
-                     "The symbol's name (NAME template parameter) cannot be "
-                     "empty." );
-
       // checking the type of LETTER_SEQUENCE
       static_assert( meta_sequence_traits< LETTER_SEQUENCE >::
                        is_integral_sequence,
@@ -80,22 +77,14 @@ namespace warp::spark
    * \brief Specific specialization working with exclusive symbol type.
    * Exclusive symbol represents any letters but those that are specified
    *
-   * \tparam NAME the name of this symbol, intended to be an integral sequence
+   * \tparam ID_TYPE integral type of the symbol's id
+   * \tparam ID numerical identifier of this symbol
    * \tparam LETTER_SEQUENCE sequence of characters containing letters the
    * symbol is recognizing
    **/
-  template< class NAME, class LETTER_SEQUENCE >
-    class symbol< NAME, symbol_types::exclusive, LETTER_SEQUENCE >
+  template< class ID_TYPE, ID_TYPE ID, class LETTER_SEQUENCE >
+    class symbol< ID_TYPE, ID, symbol_types::exclusive, LETTER_SEQUENCE >
     {
-      // check type and content of NAME
-      static_assert( meta_sequence_traits< NAME >::is_integral_sequence,
-                     "The symbol's name (NAME template parameter) is intended "
-                     "to be an integral sequence." );
-
-      static_assert( ! is_empty_sequence< NAME >::value,
-                     "The symbol's name (NAME template parameter) cannot be "
-                     "empty." );
-
       // checking the type and content of LETTER_SEQUENCE
       static_assert( meta_sequence_traits< LETTER_SEQUENCE >::
                        is_integral_sequence,
@@ -112,19 +101,12 @@ namespace warp::spark
    * \brief Specific specialization working with any symbol type.
    * Any symbol type recognizes any letter.
    *
-   * \tparam NAME the name of this symbol, intended to be an integral sequence
+   * \tparam ID_TYPE integral type of the symbol's id
+   * \tparam ID numerical identifier of this symbol
    **/
-  template< class NAME >
-    class symbol< NAME, symbol_types::any >
+  template< class ID_TYPE, ID_TYPE ID >
+    class symbol< ID_TYPE, ID, symbol_types::any >
     {
-      // check type and content of NAME
-      static_assert( meta_sequence_traits< NAME >::is_integral_sequence,
-                     "The symbol's name (NAME template parameter) is intended "
-                     "to be an integral sequence." );
-
-      static_assert( ! is_empty_sequence< NAME >::value,
-                     "The symbol's name (NAME template parameter) cannot be "
-                     "empty." );
     };
 } // namespace warp::spark
 

@@ -80,9 +80,6 @@ namespace warp::spark
   template< template< class C, C... > class S, class T, T... VS >
     class regular_grammar< S< T, VS... > >
     {
-      template< class >
-        friend struct regular_grammar_traits;
-
       // ensure the provided type is a valid integral sequence
       static_assert( is_char< T >::value,
                      "Invalid template parameter specified. The provided "
@@ -94,6 +91,12 @@ namespace warp::spark
       static_assert( ! warp::is_empty_sequence< S< T, VS... > >::value,
                      "Empty integral sequence cannot be valid regular grammar "
                      "definition." );
+
+      /**
+       * \brief Ensure an access for traits
+       */
+      template< class >
+        friend struct regular_grammar_traits;
 
       /**
        * \todo transform this grammar into a group expression template here
@@ -137,15 +140,18 @@ namespace warp::spark
   template< class T >
     class regular_grammar
     {
-      template< class >
-        friend struct regular_grammar_traits;
-      
       // ensure the correctness of T
       static_assert( char_buffer_value_traits< T >::is_valid ^
                        char_buffer_array_traits< T >::is_valid,
                     "Invalid grammar definition specified (T template "
                     "parameter). Ensure to follow the documentation to know "
                     "how to build a valid regular grammar definition type.");
+
+      /**
+       * \brief Ensure an access for traits
+       */
+      template< class >
+        friend struct regular_grammar_traits;
 
       /**
        * \todo Use the type provided by the specialization using an integral
