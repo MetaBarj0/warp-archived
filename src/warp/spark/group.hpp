@@ -47,6 +47,13 @@ namespace warp::spark
      **/
     one_many
   };
+
+  template
+    <
+      class CLOSURE_TYPE, CLOSURE_TYPE CLOSURE,
+      class FIRST_GROUP_OR_SYMBOL, class... LAST_GROUP
+    >
+    class group;
 }
 
 #endif // _WARP_SPARK_GROUP_HPP_

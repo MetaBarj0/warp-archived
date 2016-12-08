@@ -10,26 +10,58 @@
 
 namespace
 {
+  /**
+   * \brief An internal feature joining char buffer array within a sequence type
+   */
   template< class, class >
     struct join_array_in_sequence;
 
+  /**
+   * \brief Specialization dealing with the last element of the array
+   *
+   * \tparam T the array type, exposing the array member
+   * \tparam U the type of the array (char buffer)
+   * \tparam N the size of the array
+   */
   template< class T, class U, std::size_t N >
     struct join_array_in_sequence< T, U[ N ] >
     {
+      /**
+       * \brief Grab the char type of the array's element
+       */
       using char_type = std::remove_pointer_t< U >;
 
+      /**
+       * \brief Push an array element inside the specified sequence
+       *
+       * \brief S sequence in which push front a buffer
+       * \tparam I index where a buffer is located in T::array
+       */
       template< class S, std::size_t I >
         struct push_front_char_buffer_in_sequence
         {
+          /**
+           * \brief Makes a value type with array's element
+           */
           struct current_buffer
           {
+            /**
+             * \brief Mandatory to build a value type
+             */
             static constexpr auto value = T::array[ I ];
           };
 
+          /**
+           * \brief Build a temporary sequence with found buffer
+           */
           using current_sequence =
             warp::append_char_buffer_in_t
             < warp::integral_sequence< char_type >, current_buffer >;
 
+          /**
+           * \brief merge the temporary sequence inside the target one, then,
+           * recursively call the feature
+           */
           using type =
             typename push_front_char_buffer_in_sequence
             <
@@ -38,32 +70,66 @@ namespace
             >::type;
         };
 
+      /**
+       * \brief Adds the last array element inside the sequence
+       *
+       * \tparam S the sequence containing all array buffer but the first
+       */
       template< class S >
         struct push_front_char_buffer_in_sequence< S, 0 >
         {
+          /**
+           * \brief A value type containing the array element
+           */
           struct current_buffer
           {
+            /**
+             * \brief Requirement for a value type
+             */
             static constexpr auto value = T::array[ 0 ];
           };
 
+          /**
+           * \brief Create a temporary sequence with the current buffer
+           */
           using current_sequence =
             warp::append_char_buffer_in_t
             < warp::integral_sequence< char_type >, current_buffer >;
 
+          /**
+           * \brief Uses the merge algorithm to obtain the final sequence
+           */
           using type = warp::merge_sequence_t< current_sequence, S >;
         };
 
+      /**
+       * \brief add this char buffer to the resulting sequence
+       */
       using type =
         typename push_front_char_buffer_in_sequence
         < warp::integral_sequence< char_type >, N - 1 >::type;
     };
 
+  /**
+   * \brief How to build an integral sequence from a constexpr array or string?
+   * Use this type.
+   */
   template< class, class = warp::sfinae_type<>::type >
     struct build_sequence_from
     {
+      /**
+       * \brief SFINAE friendly specialization detecting that the template
+       * parameter passed is not an array type nor a value type
+       */
       using type = warp::undefined_type;
     };
 
+  /**
+   * \brief SFINAE friendly specialization triggered if provided template
+   * parameter is a value type of char type
+   *
+   * \tparam T a value type containing a value member of char type
+   */
   template< class T >
     struct build_sequence_from
     <
@@ -75,30 +141,77 @@ namespace
         >::type
     >
     {
+      /**
+       * \brief Grab the char type
+       */
       using char_type = std::remove_pointer_t< decltype( T::value ) >;
 
+      /**
+       * \brief expose the resulting sequence
+       */
       using type =
         warp::append_char_buffer_in_t
         < warp::integral_sequence< char_type >, T >;
     };
 
+  /**
+   * \brief SFINAE friendly specialization triggered if provided template
+   * parameter is a value type of char type
+   *
+   * \tparam T a value type containing a value function returning a char type
+   */
   template< class T >
     struct build_sequence_from
-    < T, typename warp::sfinae_type< decltype( T::value() ) >::type >
+    <
+      T,
+      typename warp::sfinae_type
+        <
+          std::enable_if
+            < warp::is_char_buffer< decltype( T::value() ) >::value >
+        >::type
+    >
     {
+      /**
+       * \brief Grab the char type
+       */
       using char_type = std::remove_pointer_t< decltype( T::value() ) >;
 
+      /**
+       * \brief Exposes the resulting sequence
+       */
       using type =
         warp::append_char_buffer_in_t
         < warp::integral_sequence< char_type >, T >;
     };
 
+  /**
+   * \brief SFINAE friendly specialization dealing with array type (type having
+   * an array of char buffer member)
+   *
+   * \tparam T an array of char buffer type
+   */
   template< class T >
     struct build_sequence_from
-    < T, typename warp::sfinae_type< decltype( T::array ) >::type >
+    <
+      T,
+      typename warp::sfinae_type
+        <
+          std::enable_if_t
+            <
+              warp::is_char_buffer
+                < std::remove_extent_t< decltype( T::array ) > >::value
+            >
+        >::type
+    >
     {
+      /**
+       * \brief Grab the array type
+       */
       using array_type = decltype( T::array );
 
+      /**
+       * \brief Uses an internal feature to unfold the array into a sequence
+       */
       using type = typename join_array_in_sequence< T, array_type >::type;
     };
 }

@@ -924,4 +924,3 @@ the symbol can have several types :
 - any : recognize anything.
 Regarding these facts, it's easy to imagine a set of enumerator to describe
 symbol types, then, create a set of template specialization for the symbol type.
-
