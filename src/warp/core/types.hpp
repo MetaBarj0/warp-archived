@@ -70,6 +70,12 @@ namespace warp
        */
       using type = warp::undefined_type;
     };
+
+  /**
+   * \brief Convenient alias used to specify that a SFINAE check is taking place
+   * where it is used
+   */
+  using sfinae_placeholder = typename sfinae_type<>::type;
 }
 
 #endif // _WARP_CORE_TYPES_HPP

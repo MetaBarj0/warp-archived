@@ -688,6 +688,36 @@ void test::spark_tester::test_regular_grammar_type_system()
             << "      | testing                           |" << std::endl
             << "      +-----------------------------------+" << std::endl
             << std::endl;
+
+  // creating a simple group representing ((a)) as a regular expression
+  using symbol =
+    warp::spark::symbol
+    <
+      int, 0,
+      warp::spark::symbol_types::inclusive,
+      warp::integral_sequence< char, 'a' >
+    >; // simple symbol ,recognizing 'a'
+
+  using inner_group =
+    warp::spark::group
+    <
+      int, 0,
+      warp::spark::group_unary_closures,
+      warp::spark::group_unary_closures::one_one,
+      warp::sfinae_placeholder, // sfinae check here
+      symbol // the 'a'
+    >; // similar to (a) regular expression
+
+  using group =
+    warp::spark::group
+    <
+      int, 1,
+      warp::spark::group_unary_closures,
+      warp::spark::group_unary_closures::one_one,
+      warp::sfinae_placeholder,
+      inner_group // the '(a)' group
+    >; // similar to ((a)), done
+  ( void ) group{};
 }
 
 void test::spark_tester::test_compile_time_transcription()
