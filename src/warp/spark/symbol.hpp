@@ -1,32 +1,12 @@
 #ifndef _WARP_SPARK_SYMBOL_HPP_
 #define _WARP_SPARK_SYMBOL_HPP_
 
+#include "regular_grammar_type_system_enumerations.hpp"
 #include "../sequences/sequence_traits.hpp"
 #include "../sequences/algorithm.hpp"
 
 namespace warp::spark
 {
-  /**
-   * \brief Different type of symbol types
-   */
-  enum class symbol_types
-  {
-    /**
-     * \brief an inclusive symbol recognizes an unique letter
-     */
-    inclusive,
-
-    /**
-     * \brief An exclusive symbol recognizes any but specified letters
-     **/
-    exclusive,
-
-    /**
-     * \brief An any symbol recognizes any letter
-     **/
-    any
-  };
-
   /**
    * \brief General form of the type representing a regular grammar symbol
    *

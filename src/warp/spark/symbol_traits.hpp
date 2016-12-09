@@ -1,7 +1,7 @@
 #ifndef _WARP_SPARK_SYMBOL_TRAITS_HPP_
 #define _WARP_SPARK_SYMBOL_TRAITS_HPP_
 
-#include "symbol.hpp"
+#include "regular_grammar_type_system_enumerations.hpp"
 
 namespace warp::spark
 {
