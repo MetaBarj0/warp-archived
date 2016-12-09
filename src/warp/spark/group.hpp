@@ -27,7 +27,7 @@ namespace warp::spark
     <
       class ID_TYPE, ID_TYPE ID,
       class CLOSURE_TYPE, CLOSURE_TYPE CLOSURE,
-      class SFINAE_SLOT = typename sfinae_type<>::type,
+      class SFINAE_SLOT = sfinae_placeholder,
       class FIRST_GROUP_OR_SYMBOL = undefined_type,
       class... LAST_GROUP
     >

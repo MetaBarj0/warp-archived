@@ -2,6 +2,7 @@
 #define _WARP_SPARK_SYMBOL_TRAITS_HPP_
 
 #include "regular_grammar_type_system_enumerations.hpp"
+#include "../core/types.hpp"
 
 namespace warp::spark
 {
