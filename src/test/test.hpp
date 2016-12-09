@@ -425,6 +425,12 @@ END_GROUPS;
   static void test_regular_grammar();
 
   /**
+   * \brief This test the regular grammar type system, aka group and symbol
+   * types
+   */
+  static void test_regular_grammar_type_system();
+
+  /**
    * \brief Test the regular_grammar type instantiation
    */
   static void test_regular_grammar_instantiation();

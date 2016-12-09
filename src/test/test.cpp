@@ -642,6 +642,9 @@ void test::spark_tester::test_regular_grammar()
             << std::endl;
 
   test_regular_grammar_instantiation();
+  test_regular_grammar_type_system();
+  test_compile_time_transcription();
+  test_run_time_transcription();
 }
 
 void test::spark_tester::test_regular_grammar_instantiation()
@@ -676,6 +679,15 @@ void test::spark_tester::test_regular_grammar_instantiation()
   using rgds = typename rgdt::sequence;
 
   static_assert( warp::meta_sequence_traits< rgds >::is_integral_sequence, "" );
+}
+
+void test::spark_tester::test_regular_grammar_type_system()
+{
+  std::cout << "      +-----------------------------------+" << std::endl
+            << "      | spark regular grammar type system |" << std::endl
+            << "      | testing                           |" << std::endl
+            << "      +-----------------------------------+" << std::endl
+            << std::endl;
 }
 
 void test::spark_tester::test_compile_time_transcription()

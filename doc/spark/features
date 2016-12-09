@@ -878,6 +878,9 @@ transcriptors to use.
   2.1°) Transcription algorithms for compile-time
   -----------------------------------------------
 
+  2.2°) Transcription algorithms for run-time
+  -------------------------------------------
+
 4°) Implementing the regular grammar as study case
 --------------------------------------------------
 Regarding how regular grammar works, it is easy to make a parallel between the
