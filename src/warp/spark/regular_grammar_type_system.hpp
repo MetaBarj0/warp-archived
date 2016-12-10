@@ -3,6 +3,8 @@
 
 #include "symbol.hpp"
 #include "group.hpp"
+#include "symbol_traits.hpp"
+#include "group_traits.hpp"
 
 #endif // _WARP_SPARK_REGULAR_GRAMMAR_TYPE_SYSTEM_HPP_
 

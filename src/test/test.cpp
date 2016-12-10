@@ -715,7 +715,15 @@ void test::spark_tester::test_regular_grammar_type_system()
       warp::spark::group_unary_closures::one_one,
       inner_group // the '(a)' group
     >; // similar to ((a)), done
-  ( void ) group{};
+
+  using group_traits = warp::spark::group_traits< group >;
+
+  // using traits...
+  static_assert( std::is_same
+                   <
+                     inner_group,
+                     typename group_traits::first_operand
+                   >::value, "Uh oh..." );
 }
 
 void test::spark_tester::test_compile_time_transcription()

@@ -4,6 +4,8 @@
 #include "regular_grammar_type_system_enumerations.hpp"
 #include "../core/types.hpp"
 
+#include <type_traits>
+
 namespace warp::spark
 {
   /**
@@ -44,6 +46,138 @@ namespace warp::spark
        * \brief No operand to act on, not a group
        */
       using second_operand = undefined_type;
+    };
+
+  /**
+   * \brief Specialization dealing with a valid group type, regarding the
+   * template signature. It triggers when the specified group is applying an
+   * unary closure on its operand.
+   *
+   * \tparam GROUP a valid (based on template signature) group template
+   * \tparam ID_TYPE integral type of the identifier of the specified group
+   * \tparam ID integral identifier of the specified group
+   * \tparam CLOSURE the unary closure used in the specified group
+   * \tparam FIRST_OPERAND the first (and unique) operand of the specified group
+   */
+  template
+    <
+      template
+        <
+          class IT, IT,
+          class C, C,
+          class FO, class... OSO
+        > class GROUP,
+      class ID_TYPE, ID_TYPE ID,
+      group_unary_closures CLOSURE,
+      class FIRST_OPERAND
+    >
+    struct group_traits
+    <
+      GROUP
+        <
+          ID_TYPE, ID,
+          group_unary_closures, CLOSURE,
+          FIRST_OPERAND
+        >
+    >
+    {
+      /**
+       * \brief This is a group, having only one operand, applying an unary
+       * closure
+       */
+      static constexpr bool is_group = true;
+
+      /**
+       * \brief Identifier of the group
+       */
+      static constexpr auto group_id = ID;
+
+      /**
+       * \brief It's a group having one operand, unary closure type, for sure
+       */
+      using closure_type = group_unary_closures;
+
+      /**
+       * \brief value of the unary closure
+       */
+      static constexpr auto closure = CLOSURE;
+
+      /**
+       * \brief The unique operand of this group
+       */
+      using first_operand = FIRST_OPERAND;
+
+      /**
+       * \brief No operand to act on
+       */
+      using second_operand = undefined_type;
+    };
+
+  /**
+   * \brief Specialization dealing with a valid group type, regarding the
+   * template signature. It triggers when the specified group is applying an
+   * binary closure on its operands.
+   *
+   * \tparam GROUP a valid (based on template signature) group template
+   * \tparam ID_TYPE integral type of the identifier of the specified group
+   * \tparam ID integral identifier of the specified group
+   * \tparam CLOSURE the binary closure used in the specified group
+   * \tparam FIRST_OPERAND the first operand of the specified group
+   * \tparam SECOND_OPERAND the first operand of the specified group
+   */
+  template
+    <
+      template
+        <
+          class IT, IT,
+          class C, C,
+          class FO, class... OSO
+        > class GROUP,
+      class ID_TYPE, ID_TYPE ID,
+      group_binary_closures CLOSURE,
+      class FIRST_OPERAND,
+      class SECOND_OPERAND
+    >
+    struct group_traits
+    <
+      GROUP
+        <
+          ID_TYPE, ID,
+          group_binary_closures, CLOSURE,
+          FIRST_OPERAND, SECOND_OPERAND
+        >
+    >
+    {
+      /**
+       * \brief This is a group, having only one operand, applying an unary
+       * closure
+       */
+      static constexpr bool is_group = true;
+
+      /**
+       * \brief Identifier of the group
+       */
+      static constexpr auto group_id = ID;
+
+      /**
+       * \brief It's a group having one operand, unary closure type, for sure
+       */
+      using closure_type = group_binary_closures;
+
+      /**
+       * \brief value of the unary closure
+       */
+      static constexpr auto closure = CLOSURE;
+
+      /**
+       * \brief The unique operand of this group
+       */
+      using first_operand = FIRST_OPERAND;
+
+      /**
+       * \brief No operand to act on
+       */
+      using second_operand = SECOND_OPERAND;
     };
 }
 
