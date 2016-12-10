@@ -696,7 +696,7 @@ void test::spark_tester::test_regular_grammar_type_system()
       int, 0,
       warp::spark::symbol_types::inclusive,
       warp::integral_sequence< char, 'a' >
-    >; // simple symbol ,recognizing 'a'
+    >; // simple symbol, recognizing 'a'
 
   using inner_group =
     warp::spark::group
@@ -704,7 +704,6 @@ void test::spark_tester::test_regular_grammar_type_system()
       int, 0,
       warp::spark::group_unary_closures,
       warp::spark::group_unary_closures::one_one,
-      warp::sfinae_placeholder, // sfinae check here
       symbol // the 'a'
     >; // similar to (a) regular expression
 
@@ -714,7 +713,6 @@ void test::spark_tester::test_regular_grammar_type_system()
       int, 1,
       warp::spark::group_unary_closures,
       warp::spark::group_unary_closures::one_one,
-      warp::sfinae_placeholder,
       inner_group // the '(a)' group
     >; // similar to ((a)), done
   ( void ) group{};
