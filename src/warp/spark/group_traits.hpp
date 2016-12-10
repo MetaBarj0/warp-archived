@@ -45,53 +45,6 @@ namespace warp::spark
        */
       using second_operand = undefined_type;
     };
-
-  template
-    <
-      template< class I, I, class C, C, class, class, class... > class G,
-      class ID_TYPE, ID_TYPE ID, group_unary_closures CLOSURE, class OPERAND
-    >
-    struct group_traits
-    <
-      G
-        <
-          ID_TYPE, ID,
-          group_unary_closures, CLOSURE,
-          sfinae_placeholder,
-          OPERAND
-        >
-    >
-    {
-      /**
-       * \brief This is not a group
-       */
-      static constexpr bool is_group = true;
-
-      /**
-       * \brief Identifier of an invalid group
-       */
-      static constexpr auto group_id = ID;
-
-      /**
-       * \brief It's not a group, so there is not any closure type
-       */
-      using closure_type = group_unary_closures;
-
-      /**
-       * \brief It's not a group, so there is not any closure
-       */
-      static constexpr auto closure = CLOSURE;
-
-      /**
-       * \brief No operand to act on, not a group
-       */
-      using first_operand = OPERAND;
-
-      /**
-       * \brief No operand to act on, not a group
-       */
-      using second_operand = undefined_type;
-    };
 }
 
 #endif // _WARP_SPARK_GROUP_TRAITS_HPP_
