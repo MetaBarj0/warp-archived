@@ -6,7 +6,7 @@ First, deal with regular grammar, then with context-free grammars.
 Parsers exposed will be used with transcription features, allowing infinite
 transformation of recognized languages. These transcription features must be
 usable both with regular grammars and context-free grammars.
-spark is : transcription algorithms, grammars, transcriptors.
+spark is : transcription algorithms, grammars, generators.
 spark deals with : user input at compile-time and run-time.
 The goal of spark is provide facilities to transcript user input in user output
 using grammars. Input can either be specified at compile time or run-time.
@@ -69,9 +69,9 @@ accessible to the run time as well (for instance a JSON parser).
 2°) Transcription algorithms
   2.1°) Transcription algorithms for compile-time
   2.2°) Transcription algorithms for run-time
-3°) Transcriptors
-  3.1°) Transcriptors for compile-time
-  3.2°) Transcriptors for run-time
+3°) Generators
+  3.1°) Generators for compile-time
+  3.2°) Generators for run-time
 4°) Implementing the regular grammar as study case
   4.1°) Checking validity of grammar
   4.2°) C++ type system for regular grammars
@@ -80,7 +80,7 @@ accessible to the run time as well (for instance a JSON parser).
 1°) Grammars
 ------------
 Grammars are a key concept of spark. It is one of the central entities to be
-used in conjunction with transcriptors and transcription algorithms. These
+used in conjunction with generators and transcription algorithms. These
 grammars are used to recognize and input as a specific language. They are
 declined in two versions : regular and context-free.
 
@@ -120,7 +120,7 @@ grammar definition. A group block definition is defined by a starting macro
 named 'BEGIN_GROUPS;' (without quotes) and ends with an ending macro named
 'END_GROUPS;' (without quotes). Between these two macro usage, there are groups
 definitions. Note the ';' character at the end of each macro. This is the end
-statement character and it is mandatory.  Any regular grammar definition must
+statement character and it is mandatory. Any regular grammar definition must
 contain one and only one group block definition.
 
 Finally, there is another main entity that is similar to the document line in
@@ -128,7 +128,7 @@ its meaning. This is the white space characters. White space characters are the
 space : ' ', the horizontal tab : '\t', the end line characters : '\n' and '\r'.
 Like the documentation block, the white space characters don't have any meaning
 in grammar interpretation but they could be used in symbol definitions if they
-are  escaped (we'll see that later).
+are escaped (we'll see that later).
 
 To summarize, a warp regular grammar definition string is built with :
 - one or several documentation blocks placed between grammar entities,
@@ -864,7 +864,7 @@ Transcription algorithms are entities of spark that are responsible to transform
 an input language to something else while parsing the input using a defined
 grammar. It's one of the main entity of spark and is closely related with the
 user input (the language), the grammar (recognizes or not the language) and the
-transcriptors (responsible to output something transformed from the language
+generators (responsible to output something transformed from the language
 being parsed by the grammar).
 It exists two-flavored transcription algorithms and the flavor to use depends of
 the nature of the user input. If the specified user input (language) is defined
@@ -873,7 +873,7 @@ compile time flavor transcription algorithm that will be used. Otherwise, if the
 specified user input (language) is defined at runtime and is iterable, then
 there will be the runtime transcription algorith that will be used. Actually the
 nature of the language dictates the nature of both transcription algorithm and
-transcriptors to use.
+generators to use.
 
   2.1°) Transcription algorithms for compile-time
   -----------------------------------------------
@@ -885,19 +885,20 @@ transcriptors to use.
 --------------------------------------------------
 Regarding how regular grammar works, it is easy to make a parallel between the
 main grammar entities and template types. At least, I can extract the group and
-the symbol entities and make template type that could be parametered with some
-constants.
+the symbol entities and make template types that could be parametered with some
+constants and types.
 Considering that, it's important to note that entity specified in transcription
 algorithms come from the user world. The language specified is defined by the
-user, the grammar is defined by the user and, the transcriptors are defined by
+user, the grammar is defined by the user and, the generators are defined by
 the user. Thus, all of these must be checked for validity, especially the
-grammar.
+grammar which need to be transformed first from a string to a template
+expression.
 
   4.1°) Checking validity of grammar
   ----------------------------------
 From the spark's user point of view, a regular grammar definition is one of the
 operand to use in transcription algorithms (other operands being the language
-and the transcriptors).
+and the generators).
 When the user use the grammar in a transcription algorithm, the grammar template
 is instantiated and a rough check is made about the grammar definition traits.
 For instance, the grammar type must expose either a static constexpr value
