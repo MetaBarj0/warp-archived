@@ -26,9 +26,9 @@ namespace warp::spark
       static constexpr auto symbol_type = -1;
 
       /**
-       * \brief The identifier of this non symbol type
+       * \brief The name of this non symbol type
        */
-      static constexpr auto symbol_id = -1;
+      using symbol_name = undefined_type;
 
       /**
        * \brief this is not a symbol
@@ -40,17 +40,16 @@ namespace warp::spark
    * \brief A specialization used with a an inclusive symbol type.
    *
    * \tparam S a symbol template that may be valid
-   * \tparam ID_TYPE integral type of the symbol's id
-   * \tparam ID numerical identifier of this symbol
+   * \tparam NAME the name of the specified symbol
    * \tparam LETTER_SEQUENCE the letter sequence the symbol deals with
    */
   template
     < 
-      template< class I, I, symbol_types, class... > class S,
-      class ID_TYPE, ID_TYPE ID, class LETTER_SEQUENCE
+      template< class, symbol_types, class... > class S,
+      class NAME, class LETTER_SEQUENCE
     >
     struct symbol_traits
-    < S< ID_TYPE, ID, symbol_types::inclusive, LETTER_SEQUENCE > >
+    < S< NAME, symbol_types::inclusive, LETTER_SEQUENCE > >
     {
       /**
        * \brief This specialization takes care of a symbol
@@ -63,9 +62,9 @@ namespace warp::spark
       static constexpr auto symbol_type = symbol_types::inclusive;
 
       /**
-       * \brief The identifier of this symbol
+       * \brief The name of this symbol type
        */
-      static constexpr auto symbol_id = ID;
+      using symbol_name = NAME;
 
       /**
        * \brief The letter sequence used in the symbol. As it's an inclusive
@@ -78,17 +77,16 @@ namespace warp::spark
    * \brief A specialization used with a an exclusive symbol type.
    *
    * \tparam S a symbol template that may be valid
-   * \tparam ID_TYPE integral type of the symbol's id
-   * \tparam ID numerical identifier of this symbol
+   * \tparam NAME the name of the specified symbol
    * \tparam LETTER_SEQUENCE the letter sequence the symbol deals with
    */
   template
     <
-      template< class I, I, symbol_types, class... > class S,
-      class ID_TYPE, ID_TYPE ID, class LETTER_SEQUENCE
+      template< class, symbol_types, class... > class S,
+      class NAME, class LETTER_SEQUENCE
     >
     struct symbol_traits
-    < S< ID_TYPE, ID, symbol_types::exclusive, LETTER_SEQUENCE > >
+    < S< NAME, symbol_types::exclusive, LETTER_SEQUENCE > >
     {
       /**
        * \brief This specialization takes care of a symbol
@@ -101,9 +99,9 @@ namespace warp::spark
       static constexpr auto symbol_type = symbol_types::exclusive;
 
       /**
-       * \brief The identifier of this symbol
+       * \brief The name of this symbol type
        */
-      static constexpr auto symbol_id = ID;
+      using symbol_name = NAME;
 
       /**
        * \brief The letter sequence used in the symbol. As it's an exclusive
@@ -116,15 +114,14 @@ namespace warp::spark
    * \brief A specialization used with a an any symbol type.
    *
    * \tparam S a symbol template that may be valid
-   * \tparam ID_TYPE integral type of the symbol's id
-   * \tparam ID numerical identifier of this symbol
+   * \tparam NAME the name of the specified symbol
    */
   template
     <
-      template< class I, I, symbol_types, class... > class S,
-      class ID_TYPE, ID_TYPE ID
+      template< class, symbol_types, class... > class S,
+      class NAME
     >
-    struct symbol_traits< S< ID_TYPE, ID, symbol_types::any > >
+    struct symbol_traits< S< NAME, symbol_types::any > >
     {
       /**
        * \brief This specialization takes care of a symbol
@@ -137,9 +134,9 @@ namespace warp::spark
       static constexpr auto symbol_type = symbol_types::exclusive;
 
       /**
-       * \brief The identifier of this symbol
+       * \brief The name of this symbol type
        */
-      static constexpr auto symbol_id = ID;
+      using symbol_name = NAME;
 
       /**
        * \brief An any symbol does not have any letter sequence

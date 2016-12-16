@@ -23,9 +23,9 @@ namespace warp::spark
       static constexpr bool is_group = false;
 
       /**
-       * \brief Identifier of an invalid group
+       * \brief name of an invalid group
        */
-      static constexpr auto group_id = -1;
+      using group_name = undefined_type;
 
       /**
        * \brief It's not a group, so there is not any closure type
@@ -63,11 +63,11 @@ namespace warp::spark
     <
       template
         <
-          class IT, IT,
+          class,
           class C, C,
           class FO, class... OSO
         > class GROUP,
-      class ID_TYPE, ID_TYPE ID,
+      class NAME,
       group_unary_closures CLOSURE,
       class FIRST_OPERAND
     >
@@ -75,7 +75,7 @@ namespace warp::spark
     <
       GROUP
         <
-          ID_TYPE, ID,
+          NAME,
           group_unary_closures, CLOSURE,
           FIRST_OPERAND
         >
@@ -88,9 +88,9 @@ namespace warp::spark
       static constexpr bool is_group = true;
 
       /**
-       * \brief Identifier of the group
+       * \brief name of the specified group
        */
-      static constexpr auto group_id = ID;
+      using group_name = NAME;
 
       /**
        * \brief It's a group having one operand, unary closure type, for sure
@@ -129,11 +129,11 @@ namespace warp::spark
     <
       template
         <
-          class IT, IT,
+          class,
           class C, C,
           class FO, class... OSO
         > class GROUP,
-      class ID_TYPE, ID_TYPE ID,
+      class NAME,
       group_binary_closures CLOSURE,
       class FIRST_OPERAND,
       class SECOND_OPERAND
@@ -142,7 +142,7 @@ namespace warp::spark
     <
       GROUP
         <
-          ID_TYPE, ID,
+          NAME,
           group_binary_closures, CLOSURE,
           FIRST_OPERAND, SECOND_OPERAND
         >
@@ -155,9 +155,9 @@ namespace warp::spark
       static constexpr bool is_group = true;
 
       /**
-       * \brief Identifier of the group
+       * \brief name of the specified group
        */
-      static constexpr auto group_id = ID;
+      using group_name = NAME;
 
       /**
        * \brief It's a group having one operand, unary closure type, for sure

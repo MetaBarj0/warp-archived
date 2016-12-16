@@ -689,41 +689,134 @@ void test::spark_tester::test_regular_grammar_type_system()
             << "      +-----------------------------------+" << std::endl
             << std::endl;
 
-  // creating a simple group representing ((a)) as a regular expression
-  using symbol =
+  // attempting to build a .*a*(b|cd?)+ template expression
+  using s_any =
     warp::spark::symbol
     <
-      int, 0,
+      warp::integral_sequence< char, 'a', 'n', 'y' >,
+      warp::spark::symbol_types::any
+    >;
+
+  using s_a =
+    warp::spark::symbol
+    <
+      warp::integral_sequence< char, 'a' >,
       warp::spark::symbol_types::inclusive,
       warp::integral_sequence< char, 'a' >
-    >; // simple symbol, recognizing 'a'
+    >;
 
-  using inner_group =
+  using s_b =
+    warp::spark::symbol
+    <
+      warp::integral_sequence< char, 'b' >,
+      warp::spark::symbol_types::inclusive,
+      warp::integral_sequence< char, 'b' >
+    >;
+
+  using s_c =
+    warp::spark::symbol
+    <
+      warp::integral_sequence< char, 'c' >,
+      warp::spark::symbol_types::inclusive,
+      warp::integral_sequence< char, 'c' >
+    >;
+
+  using s_d =
+    warp::spark::symbol
+    <
+      warp::integral_sequence< char, 'd' >,
+      warp::spark::symbol_types::inclusive,
+      warp::integral_sequence< char, 'd' >
+    >;
+
+  using g_any_star =
     warp::spark::group
     <
-      int, 0,
+      warp::integral_sequence< char, '.', '*' >,
+      warp::spark::group_unary_closures,
+      warp::spark::group_unary_closures::zero_many,
+      s_any
+    >;
+
+  using g_a_star =
+    warp::spark::group
+    <
+      warp::integral_sequence< char, 'a', '*' >,
+      warp::spark::group_unary_closures,
+      warp::spark::group_unary_closures::zero_many,
+      s_a
+    >;
+
+  using g_b =
+    warp::spark::group
+    <
+      warp::integral_sequence< char, 'b' >,
       warp::spark::group_unary_closures,
       warp::spark::group_unary_closures::one_one,
-      symbol // the 'a'
-    >; // similar to (a) regular expression
+      s_b
+    >;
+
+  using g_c =
+    warp::spark::group
+    <
+      warp::integral_sequence< char, 'c' >,
+      warp::spark::group_unary_closures,
+      warp::spark::group_unary_closures::one_one,
+      s_c
+    >;
+
+  using g_d_maybe =
+    warp::spark::group
+    <
+      warp::integral_sequence< char, 'd', '?' >,
+      warp::spark::group_unary_closures,
+      warp::spark::group_unary_closures::zero_one,
+      s_d
+    >;
+
+  using g_cd_maybe =
+    warp::spark::group
+    <
+      warp::integral_sequence< char, 'c', 'd', '?' >,
+      warp::spark::group_binary_closures,
+      warp::spark::group_binary_closures::concatenation,
+      g_c, g_d_maybe
+    >;
+
+  using g_b_or_cd_maybe =
+    warp::spark::group
+    <
+      warp::integral_sequence< char, 'b', '|', 'c', 'd', '?' >,
+      warp::spark::group_binary_closures,
+      warp::spark::group_binary_closures::alternation,
+      g_b, g_cd_maybe
+    >;
+
+  using g_a_star__b_or_cd_maybe =
+    warp::spark::group
+    <
+      warp::integral_sequence
+        < char, 'a', '*', '(', 'b', '|', 'c', 'd', '?', ')' >,
+      warp::spark::group_binary_closures,
+      warp::spark::group_binary_closures::concatenation,
+      g_a_star, g_b_or_cd_maybe
+    >;
 
   using group =
     warp::spark::group
     <
-      int, 1,
-      warp::spark::group_unary_closures,
-      warp::spark::group_unary_closures::one_one,
-      inner_group // the '(a)' group
-    >; // similar to ((a)), done
+      warp::integral_sequence
+        < char, '.', '*', 'a', '*', '(', 'b', '|', 'c', 'd', '?', ')' >,
+      warp::spark::group_binary_closures,
+      warp::spark::group_binary_closures::concatenation,
+      g_any_star, g_a_star__b_or_cd_maybe
+    >;
 
+  // getting traits of the final group
   using group_traits = warp::spark::group_traits< group >;
 
   // using traits...
-  static_assert( std::is_same
-                   <
-                     inner_group,
-                     typename group_traits::first_operand
-                   >::value, "Uh oh..." );
+  static_assert( group_traits::is_group, "Uh oh..." );
 }
 
 void test::spark_tester::test_compile_time_transcription()
