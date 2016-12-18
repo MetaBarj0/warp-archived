@@ -76,6 +76,7 @@ accessible to the run time as well (for instance a JSON parser).
   4.1°) Checking validity of grammar
   4.2°) C++ type system for regular grammars
     4.2.1°) The symbol type
+    4.2.2°) The group type
 
 1°) Grammars
 ------------
@@ -928,3 +929,41 @@ the symbol can have several types :
 - any : recognize anything.
 Regarding these facts, it's easy to imagine a set of enumerator to describe
 symbol types, then, create a set of template specialization for the symbol type.
+- A specialization dealing with inclusive symbol type, that does take a letter
+  sequence containing only one element. Indeed an inclusive symbol can only
+  recognize one letter.  As all other symbol template specialization, it has a
+  name.
+- A specialization dealing with exclusive symbol type, that does take a letter
+  sequence containing one or more elements giving letter excluded of the
+  recognition process.  As all other symbol template specialization, it has a
+  name.
+- A specialization dealing with the 'any' symbol type, that does not take any
+  letter sequence. As all other symbol template specialization, it has a name.
+
+To see the implementation details, take a look at the src/warp/spark/symbol.hpp
+and src/warp/spark/symbol_traits.hpp files.
+
+    4.2.2°) The group type
+    ----------------------
+Writing group techniques are described in 1.1.3°. Regarding that, some core
+group components can be easily conceptualized and extracted into some template
+expression. Indeed, a group is a piece of stuff applying some operation on some
+operands after all.
+Talking about operations, there is two major kind of operations called closures
+and they are :
+- unary closure type, also know as quantifiers. They are very close of regular
+  expression quantifiers (?, * and +). It exists four types of quantifiers (see
+  in 1.1.3.2.1.2° to 1.1.3.2.1.5°). Unary closures are applied both on symbol
+  and group type.
+- binary closure type. They are used to 'assemble' part of the grammar
+  together. A part of a grammar is actually a group. These binary closures works
+  on two group operands.
+Considering how a group can be defined using different closure types, there is
+ten specializations of group template that can be written :
+- Specializations dealing with each unary closure applied on symbol types (four)
+  and on group types (four); giving eight specializations.
+- Specializations dealing with binary closure types (two) acting only on group
+  operands.
+
+To see the implementation details, take a look at the src/warp/spark/group.hpp
+and src/warp/spark/group_traits.hpp files.
