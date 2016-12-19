@@ -77,6 +77,9 @@ accessible to the run time as well (for instance a JSON parser).
   4.2°) C++ type system for regular grammars
     4.2.1°) The symbol type
     4.2.2°) The group type
+    4.2.3°) The automaton type system
+      4.2.3.1°) Building an automaton from a symbol
+      4.2.3.2°) Building an automaton from a group
 
 1°) Grammars
 ------------
@@ -967,3 +970,104 @@ ten specializations of group template that can be written :
 
 To see the implementation details, take a look at the src/warp/spark/group.hpp
 and src/warp/spark/group_traits.hpp files.
+
+    4.2.3°) The automaton type system
+    ---------------------------------
+The automaton type system represents a set of types able to translate a group or
+a symbol into a deterministic finite automaton. The purpose here is to be able
+to parse some language using a high level, previously defined grammar. A parsing
+is a process in which each character read from an input language is tested using
+a built automaton. If the character is recognized by the automaton, the test
+passes, otherwise it fails. The automaton updates its state for each character
+read.
+As an example, here is the automaton corresponding to an inclusive symbol
+recognizing the 'a' letter :
+
+^-(a)->$
+
+The '^' is the initial state of the automaton, the starting point. At all time
+(when the automaton is fully built) it can have only one initial state.
+
+The '-(a)->' sequence represents a transition function. To change the state of
+this automaton from the initial one to the next one, you have to pass through a
+transition function (-...->; ... being a symbol definition).
+
+The '$' represents a final state of the automaton. An automaton may have several
+final state. Ass seen before, an automaton change its state for each character
+read and, if the automaton reaches oen of its final states AND the input
+language is fully read, then, the regular language is recognized.
+
+Another easy to understand automaton could be :
+
+^-(a)->O-(b)->$
+
+This one is pretty similar to the last one shown above. The difference is that
+this automaton recognize the language 'ab'.
+Here a new kind of automaton state is show : the 'O', it represents an
+intermediate state, not final nor initial. An automaton may have several
+intermediate states.
+
+      4.2.3.1°) Building an automaton from a symbol
+      ---------------------------------------------
+As stated in 1.1.2° and subsequent sub-sections, there is three kind of symbols,
+inclusive, exclusive and any. All are dealing with character recognition. The
+lead to construct automaton having only two states (an initial and a final) and
+a transition function. The only difference is located in the transition
+function. Indeed, for an inclusive symbol (let's say, recognizing the 'a'
+letter), building an automaton will end up with the following automaton :
+
+^-(a)->$
+
+The transition function is -(a)-> and shows that when a is passed to it, it
+leads to the next state that is the final state.
+
+Let's create an exclusive symbol ,recognizing all letters but a, b, c and d. As
+stated just above, the resulting automaton will have two states, an initial and
+a final. Here is the transition function :
+
+-(~abcd)->
+
+The '~' character specified at the beginning of the non-recognized letters means
+all but these characters and thus, the full automaton looks like :
+
+^---->(~abcd)---->$
+
+The 'arrows' used to represent transition functions ca be extended at will
+without changing the real meaning of the function and allowing easier to read
+automaton diagrams.
+
+The last flavor of symbol is the 'any' symbol. As usual, it will produce an
+automaton having only two states (initial and final) and the transition function
+will be parametered accordingly using a specific kind of signature :
+
+-(~)->
+
+The transition function could be translated with any but nothing, hence,
+anything.
+
+The produce automaton being :
+
+^-(~)->$
+
+To summarize, a symbol, no matter its type (inclusive, exclusive or any)
+produces automaton having :
+- only two states (initial and final) and
+- one transition function you need to pass in order to reach the final state
+  from the initial state.
+
+States may have the following form :
+- Initial state is represented by the '^' character
+- Final state is represented by '$' character.
+
+When building an automaton from a symbol, the transition function is parametered
+differently depending the type of the symbol :
+- inclusive symbol recognizing only one letter gives a transition function of the
+  form : -(x)-> , x being one letter.
+- exclusive symbol ,recognizing all but specified letters gives a transition
+  function of the form : -(~xyz)-> , ~ meaning 'all but' and x, y and z being
+  specific letters
+- any symbol type recognizing anny letter gives a transition function of the
+  form : -(~)-> , ~ character followed by nothing meaning any letter.
+
+      4.2.3.2°) Building an automaton from a group
+      --------------------------------------------
