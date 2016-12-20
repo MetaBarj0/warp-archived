@@ -78,8 +78,12 @@ accessible to the run time as well (for instance a JSON parser).
     4.2.1°) The symbol type
     4.2.2°) The group type
     4.2.3°) The automaton type system
-      4.2.3.1°) Building an automaton from a symbol
-      4.2.3.2°) Building an automaton from a group
+      4.2.3.1°) The automaton structure
+        4.2.3.1.1°) States
+          4.2.3.1.1.1°) C++ types for states
+        4.2.3.1.2°) Transition functions
+      4.2.3.2°) Building an automaton from a symbol
+      4.2.3.3°) Building an automaton from a group
 
 1°) Grammars
 ------------
@@ -811,7 +815,7 @@ BEGIN_GROUPS;
    * escaped, it wouldn't be a one to many closure that would be applied but an
    * alternation involving the 'b' group and the 'cd?+' group. It won't be valid
    * because the 'cd?+' group does not exist. */
-  (b|cd?)+ = `b|cd?`+; 
+  (b|cd?)+ = `b|cd?`+;
 
   /* The 'a*' group is escaped here. Otherwise it will lead to an invalid group
    * definition because the closure detected would be zero to many (the star of
@@ -1005,8 +1009,8 @@ this automaton from the initial one to the next one, you have to pass through a
 transition function (-...->; ... being a symbol definition).
 
 The '$' represents a final state of the automaton. An automaton may have several
-final state. Ass seen before, an automaton change its state for each character
-read and, if the automaton reaches oen of its final states AND the input
+final state. As seen before, an automaton change its state for each character
+read and, if the automaton reaches one of its final states AND the input
 language is fully read, then, the regular language is recognized.
 
 Another easy to understand automaton could be :
@@ -1019,7 +1023,62 @@ Here a new kind of automaton state is show : the 'O', it represents an
 intermediate state, not final nor initial. An automaton may have several
 intermediate states.
 
-      4.2.3.1°) Building an automaton from a symbol
+      4.2.3.1°) The automaton structure
+      ---------------------------------
+Automata are made of few things : states and transition functions. Used
+together, these elements form a directed graph you can use to recognize a
+regular language. Sections below will describe how are made these simple
+elements.
+
+        4.2.3.1.1°) States
+        ------------------
+As seen above, an automaton state can be seen as a particular status of the
+automaton. It exists three kinds of state :
+- Initial : this is the default state of an untouched automaton. It only exists
+  one initial state per automaton and it is always the first one active.
+- Intermediate : this is a state that is nor initial neither final. An automaton
+  may have zero or more intermediate states. The only way to reach an
+  intermediate state is to pass through a transition function from the initial
+  state, a terminal state or another intermediate state.
+- Final : It is a terminal state of an automaton. When the current status of the
+  automaton points out a terminal state, half of the conditions are met to say
+  that input language is recognized (the other half part being the input
+  language has been totally read). An automaton has at least one terminal state.
+  Note that an initial state can also be terminal, however, an intermediate
+  state cannot be final.
+Below is a schema showing states set and how the interact :
+
++--------------------------------------------+ As you can see, initial and final
+|      Automaton state sets interactions     | states can overlap leading to an
+|                                            | automaton that have an initial
+| +---------------------+                    | state that is also final.
+| | initial             |                    | As initial state is unique
+| |                     |   +--------------+ | throughout an automaton, it can
+| | +-------------------+-+ | intermediate | | only exist at most one mixed
+| | | initial and final | | +--------------+ | initial-final state per
+| +-+-------------------+ |                  | automaton.
+|   |                     |                  |
+|   |               final |                  |
+|   +---------------------+                  |
++--------------------------------------------+
+
+          4.2.3.1.1.1°) C++ types for states
+          ----------------------------------
+A state is a part of an automaton and an automaton have at least two states.
+Moreover, a state has a specific type (four possibles).
+As a result I can imagine how to define an automaton state using some templated
+types parametered with :
+- A state identifier
+- A type of state
+For the sake of flexibility, the state identifier will be an integral sequence,
+allowing cool operations on them.
+The state types can be easily designed as a scoped enumeration containing the
+four values.
+
+        4.2.3.1.2°) Transition functions
+        --------------------------------
+
+      4.2.3.2°) Building an automaton from a symbol
       ---------------------------------------------
 As stated in 1.1.2° and subsequent sub-sections, there is three kind of symbols,
 inclusive, exclusive and any. All are dealing with character recognition. The
@@ -1081,7 +1140,7 @@ differently depending the type of the symbol :
 - any symbol type recognizing anny letter gives a transition function of the
   form : -(~)-> , ~ character followed by nothing meaning any letter.
 
-      4.2.3.2°) Building an automaton from a group
+      4.2.3.3°) Building an automaton from a group
       --------------------------------------------
 As stated in 1.1.3° and sub-sequent sub sections, groups are features applying
 closures on operands. Operands can be groups or symbols. As a result, they can
@@ -1091,3 +1150,20 @@ In this section I will show the produced automaton for the following regular
 expression :
 
 '.*a*(b|cd?)+'
+
+The related regular grammar definition for this regular expression could be :
+
+BEGIN_SYMBOLS;
+  BASIC_SYMBOLS 'abcd;
+  any = .;
+END_SYMBOLS;
+BEGIN_GROUPS;
+  SYMBOLS_AS_GROUPS b c ';
+  .* = any*;
+  a* = a*;
+  d? = d?;
+  cd? = c.d?;
+  b|cd? = b|cd?;
+  (b|cd?)+ = `b|cd?`+;
+  BINARY_CLOSURE_ON . '.*a*(b|cd?)+' ' .* a* (b|cd?)+ ';
+END_GROUPS;

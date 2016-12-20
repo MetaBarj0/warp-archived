@@ -404,7 +404,6 @@ END_GROUPS;
         "BASIC_SYMBOLS 'abcd;"
         "any = .;"
       "END_SYMBOLS;"
-
       "BEGIN_GROUPS;"
         ".* = any*;"
         "a* = a*;"
