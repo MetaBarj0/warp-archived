@@ -673,12 +673,13 @@ void test::spark_tester::test_regular_grammar_instantiation()
   ( void )g1, ( void )g2, ( void )g3, ( void )g4, ( void )g5;
 
   // testing traits
-  using rgt = warp::spark::regular_grammar_traits< decltype( g1 ) >;
-  using rgd = typename rgt::grammar_definition;
+  using rgt = warp::spark::regular_grammar_traits< decltype( g5 ) >;
+  using rgd = typename rgt::regular_grammar_definition;
   using rgdt = typename warp::spark::regular_grammar_definition_traits< rgd >;
-  using rgds = typename rgdt::sequence;
+  using rgds = typename rgdt::regular_grammar_definition_sequence;
 
-  static_assert( warp::meta_sequence_traits< rgds >::is_integral_sequence, "" );
+  static_assert( warp::meta_sequence_traits< rgds >::is_integral_sequence,
+                 "Uh oh..." );
 }
 
 void test::spark_tester::test_regular_grammar_type_system()

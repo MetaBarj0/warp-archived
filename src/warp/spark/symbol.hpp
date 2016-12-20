@@ -2,8 +2,6 @@
 #define _WARP_SPARK_SYMBOL_HPP_
 
 #include "regular_grammar_type_system_enumerations.hpp"
-#include "../sequences/sequence_traits.hpp"
-#include "../sequences/algorithm.hpp"
 
 namespace warp::spark
 {
@@ -32,33 +30,7 @@ namespace warp::spark
    * symbol is recognizing
    **/
   template< class NAME, class LETTER_SEQUENCE >
-    class symbol< NAME, symbol_types::inclusive, LETTER_SEQUENCE >
-    {
-      // rough check on name, verifying its nature and content
-      static_assert( meta_sequence_traits< NAME >::is_integral_sequence,
-                     "The name of the symbol (NAME template parameter) "
-                     "is intended to be a valid integral sequence." );
-
-      static_assert( for_each_value_in_t< NAME, count_integral >::value > 0,
-                     "The name of the symbol (NAME template parameter) must "
-                     "not be empty." );
-
-      // checking the type of LETTER_SEQUENCE
-      static_assert( meta_sequence_traits< LETTER_SEQUENCE >::
-                       is_integral_sequence,
-                     "The letter sequence recognized by the symbol "
-                     "(LETTER_SEQUENCE template parameter) is intended to be "
-                     "an integral sequence." );
-
-      // checking the size of LETTER_SEQUENCE
-      static_assert( for_each_value_in_t
-                       < unique_on_t< LETTER_SEQUENCE >, count_integral >::
-                       value == 1,
-                     "The letter sequence recognized by the symbol "
-                     "(LETTER_SEQUENCE template parameter) must contain only "
-                     " one element. Inclusive symbols can recognize only one "
-                     "letter." );
-    };
+    class symbol< NAME, symbol_types::inclusive, LETTER_SEQUENCE > {};
 
   /**
    * \brief Specific specialization working with exclusive symbol type.
@@ -69,28 +41,7 @@ namespace warp::spark
    * symbol is recognizing
    **/
   template< class NAME, class LETTER_SEQUENCE >
-    class symbol< NAME, symbol_types::exclusive, LETTER_SEQUENCE >
-    {
-      // rough check on name, verifying its nature and content
-      static_assert( meta_sequence_traits< NAME >::is_integral_sequence,
-                     "The name of the symbol (NAME template parameter) "
-                     "is intended to be a valid integral sequence." );
-
-      static_assert( for_each_value_in_t< NAME, count_integral >::value > 0,
-                     "The name of the symbol (NAME template parameter) must "
-                     "not be empty." );
-
-      // checking the type and content of LETTER_SEQUENCE
-      static_assert( meta_sequence_traits< LETTER_SEQUENCE >::
-                       is_integral_sequence,
-                     "The letter sequence recognized by the symbol "
-                     "(LETTER_SEQUENCE template parameter) is intended to be "
-                     "an integral sequence." );
-
-      static_assert( ! is_empty_sequence< LETTER_SEQUENCE >::value,
-                     "The letter sequence recognized by the symbol "
-                     "(LETTER_SEQUENCE template parameter) must no be empty." );
-    };
+    class symbol< NAME, symbol_types::exclusive, LETTER_SEQUENCE > {};
 
   /**
    * \brief Specific specialization working with any symbol type.
@@ -99,17 +50,7 @@ namespace warp::spark
    * \tparam NAME the name of this symbol, encoded in an integral sequence
    **/
   template< class NAME >
-    class symbol< NAME, symbol_types::any >
-    {
-      // rough check on name, verifying its nature and content
-      static_assert( meta_sequence_traits< NAME >::is_integral_sequence,
-                     "The name of the symbol (NAME template parameter) "
-                     "is intended to be a valid integral sequence." );
-
-      static_assert( for_each_value_in_t< NAME, count_integral >::value > 0,
-                     "The name of the symbol (NAME template parameter) must "
-                     "not be empty." );
-    };
+    class symbol< NAME, symbol_types::any > {};
 } // namespace warp::spark
 
 #endif // _WARP_SPARK_SYMBOL_HPP_

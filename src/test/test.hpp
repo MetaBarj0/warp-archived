@@ -396,21 +396,24 @@ END_GROUPS;
   struct minimal_interesting_regular_grammar
   {
     /**
-     * \brief this grammar is similar to the 'a*(b|cd?)+' regular expression. It
-     * is small enough to not need to be split in an array
+     * \brief this grammar is similar to the '.*a*(b|cd?)+' regular expression.
+     * It is small enough to not need to be split in an array
      */
     static constexpr auto value =
       "BEGIN_SYMBOLS;"
-        "BASIC_SYMBOLS abcd';"
+        "BASIC_SYMBOLS 'abcd;"
+        "any = .;"
       "END_SYMBOLS;"
+
       "BEGIN_GROUPS;"
+        ".* = any*;"
         "a* = a*;"
         "SYMBOLS_AS_GROUPS b c ';"
         "d? = d?;"
         "cd? = c.d?;"
         "b|cd? = b|cd?;"
         "(b|cd?)+ = `b|cd?`+;"
-        "BINARY_CLOSURE_ON . 'a*(b|cd?)+' ' a* (b|cd?)+ ';"
+        "BINARY_CLOSURE_ON . '.*a*(b|cd?)+' ' .* a* (b|cd?)+ ';"
       "END_GROUPS;";
   };
 

@@ -3,6 +3,8 @@
 
 #include "regular_grammar_type_system_enumerations.hpp"
 #include "../core/types.hpp"
+#include "regular_grammar_type_system_traits.hpp"
+#include "symbol_traits.hpp"
 
 #include <type_traits>
 
@@ -65,7 +67,7 @@ namespace warp::spark
         <
           class,
           class C, C,
-          class FO, class... OSO
+          class, class...
         > class GROUP,
       class NAME,
       group_unary_closures CLOSURE,
@@ -82,30 +84,36 @@ namespace warp::spark
     >
     {
       /**
-       * \brief This is a group, having only one operand, applying an unary
-       * closure
+       * \brief If NAME and FIRST_OPERAND are valid, this is a group, having
+       * only one operand, applying an unary closure.
        */
-      static constexpr bool is_group = true;
+      static constexpr bool is_group =
+        name_traits< NAME >::is_name &&
+        ( group_traits< FIRST_OPERAND >::is_group ||
+          symbol_traits< FIRST_OPERAND >::is_symbol );
 
       /**
        * \brief name of the specified group
        */
-      using group_name = NAME;
+      using group_name = std::conditional_t< is_group, NAME, undefined_type >;
 
       /**
        * \brief It's a group having one operand, unary closure type, for sure
        */
-      using closure_type = group_unary_closures;
+      using closure_type =
+        std::conditional_t< is_group, group_unary_closures, undefined_type >;
 
       /**
        * \brief value of the unary closure
        */
-      static constexpr auto closure = CLOSURE;
+      static constexpr auto closure =
+        is_group ? CLOSURE : static_cast< group_unary_closures >( -1 );
 
       /**
        * \brief The unique operand of this group
        */
-      using first_operand = FIRST_OPERAND;
+      using first_operand =
+        std::conditional_t< is_group, FIRST_OPERAND, undefined_type >;
 
       /**
        * \brief No operand to act on
@@ -131,7 +139,7 @@ namespace warp::spark
         <
           class,
           class C, C,
-          class FO, class... OSO
+          class, class...
         > class GROUP,
       class NAME,
       group_binary_closures CLOSURE,
@@ -149,35 +157,42 @@ namespace warp::spark
     >
     {
       /**
-       * \brief This is a group, having only one operand, applying an unary
-       * closure
+       * \brief If NAME, FIRST_OPERAND and SECOND_OPERAND are valid, this is a
+       * group, having two operands, applying a binary closure
        */
-      static constexpr bool is_group = true;
+      static constexpr bool is_group =
+        name_traits< NAME >::is_name &&
+        group_traits< FIRST_OPERAND >::is_group &&
+        group_traits< SECOND_OPERAND >::is_group;
 
       /**
        * \brief name of the specified group
        */
-      using group_name = NAME;
+      using group_name = std::conditional_t< is_group, NAME, undefined_type >;
 
       /**
        * \brief It's a group having one operand, unary closure type, for sure
        */
-      using closure_type = group_binary_closures;
+      using closure_type =
+        std::conditional_t< is_group, group_binary_closures, undefined_type >;
 
       /**
        * \brief value of the unary closure
        */
-      static constexpr auto closure = CLOSURE;
+      static constexpr auto closure =
+        is_group ? CLOSURE : static_cast< group_binary_closures >( -1 );
 
       /**
        * \brief The unique operand of this group
        */
-      using first_operand = FIRST_OPERAND;
+      using first_operand =
+        std::conditional_t< is_group, FIRST_OPERAND, undefined_type >;
 
       /**
        * \brief No operand to act on
        */
-      using second_operand = SECOND_OPERAND;
+      using second_operand =
+        std::conditional_t< is_group, SECOND_OPERAND, undefined_type >;
     };
 }
 

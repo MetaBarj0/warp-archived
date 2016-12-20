@@ -113,7 +113,8 @@ only serves a documentation purposes for one who design/read the grammar.
 Next, we have the symbol definitions block. This is a mandatory element of a
 grammar definition. A symbol block definition is defined by a starting macro
 named 'BEGIN_SYMBOLS;' (without quotes) and ends with an ending macro named
-'END_SYMBOLS;' (without quotes). Between these two macro usage, there are symbols
+'END_SYMBOLS;' (without quotes). Between these two macro usage, there are
+symbols
 definitions. Note the ';' character at the end of each macro. This is the end
 statement character and it is mandatory.
 Any regular grammar definition must contain one and only one symbol block
@@ -165,10 +166,10 @@ auto warp_regular_grammar_definition_string =
 
     1.1.2°) Writing symbols
     -----------------------
-This section describes how to write symbol definitions inside a symbol definition
-block.
-A symbol is a logical object that can be compared to a single letter (for
-instance a 'b'). A symbol can be a letter or anything but some letters.
+This section describes how to write symbol definitions inside a symbol
+definition block.  A symbol is a logical object that can be compared to a single
+letter (for instance a 'b'). A symbol can be a letter or anything but some
+letters.
 
 Considering this, there is two categories of symbol : inclusive and exclusive.
 An inclusive symbol represents a letter (just like 'c'). An exclusive symbol is
@@ -196,8 +197,8 @@ no_digit = -0123456789;
 Here, the symbol name is 'no_digit'. It is an exclusive symbol because the right
 hand side of the symbol definition begin with a '-' character.
 An exclusive symbol definition can recognize all character but those specified
-after the '-' meta-character, here, this symbol can recognize any letter but '0',
-'1','2','3','4','5','6','7','8' and '9'.
+after the '-' meta-character, here, this symbol can recognize any letter but
+'0', '1','2','3','4','5','6','7','8' and '9'.
 Note that symbol name must be unique throughout the symbol definition block.
 Giving the same name to several symbol is invalid.
 
@@ -419,10 +420,10 @@ on it.
           1.1.3.2.1.3°) One to many
           -------------------------
 This closure is one of the fundamental ones (with one to one and zero to one).
-It consists in making a repetition with the group or the symbol that is specified
-as operand in the group definition. In that sense, it is strictly identical to
-the '+' quantifier of a regular expression. By the way, the meta-character that
-represents this closure is '+'.
+It consists in making a repetition with the group or the symbol that is
+specified as operand in the group definition. In that sense, it is strictly
+identical to the '+' quantifier of a regular expression. By the way, the
+meta-character that represents this closure is '+'.
 As an example :
 
 a+ = a+;
@@ -433,9 +434,9 @@ closure on the 'a' group or symbol.
           1.1.3.2.1.4°) Zero to one
           -------------------------
 One of the fundamental closure (with one to one and one to many). This closure
-consist in makng the group or symbol operand in the group definition optional. It
-is strongly related with the '?' quantifier of regular expression world.
-For instance :
+consist in makng the group or symbol operand in the group definition optional.
+It is strongly related with the '?' quantifier of regular expression world.  For
+instance :
 
 a? = a?
 
@@ -583,9 +584,9 @@ As an example :
 SYMBOLS_AS_GROUPS a b c d;
 
 defines four groups named 'a, b, c and d' respectively applying the one to one
-unary closure on each symbols used as operand. Note that you must use a white
-space character to separate each operand used in the macro. Indeed, symbol names
-can be several letters defined.
+unary closure on each symbols used as operand. Note that you must use one or
+several white space character to separate each operand used in the macro.
+Indeed, symbol names can be several letters defined.
 
         1.1.3.4.2°) The UNARY_CLOSURE_ON macro
         --------------------------------------
@@ -674,10 +675,10 @@ section (1.1.4°). In all cases above, the result is the same, the group 'digit'
 recognize any digit letter, just like '[0-9]' regular expression character
 class.
 Note that using white space characters as separator between each macro operand
-is absolutely necessary. Indeed, specified symbol or group names may be
-several-letters defined. However, it is not mandatory to use a white space
-character separator between the closure to apply and the suffix but it can
-improve readability.
+is absolutely necessary. Indeed, specified group names may be several-letters
+defined. However, it is not mandatory to use a white space character separator
+between the closure to apply and the first group name but it can improve
+readability.
 
     1.1.4°) Examples of grammar definition
     --------------------------------------
@@ -689,7 +690,7 @@ struct), exposing some specific constexpr static members or function.
 
       1.1.4.1°) C++ type containing the grammar definition
       ----------------------------------------------------
-This type will be used in spark's transcription algorithms (more on that later).
+This type will be used in spark's transcription algorithms (more in 2°).
 Here, you'll see the different manner to declare such a type.
 
         1.1.4.1.1°) Type exposing a 'value' member
@@ -1061,8 +1062,8 @@ States may have the following form :
 
 When building an automaton from a symbol, the transition function is parametered
 differently depending the type of the symbol :
-- inclusive symbol recognizing only one letter gives a transition function of the
-  form : -(x)-> , x being one letter.
+- inclusive symbol recognizing only one letter gives a transition function of
+  the form : -(x)-> , x being one letter.
 - exclusive symbol ,recognizing all but specified letters gives a transition
   function of the form : -(~xyz)-> , ~ meaning 'all but' and x, y and z being
   specific letters
@@ -1071,3 +1072,11 @@ differently depending the type of the symbol :
 
       4.2.3.2°) Building an automaton from a group
       --------------------------------------------
+As stated in 1.1.3° and sub-sequent sub sections, groups are features applying
+closures on operands. Operands can be groups or symbols. As a result, they can
+produce either very simple automaton or astonishingly complex one, depending how
+many closure are applied on how many operands.
+In this section I will show the produced automaton for the following regular
+expression :
+
+.*a*(b|cd?)+

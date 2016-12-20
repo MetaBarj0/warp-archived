@@ -1,6 +1,7 @@
 #ifndef _WARP_SPARK_REGULAR_GRAMMAR_TYPE_SYSTEM_HPP_
 #define _WARP_SPARK_REGULAR_GRAMMAR_TYPE_SYSTEM_HPP_
 
+#include "regular_grammar_type_system_traits.hpp"
 #include "symbol.hpp"
 #include "group.hpp"
 #include "symbol_traits.hpp"

@@ -3,6 +3,7 @@
 
 #include "regular_grammar.hpp"
 #include "regular_grammar_traits.hpp"
+#include "regular_grammar_type_system.hpp"
 
 /**
  * \brief This namespace contains all stuff that is related to formal language

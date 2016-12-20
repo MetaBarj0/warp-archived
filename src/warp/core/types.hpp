@@ -72,6 +72,12 @@ namespace warp
     };
 
   /**
+   * \brief Convenient alias to use when doing some sfinae magic
+   */
+  template< class... TS >
+    using sfinae_type_t = typename sfinae_type< TS... >::type;
+
+  /**
    * \brief Convenient alias used to specify that a SFINAE check is taking place
    * where it is used
    */
