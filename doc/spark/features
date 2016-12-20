@@ -64,7 +64,7 @@ accessible to the run time as well (for instance a JSON parser).
         1.1.4.1.3°) Type exposing a 'array' member
       1.1.4.2°) Some grammar examples
         1.1.4.2.1°) Some grammar examples
-          1.1.4.2.1.1°) 'a*(b|cd?)+'
+          1.1.4.2.1.1°) '.*a*(b|cd?)+'
   1.2°) Context-free grammars
 2°) Transcription algorithms
   2.1°) Transcription algorithms for compile-time
@@ -777,8 +777,8 @@ outside of their respective types, for the sake of clarity. However, some
 documentation block will be included in grammar definition string, to explain
 how it works.
 
-          1.1.4.2.1.1°) 'a*(b|cd?)+'
-          --------------------------
+          1.1.4.2.1.1°) '.*a*(b|cd?)+'
+          ----------------------------
 In the title, there is a regular expression. We'll see how to transform this
 simple regular expression to a regular grammar definition string.
 
@@ -786,15 +786,17 @@ This first version does not make use of macro
 
 /* OK this is the symbol definition block. Mandatory and unique */
 BEGIN_SYMBOLS;
-  a = a; /* a symbol for the 'a' letter */
-  b = b; /* b symbol for the 'b' letter */
-  c = c; /* c symbol for the 'c' letter */
-  d = d; /* d symbol for the 'd' letter */
-  ' = '; /* ' symbol for the ''' letter */
+  ' = ';   /* ' symbol for the ''' letter */
+  any = .; /* the any wildcard */
+  a = a;   /* a symbol for the 'a' letter */
+  b = b;   /* b symbol for the 'b' letter */
+  c = c;   /* c symbol for the 'c' letter */
+  d = d;   /* d symbol for the 'd' letter */
 END_SYMBOLS;
 
 /* OK this is the group definition block. Mandatory and unique */
 BEGIN_GROUPS;
+  .* = any*; /* applying zero to many closure on 'any' symbol */
   a* = a*; /* applying zero to many closure on 'a' symbol */
   b = b; /* applying one to one closure on 'b' symbol */
   c = c; /* applying one to one closure on 'c' symbol */
@@ -806,7 +808,7 @@ BEGIN_GROUPS;
   /* Applying the one to many closure on the 'b|cd?' group.
    * The group name is escaped because of the usage of '|' in the group name
    * that is a meta-character for an alternation closure. If the group were not
-   * escape, it wouldn't be a one to many closure that would be applied but an
+   * escaped, it wouldn't be a one to many closure that would be applied but an
    * alternation involving the 'b' group and the 'cd?+' group. It won't be valid
    * because the 'cd?+' group does not exist. */
   (b|cd?)+ = `b|cd?`+; 
@@ -817,13 +819,16 @@ BEGIN_GROUPS;
    * an error. */
   a*(b|cd?)+ = `a*`.(b|cd?)+;
 
+  /* The '.*' group is escaped for the same reasons as above. */
+  .*a*(b|cd?)+ = `.*`.a*(b|cd?)+;
+
   /* no excaping is needed here, simple concatenation */
-  'a*(b|cd?)+ = '.a*(b|cd?)+;
+  '.*a*(b|cd?)+ = '..*a*(b|cd?)+;
 
   /* escaping here is mandatory on the first group because of the use of the '+'
    * finishing character. Anyway, this is the last group defined and it defines
    * all languages that are recognized by the grammar. */
-  'a*(b|cd?)+' = `'a*.(b|cd?)+`.';
+  '.*a*(b|cd?)+' = `'.*a*.(b|cd?)+`.';
 END_GROUPS;
 
 The second version makes use of macros and is more compact :
@@ -831,9 +836,15 @@ The second version makes use of macros and is more compact :
 BEGIN_SYMBOLS;
   /* one line to define 5 inclusive symbols. */
   BASIC_SYMBOLS abcd';
+
+  /* The any symbol */
+  any = .;
 END_SYMBOLS;
 
 BEGIN_GROUPS;
+  /* applying zero to many closure on 'any' symbol */
+  .* = any*;
+
   /* simple zero to many closure on 'a' symbol */
   a* = a*;
 
@@ -854,8 +865,8 @@ BEGIN_GROUPS;
    * of the finishing '+' character */
   (b|cd?)+ = `b|cd?`+;
 
-  /* concatenate 3 group in one line, removing the need of escaping. */
-  BINARY_CLOSURE_ON . 'a*(b|cd?)+' ' a* (b|cd?)+ ';
+  /* concatenate 4 groups in one line, removing the need of escaping. */
+  BINARY_CLOSURE_ON . 'a*(b|cd?)+' ' .* a* (b|cd?)+ ';
 END_GROUPS;
 
   1.2°) Context-free grammars
@@ -1079,4 +1090,4 @@ many closure are applied on how many operands.
 In this section I will show the produced automaton for the following regular
 expression :
 
-.*a*(b|cd?)+
+'.*a*(b|cd?)+'
