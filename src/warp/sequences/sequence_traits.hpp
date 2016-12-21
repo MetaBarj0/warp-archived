@@ -307,6 +307,11 @@ namespace warp
        * \brief T is anything but meta sequence here
        */
       static constexpr bool is_integral_sequence = false;
+
+      /**
+       * \brief Indicates if the sequence is empty, not a sequence here
+       */
+      static constexpr bool is_empty = false;
     };
 
   /**
@@ -367,8 +372,7 @@ namespace warp
       /**
        * \brief Ensures that U is an integral type
        */
-      static constexpr bool is_integral_sequence =
-        std::is_integral< U >::value;
+      static constexpr bool is_integral_sequence = std::is_integral< U >::value;
 
       /**
        * \brief Indicates if the sequence is empty, examining the size of the

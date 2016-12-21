@@ -82,6 +82,9 @@ accessible to the run time as well (for instance a JSON parser).
         4.2.3.1.1°) States
           4.2.3.1.1.1°) C++ types for states
         4.2.3.1.2°) Transition functions
+          4.2.3.1.2.1°) Epsilon transitions
+          4.2.3.1.2.2°) C++ types for transition functions
+        4.2.3.1.3°) C++ types for automaton
       4.2.3.2°) Building an automaton from a symbol
       4.2.3.3°) Building an automaton from a group
 
@@ -1062,6 +1065,22 @@ Below is a schema showing states set and how the interact :
 |   +---------------------+                  |
 +--------------------------------------------+
 
+Representing states in a schema gives :
+- '^' for strictly initial state
+- '$' for strictly final state
+- 'O' for intermediate state
+- '%' for initial and final state
+
+As an example :
+
+%-(a)->$
+
+is an automaton similar to the 'a?' regular expression;
+
+^-(a)->O-(b)->$
+
+is an automaton similar to the 'ab' regular expression.
+
           4.2.3.1.1.1°) C++ types for states
           ----------------------------------
 A state is a part of an automaton and an automaton have at least two states.
@@ -1074,9 +1093,80 @@ For the sake of flexibility, the state identifier will be an integral sequence,
 allowing cool operations on them.
 The state types can be easily designed as a scoped enumeration containing the
 four values.
+For more details, take a look at 'src/warp/spark/detail/automaton_state.hpp' and
+'src/warp/spark/detail/automaton_state_traits.hpp'
 
         4.2.3.1.2°) Transition functions
         --------------------------------
+This entity allow the automaton to changes its currently active state. A
+transition function is made of few things :
+- a source state in the automaton
+- a target state in the automaton
+- a predicate based on a symbol definition or an epsilon transition.
+
+As stated above, each state of an automaton is identified using an integral
+sequence. Hence, source and target states for a transition function can be
+referenced using these identifiers.
+In 1.1.2°, we saw how to write symbols and what they are.
+The only new thing here is the epsilon transition.
+Below are some example of transition functions :
+
+-(a)->
+
+is a transition function parametered with an inclusive symbol recognizing the
+'a' letter
+
+-(~bcd)->
+
+is a transition function parametered with an exclusive symbol recognizing all
+but the 'b', 'c' and 'd' letters
+
+-(~)->
+
+is a transition function parametered with the 'any' symbol
+
+-()->
+
+is a transition function parametered with the epsilon transition.
+
+          4.2.3.1.2.1°) Epsilon transitions
+          ---------------------------------
+An epsilon transition is somewhat a null predicate. It shall be used in a
+trnasition function and means that not any particular condition are needed to
+pass from a state to another one in an automaton.
+Hence, it transforms the automaton : it becomes undeterministic. Because of
+that, epsilon transition must be a temporary tool that will be used to compute
+an automaton from undeterministic to deterministic and thus, a final and fully
+built automaton shall not have any transition functions parametered with an
+epsilon transition within. By the way, a transition function parametered with an
+epsilon transition is represented as :
+
+-()->
+
+With nothing between parentheses, it really looks like an empty predicate.
+
+          4.2.3.1.2.2°) C++ types for transition functions
+          ------------------------------------------------
+Three element make the transition function :
+- a source identifier to an automaton state (integral sequence)
+- a predicate (either a symbol or an epsilon transition)
+- a target identifier to an automaton state (integral sequence)
+
+These three elements could be seen as template parameter of a template type.
+For more details, take a look at
+'src/warp/spark/detail/automaton_t_function.hpp' and
+'src/warp/spark/detail/automaton_t_function_traits.hpp'
+
+        4.2.3.1.3°) C++ types for automaton
+        -----------------------------------
+With all that was stated before, an automaton could be seen just as a container
+of states and transition functions. Such meta-types can be expressed using
+templates and type sequences. As usual, the automaton type will be empty. It is
+a template expressed with two template parameters :
+- a type sequence containing all states of this automaton
+- a type sequence containing all transition functions of this automaton
+For more details, take a look at : 'src/warp/spark/detail/automaton.hpp' and
+'src/warp/spark/detail/automaton_traits.hpp'.
 
       4.2.3.2°) Building an automaton from a symbol
       ---------------------------------------------

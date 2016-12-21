@@ -2130,7 +2130,7 @@ namespace
    * \brief Hidden implementation of the partion feature for a type sequence.
    * Unspecialized here, instantiated when T is not a valid type sequence type.
    *
-   * \tparam T Any type but a valid type sequence
+   * \tparam S Any type but a valid type sequence
    */
   template< class S, template< class, class... > class, class, class, class >
     struct partition_type_sequence_impl
