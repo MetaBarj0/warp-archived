@@ -263,7 +263,7 @@ template<>
  *
  * \tparam T the type to look for a static member named value within
  */
-template< class T, class = typename warp::sfinae_type<>::type >
+template< class T, class = sfinae_type_t<> >
   struct has_static_char_buffer_value_member
   {
     /**
@@ -280,7 +280,7 @@ template< class T, class = typename warp::sfinae_type<>::type >
  */
 template< class T >
   struct has_static_char_buffer_value_member
-  < T, typename warp::sfinae_type< decltype( T::value ) >::type >
+  < T, sfinae_type_t< decltype( T::value ) > >
   {
     /**
      * \brief Relies on an internal feature to check the type of T::value
@@ -298,7 +298,7 @@ template< class T >
  *
  * \tparam T the type to look for a static method named value within
  */
-template< class T, class = typename warp::sfinae_type<>::type >
+template< class T, class = sfinae_type_t<> >
   struct has_static_char_buffer_value_method
   {
     /**
@@ -316,7 +316,7 @@ template< class T, class = typename warp::sfinae_type<>::type >
  */
 template< class T >
   struct has_static_char_buffer_value_method
-  < T, typename warp::sfinae_type< decltype( T::value() ) >::type >
+  < T, sfinae_type_t< decltype( T::value() ) > >
   {
     /**
      * \brief Relies on an internal feature to check the type of T::value

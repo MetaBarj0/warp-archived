@@ -20,7 +20,7 @@ namespace
    * \tparam T the type to look for a static member named value within
    * \tparam U the type of the value member must have
    */
-  template< class T, class U, class = typename warp::sfinae_type<>::type >
+  template< class T, class U, class = warp::sfinae_type_t<> >
     struct has_static_value_member_of_type
     {
       /**
@@ -39,7 +39,7 @@ namespace
    */
   template< class T, class U >
     struct has_static_value_member_of_type
-    < T, U, typename warp::sfinae_type< decltype( T::value ) >::type >
+    < T, U, warp::sfinae_type_t< decltype( T::value ) > >
     {
       /**
        * \brief The static member named value has been found, but this type must
@@ -58,7 +58,7 @@ namespace
    *
    * \tparam T the type to look for a static member named value within
    */
-  template< class T, class = typename warp::sfinae_type<>::type >
+  template< class T, class = warp::sfinae_type_t<> >
     struct has_static_integral_value_member
     {
       /**
@@ -76,7 +76,7 @@ namespace
    */
   template< class T >
     struct has_static_integral_value_member
-    < T, typename warp::sfinae_type< decltype( T::value ) >::type >
+    < T, warp::sfinae_type_t< decltype( T::value ) > >
     {
       /**
        * \brief The static member named value has been found, but this type must
@@ -122,7 +122,7 @@ namespace
    *
    * \tparam T any type but a valid integral sequence generator
    */
-  template< class T, class = typename warp::sfinae_type<>::type >
+  template< class T, class = warp::sfinae_type_t<> >
     struct has_integral_sequence_generator_next_type
     {
       /**
@@ -140,7 +140,7 @@ namespace
    */
   template< class T >
     struct has_integral_sequence_generator_next_type
-    < T, typename warp::sfinae_type< typename T::next >::type >
+    < T, warp::sfinae_type_t< typename T::next > >
     {
       /**
        * \brief 'next' type is exposed by T, check its type
@@ -217,7 +217,7 @@ namespace
    *
    * \tparam T any type but a valid integral sequence functor
    */
-  template< class T, class = typename warp::sfinae_type<>::type >
+  template< class T, class = warp::sfinae_type_t<> >
     struct has_integral_sequence_functor_next_type
     {
       /**
@@ -235,7 +235,7 @@ namespace
    */
   template< class T >
     struct has_integral_sequence_functor_next_type
-    < T, typename warp::sfinae_type< typename T::next >::type >
+    < T, warp::sfinae_type_t< typename T::next > >
     {
       /**
        * \brief 'next' type is exposed by T, check its type
@@ -252,7 +252,7 @@ namespace
    *
    * \tparam T any type but a valid type sequence functor
    */
-  template< class T, class = typename warp::sfinae_type<>::type >
+  template< class T, class = warp::sfinae_type_t<> >
     struct has_type_sequence_functor_next_type
     {
       /**
@@ -270,7 +270,7 @@ namespace
    */
   template< class T >
     struct has_type_sequence_functor_next_type
-    < T, typename warp::sfinae_type< typename T::next >::type >
+    < T, warp::sfinae_type_t< typename T::next > >
     {
       /**
        * \brief 'next' type is exposed by T, check its type

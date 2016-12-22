@@ -17,7 +17,7 @@ namespace warp::spark::detail
    * parameter equaling false indicating provided type is not even an integral
    * sequence
    */
-  template< class, bool >
+  template< class, class = sfinae_type_t<> >
     struct automaton_state_id_traits
     {
       /**
@@ -33,7 +33,15 @@ namespace warp::spark::detail
    * \tparam ID automaton state identifier, integral sequence
    */
   template< class ID >
-    struct automaton_state_id_traits< ID, true >
+    struct automaton_state_id_traits
+    <
+      ID,
+      sfinae_type_t
+        <
+          std::enable_if_t
+           < meta_sequence_traits< ID >::is_integral_sequence >
+        >
+      >
     {
       /**
        * \brief Valid if not empty
@@ -98,16 +106,8 @@ namespace warp::spark::detail
        * integral sequence (the automaton state id)
        */
       static constexpr auto is_automaton_t_function =
-        automaton_state_id_traits
-        <
-          SOURCE_ID, // assumed integral sequence
-          meta_sequence_traits< SOURCE_ID >::is_integral_sequence
-        >::is_automaton_state_id &&
-        automaton_state_id_traits
-        <
-          TARGET_ID, // assumed integral sequence
-          meta_sequence_traits< SOURCE_ID >::is_integral_sequence
-        >::is_automaton_state_id;
+        automaton_state_id_traits< SOURCE_ID >::is_automaton_state_id &&
+        automaton_state_id_traits< TARGET_ID >::is_automaton_state_id;
 
       /**
        * \brief the source state identifier
@@ -160,17 +160,9 @@ namespace warp::spark::detail
        * function is a symbol
        */
       static constexpr auto is_automaton_t_function =
-        automaton_state_id_traits
-        <
-          SOURCE_ID, // assumed integral sequence
-          meta_sequence_traits< SOURCE_ID >::is_integral_sequence
-        >::is_automaton_state_id &&
-        automaton_state_id_traits
-        <
-          TARGET_ID, // assumed integral sequence
-          meta_sequence_traits< SOURCE_ID >::is_integral_sequence
-        >::is_automaton_state_id &&
-        symbol_traits< FN_ARG >::is_symbol; // a symbol is required
+        automaton_state_id_traits< SOURCE_ID >::is_automaton_state_id &&
+        automaton_state_id_traits< TARGET_ID >::is_automaton_state_id &&
+        symbol_traits< FN_ARG >::is_symbol;
 
       /**
        * \brief The source state identifier

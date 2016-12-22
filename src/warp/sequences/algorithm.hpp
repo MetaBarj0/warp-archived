@@ -2689,7 +2689,7 @@ namespace
    * buffer value-type. The corresponding specialization is used depending on
    * the type of B::value
    */
-  template< class, class, class = typename warp::sfinae_type<>::type >
+  template< class, class, class = warp::sfinae_type_t<> >
     struct dispatch_from_value_type;
 
   /**
@@ -2827,14 +2827,14 @@ namespace
     struct dispatch_from_value_type
     <
       S< U, VS... >, B,
-      typename warp::sfinae_type
+      warp::sfinae_type_t
         <
           // B::value is valid in all case once it exists in B. Ensure
           // expression correctness thanks to enable_if usage. here I know there
           // is one of the 2 valid solution to check
           std::enable_if_t
             < warp::is_char_buffer< decltype( B::value ) >::value >
-        >::type
+        >
     >
     {
       /**
@@ -2863,7 +2863,7 @@ namespace
     <
       S< U, VS... >, B,
       // this sfinae expression is correct if B::value is a function only
-      typename warp::sfinae_type< decltype( B::value() ) >::type
+      warp::sfinae_type_t< decltype( B::value() ) >
     >
     {
       /**
