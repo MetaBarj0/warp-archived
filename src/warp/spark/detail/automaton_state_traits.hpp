@@ -29,7 +29,22 @@ namespace warp::spark::detail
       /**
        * \brief This is not an automaton state
        */
-      static constexpr state_types type = static_cast< state_types >( -1 );
+      static constexpr auto type = static_cast< state_types >( -1 );
+
+      /**
+       * \brief Not a valid state
+       */
+      static constexpr bool is_initial = false;
+
+      /**
+       * \brief Not a valid state
+       */
+      static constexpr bool is_intermediate = false;
+
+      /**
+       * \brief Not a valid state
+       */
+      static constexpr bool is_final = false;
     };
 
   /**
@@ -65,6 +80,32 @@ namespace warp::spark::detail
        */
       static constexpr auto type =
         is_automaton_state ? ST : static_cast< state_types >( -1 );
+
+      /**
+       * \brief useful for some algorithms
+       */
+      static constexpr bool is_initial =
+        is_automaton_state ?
+        ( ( ST == state_types::initial ) ||
+          ( ST == state_types::initial_and_final ) ) :
+        false;
+
+      /**
+       * \brief useful for some algorithms
+       */
+      static constexpr bool is_intermediate =
+        is_automaton_state ?
+        ( ST == state_types::intermediate ) :
+        false;
+
+      /**
+       * \brief useful for some algorithms
+       */
+      static constexpr bool is_final =
+        is_automaton_state ?
+        ( ( ST == state_types::final ) ||
+          ( ST == state_types::initial_and_final ) ) :
+        false;
     };
 }
 

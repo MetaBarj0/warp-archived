@@ -10,6 +10,16 @@
  */
 namespace warp::spark::detail
 {
+  /**
+   * \brief Represents a regular grammar automaton.
+   *
+   * \tparam STATES sequence of states, intended to be a valid type sequence
+   * containing at least 2 states, an initial and a final one.
+   * \tparam T_FUNCTIONS transition functions of the automaton. At least one is
+   * necessary to ensure the consistency of the automaton
+   */
+  template< class STATES, class T_FUNCTIONS >
+    class automaton {};
 }
 
 #endif // _WARP_SPARK_DETAIL_AUTOMATON_HPP_
