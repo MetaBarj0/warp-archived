@@ -1132,7 +1132,7 @@ is a transition function parametered with the epsilon transition.
           4.2.3.1.2.1°) Epsilon transitions
           ---------------------------------
 An epsilon transition is somewhat a null predicate. It shall be used in a
-trnasition function and means that not any particular condition are needed to
+transition function and means that not any particular condition are needed to
 pass from a state to another one in an automaton.
 Hence, it transforms the automaton : it becomes undeterministic. Because of
 that, epsilon transition must be a temporary tool that will be used to compute
