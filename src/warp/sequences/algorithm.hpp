@@ -2914,13 +2914,16 @@ namespace
   /**
    * \brief Internal feature used by the hidden implementation of for each
    * algorithm for both integral and type sequence. Non specialized version only
-   * declared.
+   * declared. Moreover, this type is open to sfinae checks to control the
+   * iteration loop.
    */
-  template< class, class >
+  template< class, class, class = warp::sfinae_type_t<> >
     struct apply_functor_on;
 
   /**
-   * \brief Specialization used on a type sequence that is not empty
+   * \brief Specialization used on a type sequence that is not empty.
+   * Specialization used when the specified functor exposes a 'next' type,
+   * allowing the iteration to continue
    *
    * \tparam S type sequence template
    * \tparam T the first type in the sequence
@@ -2935,7 +2938,11 @@ namespace
       template< class... > class S, class T, class... TS,
       template< class, class... > class F, class U, class... US
     >
-    struct apply_functor_on< S< T, TS... >, F< U, US... > >
+    struct apply_functor_on
+    <
+      S< T, TS... >, F< U, US... >,
+      warp::sfinae_type_t< typename F< U, US... >::next >
+    >
     {
       /**
        * \brief Recursively apply functor on remaining types in the sequence,
@@ -2948,7 +2955,38 @@ namespace
     };
 
   /**
-   * \brief Specialization used on a type sequence that is empty
+   * \brief Specialization used on a type sequence that is not empty.
+   * Specialization used when the specified functor exposes a 'stop' type,
+   * allowing the iteration to be broken
+   *
+   * \tparam S type sequence template
+   * \tparam TS type pack in the sequence
+   * \tparam F user-defined validated functor template
+   * \tparam U a type used in functor instantiation, previsously contained in
+   * the iterated type sequence
+   * \tparam US type pack used as functor arguments
+   */
+  template
+    <
+      template< class... > class S, class... TS,
+      template< class, class... > class F, class U, class... US
+    >
+    struct apply_functor_on
+    <
+      S< TS... >, F< U, US... >,
+      warp::sfinae_type_t< typename F< U, US... >::stop >
+    >
+    {
+      /**
+       * \brief Breaking the iteartion by exposing the functor as it's provided
+       */
+      using type = F< U, US... >;
+    };
+
+  /**
+   * \brief Specialization used on a type sequence that is empty. This
+   * specialization is functor exposition agnostic. It can be used either if the
+   * functor exposes a 'next' or a 'stop' type.
    *
    * \tparam S type sequence template
    * \tparam F user-defined validated functor template
@@ -2970,7 +3008,9 @@ namespace
     };
 
   /**
-   * \brief Specialization used on an integral sequence that is not empty
+   * \brief Specialization used on an integral sequence that is not empty.
+   * Moreover, this specialization is used when the provided functor expose a
+   * 'next' type, allowing the iteration to continue
    *
    * \tparam S type sequence template
    * \tparam U integral type used in the sequence
@@ -2986,7 +3026,11 @@ namespace
       template< class T, T... > class S, class U, U V, U... VS,
       template< class W, W, class... > class F, U X, class... TS
     >
-    struct apply_functor_on< S< U, V, VS... >, F< U, X, TS... > >
+    struct apply_functor_on
+    <
+      S< U, V, VS... >, F< U, X, TS... >,
+      warp::sfinae_type_t< typename F< U, X, TS... >::next >
+    >
     {
       /**
        * \brief Recursively apply functor on remaining values in the sequence,
@@ -2999,7 +3043,39 @@ namespace
     };
 
   /**
-   * \brief Specialization used on an integral sequence that is empty
+   * \brief Specialization used on an integral sequence. This one deals with a
+   * functor type exposing a stop type, breaking the iteration loop
+   *
+   * \tparam S type sequence template
+   * \tparam U integral type used in the sequence
+   * \tparam VS value pack, values in sequence
+   * \tparam F user-defined validated functor template
+   * \tparam X a value used in functor instantiation, previsously contained in
+   * the iterated integral sequence
+   * \tparam TS type pack used as functor arguments
+   */
+  template
+    <
+      template< class T, T... > class S, class U, U... VS,
+      template< class W, W, class... > class F, U X, class... TS
+    >
+    struct apply_functor_on
+    <
+      S< U, VS... >, F< U, X, TS... >,
+      warp::sfinae_type_t< typename F< U, X, TS... >::stop >
+    >
+    {
+      /**
+       * \brief The functor provided exposes a 'stop' type, breaking the
+       * iteration loop and thus, exposes itself without any recursion
+       */
+      using type = F< U, X, TS... >;
+    };
+
+  /**
+   * \brief Specialization used on an integral sequence that is empty. This
+   * specialization is functor-definition agnostic that is it doesn't matter if
+   * the functor exposes a 'next' or a 'stop' type.
    *
    * \tparam S type sequence template
    * \tparam U integral type used in that sequence
@@ -3060,10 +3136,17 @@ namespace
                      "Invalid type used. Only type sequence types are "
                      "allowed." );
 
-      static_assert( ! warp::meta_sequence_traits< S<> >::is_empty,
-                     "Invalid type used. Only non empty type sequence types "
-                     "are allowed."
-                     );
+      static_assert( warp::meta_functor_traits
+                       < F< warp::undefined_type, US... > >::
+                       is_type_sequence_functor,
+                     "Invalid type used. Only type sequence functors are "
+                     "allowed." );
+
+      /**
+       * \brief The type sequence is empty, exposing the functor as provided,
+       * using undefined_type as argument
+       */
+      using type = F< warp::undefined_type, US... >;
     };
 
   /**
@@ -3148,10 +3231,16 @@ namespace
                      "Invalid type used. Only integral sequence types are "
                      "allowed." );
 
-      static_assert( warp::meta_sequence_traits< S< U > >::
-                       is_empty,
-                     "Invalid type used. Only non empty integral sequence "
-                     "types are allowed.");
+      static_assert( warp::meta_functor_traits< F< U, U{}, TS... > >::
+                       is_integral_sequence_functor,
+                     "Invalid type used. Only integral sequence functors are "
+                     "allowed." );
+
+      /**
+       * \brief Used with an empty sequence,exposes the functor as provided,
+       * using a default constructed integral.
+       */
+      using type = F< U, U{}, TS... >;
     };
 
   /**

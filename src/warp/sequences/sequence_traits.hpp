@@ -246,6 +246,38 @@ namespace
     };
 
   /**
+   * \brief Check for the existence of a 'stop' type inside T. T must be an
+   * integral sequence functor.
+   *
+   * \tparam T any type but a valid integral sequence functor
+   */
+  template< class T, class = warp::sfinae_type_t<> >
+    struct has_integral_sequence_functor_stop_type
+    {
+      /**
+       * \brief T doesn't have a 'stop' type exposed
+       */
+      static constexpr bool value = false;
+    };
+
+  /**
+   * \brief Specialization using an integral sequence generator and a SFINAE
+   * expression for 'stop'
+   *
+   * \tparam F functor template
+   * \tparam TS type pack used as arguments in the functor
+   */
+  template< class T >
+    struct has_integral_sequence_functor_stop_type
+    < T, warp::sfinae_type_t< typename T::stop > >
+    {
+      /**
+       * \brief 'stop' type is exposed by T
+       */
+      static constexpr bool value = true;
+    };
+
+  /**
    * \brief Check for the existence of a 'next' type inside T. T must be an
    * type sequence functor and the next type must be also an type
    * sequence functor
@@ -278,6 +310,38 @@ namespace
       static constexpr bool value =
         is_valid_type_sequence_functor_template_signature
         < typename T::next >::value;
+    };
+
+  /**
+   * \brief Check for the existence of a 'stop' type inside T. T must be an
+   * type sequence functor.
+   *
+   * \tparam T any type but a valid type sequence functor
+   */
+  template< class T, class = warp::sfinae_type_t<> >
+    struct has_type_sequence_functor_stop_type
+    {
+      /**
+       * \brief T doesn't have a 'stop' type exposed
+       */
+      static constexpr bool value = false;
+    };
+
+  /**
+   * \brief Specialization using an type sequence generator and a SFINAE
+   * expression for 'stop'
+   *
+   * \tparam F functor template
+   * \tparam TS type pack used as arguments in the functor
+   */
+  template< class T >
+    struct has_type_sequence_functor_stop_type
+    < T, warp::sfinae_type_t< typename T::stop > >
+    {
+      /**
+       * \brief 'stop' type is exposed by T
+       */
+      static constexpr bool value = true;
     };
 }
 
@@ -537,7 +601,8 @@ namespace warp
        * type
        */
       static constexpr bool is_type_sequence_functor =
-        has_type_sequence_functor_next_type< F< T, TS... > >::value;
+        has_type_sequence_functor_next_type< F< T, TS... > >::value ^
+        has_type_sequence_functor_stop_type< F< T, TS... > >::value;
 
       /**
        * \brief not suitable for integral sequences
@@ -563,7 +628,8 @@ namespace warp
        * type
        */
       static constexpr bool is_integral_sequence_functor =
-        has_integral_sequence_functor_next_type< F< U, V, TS... > >::value;
+        has_integral_sequence_functor_next_type< F< U, V, TS... > >::value ^
+        has_integral_sequence_functor_stop_type< F< U, V, TS... > >::value;
 
       /**
        * \brief not suitable for type sequences
