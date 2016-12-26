@@ -138,14 +138,13 @@ namespace warp::spark::detail
    * two initial states have been discovered, the automaton state sequence is
    * invalid and it is not necessary to explore anymore
    *
-   * \tparam STATE warp::ignore
    * \tparam FINAL current value of the final state counter. Doesn't matter
    * here, the sequence will be discarded
    */
-  template< class STATE, std::size_t FINAL >
+  template< std::size_t FINAL >
     struct count_required_states
     <
-      STATE,
+      ignore,
       std::integral_constant< std::size_t, 2 >,
       std::integral_constant< std::size_t, FINAL >
     >
@@ -163,7 +162,7 @@ namespace warp::spark::detail
 
       /**
        * \brief The stop type, exposing the result of an invalid automaton state
-       * sequence iteration
+       * and breaking sequence iteration
        */
       using stop =
         count_required_states
