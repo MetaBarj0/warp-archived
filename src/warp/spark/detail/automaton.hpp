@@ -28,6 +28,6 @@ namespace warp::spark::detail
 /**
  * \file
  *
- * \brief This file contain the definition of a deterministic finite automaton,
+ * \brief This file contains the definition of a deterministic finite automaton,
  * graph representation of a spark regular grammar
  */
