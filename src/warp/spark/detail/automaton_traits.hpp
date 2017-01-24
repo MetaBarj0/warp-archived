@@ -320,24 +320,28 @@ namespace warp::spark::detail
    */
   template
     <
-      template< class, class > class AUTOMATON,
+      template< class, class, class > class AUTOMATON,
       template< class... > class STATE_SEQUENCE,
       class STATE_1, class STATE_2, class... STATES,
       template< class... > class T_FUNCTION_SEQUENCE,
-      class T_FUNCTION_1, class... T_FUNCTIONS
+      class T_FUNCTION_1, class... T_FUNCTIONS,
+      template< class... > class G_COMMAND_SEQUENCE,
+      class G_COMMAND_1, class... G_COMMANDS
     >
     struct automaton_traits
     <
       AUTOMATON
         <
           STATE_SEQUENCE< STATE_1, STATE_2, STATES... >,
-          T_FUNCTION_SEQUENCE< T_FUNCTION_1,  T_FUNCTIONS... >
+          T_FUNCTION_SEQUENCE< T_FUNCTION_1,  T_FUNCTIONS... >,
+          G_COMMAND_SEQUENCE< G_COMMAND_1, G_COMMANDS... >
         >
     >
     {
       /**
        * \brief Validity of an automaton depends on validity of the state
-       * sequence and the transition function sequence
+       * sequence, the transition function sequence and the group command
+       * sequence
        */
       static constexpr auto is_automaton =
         state_sequence_traits
@@ -345,7 +349,10 @@ namespace warp::spark::detail
           is_state_sequence &&
         t_function_sequence_traits
           < T_FUNCTION_SEQUENCE< T_FUNCTION_1, T_FUNCTIONS... > >::
-          is_t_function_sequence;
+          is_t_function_sequence &&
+        g_command_sequence_traits
+          < G_COMMAND_SEQUENCE< G_COMMAND_1, G_COMMANDS... > >::
+          is_g_command_sequence;
 
     };
 }

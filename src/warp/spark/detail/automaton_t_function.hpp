@@ -9,12 +9,14 @@ namespace warp::spark::detail
    * source to a target if a predicate is verified. The predicate is a test
    * against a symbol or an epsilon transition
    *
+   * \tparam ID identifier of this transition function
    * \tparam SOURCE_ID identifier of the source automaton state
    * \tparam FN_ARG argument of this transition function, either a symbol or an
    * epsilon transition.
    * \tparam TARGET_ID identifier of the target automaton state
    */
-  template< class SOURCE_ID, class FN_ARG, class TARGET_ID >
+  template
+    < class ID, class SOURCE_STATE_ID, class FN_ARG, class TARGET_STATE_ID >
     struct automaton_t_function {};
 }
 

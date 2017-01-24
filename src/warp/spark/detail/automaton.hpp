@@ -17,8 +17,10 @@ namespace warp::spark::detail
    * containing at least 2 states, an initial and a final one.
    * \tparam T_FUNCTIONS transition functions of the automaton. At least one is
    * necessary to ensure the consistency of the automaton
+   * \tparam G_COMMANDS group commands of the automaton. At least one is
+   * necessary to ensure the validity of the automaton
    */
-  template< class STATES, class T_FUNCTIONS >
+  template< class STATES, class T_FUNCTIONS, class G_COMMANDS >
     class automaton {};
 }
 

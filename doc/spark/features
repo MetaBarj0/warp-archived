@@ -84,7 +84,12 @@ accessible to the run time as well (for instance a JSON parser).
         4.2.3.1.2°) Transition functions
           4.2.3.1.2.1°) Epsilon transitions
           4.2.3.1.2.2°) C++ types for transition functions
-        4.2.3.1.3°) C++ types for automaton
+        4.2.3.1.3°) Group commands
+          4.2.3.1.3.1°) Finishing group command
+          4.2.3.1.3.2°) Capturing group command
+          4.2.3.1.3.3°) Resetting group command
+          4.2.3.1.3.4°) C++ types for group commands
+        4.2.3.1.4°) C++ types for automaton
       4.2.3.2°) Building an automaton from a symbol
       4.2.3.3°) Building an automaton from a group
 
@@ -896,13 +901,37 @@ compile time flavor transcription algorithm that will be used. Otherwise, if the
 specified user input (language) is defined at runtime and is iterable, then
 there will be the runtime transcription algorith that will be used. Actually the
 nature of the language dictates the nature of both transcription algorithm and
-generators to use.
+generators to be used.
 
   2.1°) Transcription algorithms for compile-time
   -----------------------------------------------
+Transcription at compile time deals with user input specified at compile time.
+Usualy, compile time content is specified as integral sequence and it is this
+form of representation that is requested by compile time transcription.
+The second thing needed to perform the transcription is a regular grammar as
+defined in 1.1°.
+Finally, the last requirement for the transcription to take place is a generator
+able to be processed at compile time (see in 3.1° for more details)
+It exists another kind of compile-time transcription algorithm. The different is
+located in the second parameter of the algorithm, at the grammar place. Instead
+using a grammar, this algorithm makes use of a group template instance.
+In a nutshell, there is :
+- compile time transcription using compile time user input, regular grammar and
+  compile-time generators
+- compile time transcription using compile time user input, group template
+  instance and compile-time generators
 
   2.2°) Transcription algorithms for run-time
   -------------------------------------------
+
+3°) Generators
+--------------
+
+  3.1°) Generators for compile-time
+  ---------------------------------
+
+  3.2°) Generators for run-time
+  -----------------------------
 
 4°) Implementing the regular grammar as study case
 --------------------------------------------------
@@ -1025,13 +1054,21 @@ this automaton recognize the language 'ab'.
 Here a new kind of automaton state is show : the 'O', it represents an
 intermediate state, not final nor initial. An automaton may have several
 intermediate states.
+It is worth to note that the automaton is the lowest level representation of a
+regular grammar.
+Described as above, an automaton can test each character of an user input and
+tell if yes or no the character gives this automaton a valid state but it
+doesn't refresh the grammar status. Indeed, a grammar may be composed of several
+groups, each group recognizing one or more letter from the user input. Hence, an
+automaton and it is usefull to the user to know if a character is a capture of a
+specific group.
 
       4.2.3.1°) The automaton structure
       ---------------------------------
-Automata are made of few things : states and transition functions. Used
-together, these elements form a directed graph you can use to recognize a
-regular language. Sections below will describe how are made these simple
-elements.
+Automata are made of few things : states, transition functions and group
+commands. Used together, these elements form a directed graph you can use to
+recognize a regular language. Sections below will describe how are made these
+simple elements.
 
         4.2.3.1.1°) States
         ------------------
@@ -1052,15 +1089,15 @@ automaton. It exists three kinds of state :
 Below is a schema showing states set and how the interact :
 
 +--------------------------------------------+ As you can see, initial and final
-|      Automaton state sets interactions     | states can overlap leading to an
+|      Automaton state set interactions      | states can overlap leading to an
 |                                            | automaton that have an initial
 | +---------------------+                    | state that is also final.
 | | initial             |                    | As initial state is unique
 | |                     |   +--------------+ | throughout an automaton, it can
 | | +-------------------+-+ | intermediate | | only exist at most one mixed
 | | | initial and final | | +--------------+ | initial-final state per
-| +-+-------------------+ |                  | automaton.
-|   |                     |                  |
+| +-+-------------------+ |                  | automaton because an automaton
+|   |                     |                  | can have only one initial state.
 |   |               final |                  |
 |   +---------------------+                  |
 +--------------------------------------------+
@@ -1100,6 +1137,7 @@ For more details, take a look at 'src/warp/spark/detail/automaton_state.hpp' and
         --------------------------------
 This entity allow the automaton to changes its currently active state. A
 transition function is made of few things :
+- an identifier
 - a source state in the automaton
 - a target state in the automaton
 - a predicate based on a symbol definition or an epsilon transition.
@@ -1147,24 +1185,145 @@ With nothing between parentheses, it really looks like an empty predicate.
 
           4.2.3.1.2.2°) C++ types for transition functions
           ------------------------------------------------
-Three element make the transition function :
+Four elements make the transition function :
+- an identifier (integral sequence)
 - a source identifier to an automaton state (integral sequence)
 - a predicate (either a symbol or an epsilon transition)
 - a target identifier to an automaton state (integral sequence)
 
-These three elements could be seen as template parameter of a template type.
+These four elements could be seen as template parameter of a template type.
 For more details, take a look at
 'src/warp/spark/detail/automaton_t_function.hpp' and
 'src/warp/spark/detail/automaton_t_function_traits.hpp'
 
-        4.2.3.1.3°) C++ types for automaton
+        4.2.3.1.3°) Group commands
+        --------------------------
+The group command is a behavioral entity of the automaton. It is built at each
+automaton closure operation or at each automaton built from a symbol. It is used
+at each automaton transition function traversal.
+Hence, it is the bridge between defined groups (in a regular grammar),
+generators and the underlying low-level automaton. Actually, when the
+automaton passes from a state to another after a character test from the user
+input (using the transition function), it is necessary to know which group is
+capturing the character and if this group is finished or reset. The group
+command is here for that purpose. When triggered, a group command communicates
+to the generator at the transcription algorithm level to allow the user to
+take an action depending of the type of the group command. It is related to a
+transition function. Indeed, a transition function tests a symbol used as
+parameter. A transition function may have several group command, indicating it
+is capturing for a specific group, or finishing a specific group or cancelling a
+specific group. This is the entity allowing the use of user-defined generators
+(see 3°).
+As stated above, there is three kinds of group command :
+- the finishing one, indicating a specific group has been finished after a
+  transition function traversal with a specific symbol OR the end of the user
+  input (if the related automaton is in a valid final state)
+- the capturing one, indicating a specific group is being constructed by the
+  traversal of a transition function with a specific symbol
+- the resetting one, indicating a specific group has to be reset after a
+  transition function traversal with a specific symbol.
+Examples of application will be shown in automaton building sections 4.2.3.2° and
+4.2.3.3° sub-sections.
+
+          4.2.3.1.3.1°) Finishing group command
+          -------------------------------------
+This command indicates a group is finished by the currently tested symbol, if
+this last passes the transition function. For example, let us define this
+regular grammar :
+
+BEGIN_SYMBOLS;
+  BASIC_SYMBOLS abc;
+END_SYMBOLS;
+BEGIN_GROUPS;
+  SYMBOLS_AS_GROUPS a b c;
+  BINARY_CLOSURE_ON . abc a b c;
+END_GROUPS;
+
+This grammar recognize the language 'abc' represented by a group named 'abc'
+implicitly defined through BINARY_CLOSURE_ON macro usage.
+This grammar defines at least four groups respectively named a, b, c and abc.
+An automaton representation of this grammar could be :
+
+^-(a)->O-(b)->O-(c)->$
+
+All groups but the last one has its own finishing group command attached to its
+related transition function. These group commands are created when a simple
+group is created from a simple symbol :
+
+-(a)-> finishes the group named 'a' when traversed
+-(b)-> finishes the group named 'b' when traversed
+-(c)-> finishes the group named 'c' when traversed
+
+          4.2.3.1.3.2°) Capturing group command
+          -------------------------------------
+Let's work with the grammar defined in 4.2.3.1.3.2°.
+The capturing group command is created at each concatenation operation here.
+More generally, a capturing group command is applied when any closure but the
+one to one is applied to a group or symbol.
+According to that, after group a, b and c have been concatenated, each
+transition function are linked with at least two group commands :
+
+-(a)-> finishes the group named 'a' when traversed
+       and captures for the group named 'abc' when traversed
+-(b)-> finishes the group named 'b' when traversed
+       and captures for the group named 'abc' when traversed
+-(c)-> finishes the group named 'c' when traversed
+       and captures for the group named 'abc' when traversed
+
+A capturing group command indicates that a group is being constructed with the
+transition function traversal parametered with a specific symbol.
+A capturing group command has to be transformed into a finishing group command,
+otherwise, the user cannot know if a group is finished when it has to be
+finished, regarding in which state the underlying automaton is. As a
+consequence, each 'capturing' group command attached to the transition function
+attached to the current final state of the automaton must trigger a finishing
+group command on the specified group. As an example, if the user input language
+exploration finishes and the automaton reach its terminal state, a finish group
+command for the 'abc' group must be emitted. There is other ways to transform a
+capturing group command into a finishing group command, more examples in
+4.2.3.2° and 4.2.3.3° sub-sections.
+
+          4.2.3.1.3.3°) Resetting group command
+          -------------------------------------
+This very special command is used when dealing with exclusive and any type
+symbols. To make a quick draw, it is designed to deal with greediness of
+specific symbol types (respectively any and exclusive against inclusive) when
+repetition closures are applied on them. More precisions are located in
+4.2.3.2° 4.2.3.3° and them respective sub-sections. For now, it is only useful
+to know what is the effect of trigerring this command and on what kind of group
+command this command could be applied on. The first question's answer is : the
+effect indicates to the user that the defined generator should erase all
+characters that have been captured so far. The second question's answer is : it
+is applied only on capturing group commands. Indeed, finished group are
+finished, that's it.
+
+          4.2.3.1.3.4°) C++ types for group commands
+          ------------------------------------------
+As usual, a set of types has to be defined in order to conceptualize and include
+the group command concept to the automaton. There will be a template type and
+its associated traits class.
+As stated above, in previous sub-section, we know a group command is related to
+a transition function. A transition function is uniquely identified. This
+identifier can be used to refer to the group command's related transition
+function.
+Moreover, there is three kind of group command : finishing, capturing and
+resetting. It's perfect for a scoped enum.
+Finally, a group command is designed to be applied on a group that is
+user-named, so the name of the group has to be used as parameter.
+For more details, take a look at :
+'src/warp/spark/detail/automaton_g_command.hpp' and
+'src/warp/spark/detail/automaton_g_command_traits.hpp' and
+'src/warp/spark/detail/automaton_g_command_types.hpp'.
+
+        4.2.3.1.4°) C++ types for automaton
         -----------------------------------
 With all that was stated before, an automaton could be seen just as a container
-of states and transition functions. Such meta-types can be expressed using
-templates and type sequences. As usual, the automaton type will be empty. It is
-a template expressed with two template parameters :
+of states transition functions and group commands. Such meta-types can be
+expressed using templates and type sequences. As usual, the automaton type will
+be empty. It is a template expressed with three template parameters :
 - a type sequence containing all states of this automaton
 - a type sequence containing all transition functions of this automaton
+- a type sequence containing all group commands attached to transition functions
 For more details, take a look at : 'src/warp/spark/detail/automaton.hpp' and
 'src/warp/spark/detail/automaton_traits.hpp'.
 

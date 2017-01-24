@@ -426,20 +426,20 @@ namespace warp::spark
     struct regular_grammar_definition_traits
     {
       /**
-       * \brief Uniforms the regular grammar definition string into an integral
-       * sequence.
-       */
-      using regular_grammar_definition_sequence =
-        typename regular_grammar_definition_value_or_array_traits
-        < T >::regular_grammar_definition_sequence;
-
-      /**
        * \brief sfinae check had ensured the validity of the regular grammar
        * definition and the size of the resulting sequence
        */
       static constexpr bool is_regular_grammar_definition =
         regular_grammar_definition_value_or_array_traits
         < T >::is_regular_grammar_definition;
+
+      /**
+       * \brief Uniforms the regular grammar definition string into an integral
+       * sequence.
+       */
+      using regular_grammar_definition_sequence =
+        typename regular_grammar_definition_value_or_array_traits
+        < T >::regular_grammar_definition_sequence;
     };
 
   /**
