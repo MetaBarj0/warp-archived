@@ -695,7 +695,7 @@ readability.
     1.1.4°) Examples of grammar definition
     --------------------------------------
 The content of this section will contain some examples about how to write more
-or less usefull warp regular grammar strings. As you may seen above, grammar
+or less useful warp regular grammar strings. As you may seen above, grammar
 string are actually C++ char buffers and can be written with different manner.
 In any case, the grammar definition string must be contained in a type (class or
 struct), exposing some specific constexpr static members or function.
@@ -966,8 +966,8 @@ that language if there is not anymore grammar?
 
   4.2°) C++ type system for regular grammars
   ------------------------------------------
-Main entities of a grammar are the symbols and the groups. A C++ type system
-will be created using these concepts.
+Main entities of a regular grammar are the symbols and the groups. A C++ type
+system will be created using these concepts.
 
     4.2.1°) The symbol type
     -----------------------
@@ -998,7 +998,7 @@ and src/warp/spark/symbol_traits.hpp files.
     ----------------------
 Writing group techniques are described in 1.1.3°. Regarding that, some core
 group components can be easily conceptualized and extracted into some template
-expression. Indeed, a group is a piece of stuff applying some operation on some
+expression. Indeed, a group is a piece of stuff applying some operations on some
 operands after all.
 Talking about operations, there is two major kind of operations called closures
 and they are :
@@ -1021,15 +1021,15 @@ and src/warp/spark/group_traits.hpp files.
 
     4.2.3°) The automaton type system
     ---------------------------------
-The automaton type system represents a set of types able to translate a group or
-a symbol into a deterministic finite automaton. The purpose here is to be able
-to parse some language using a high level, previously defined grammar. A parsing
-is a process in which each character read from an input language is tested using
-a built automaton. If the character is recognized by the automaton, the test
-passes, otherwise it fails. The automaton updates its state for each character
-read.
-As an example, here is the automaton corresponding to an inclusive symbol
-recognizing the 'a' letter :
+The automaton type system represents a set of types and meta-algorithms able to
+translate a group or a symbol into a deterministic finite automaton. The purpose
+here is to be able to parse some language using a high level, previously defined
+grammar. A parsing is a process in which each character read from an input
+language is tested using a built automaton. If the character is recognized by
+the automaton, the test passes, otherwise it fails. The automaton updates its
+state for each character read.
+As an example, here is the automaton corresponding to a group applying the one
+to one closure on an inclusive symbol recognizing the 'a' letter :
 
 ^-(a)->$
 
@@ -1038,14 +1038,15 @@ The '^' is the initial state of the automaton, the starting point. At all time
 
 The '-(a)->' sequence represents a transition function. To change the state of
 this automaton from the initial one to the next one, you have to pass through a
-transition function (-...->; ... being a symbol definition).
+transition function (-...->; ... being a symbol definition or an epsilon
+transition, more on that later).
 
 The '$' represents a final state of the automaton. An automaton may have several
-final state. As seen before, an automaton change its state for each character
-read and, if the automaton reaches one of its final states AND the input
-language is fully read, then, the regular language is recognized.
+final state (at least one). As seen before, an automaton change its state for
+each character read and, if the automaton reaches one of its final states AND
+the input language is fully read, then, the regular language is recognized.
 
-Another easy to understand automaton could be :
+Another easy example to understand the automaton concept could be :
 
 ^-(a)->O-(b)->$
 
@@ -1053,14 +1054,14 @@ This one is pretty similar to the last one shown above. The difference is that
 this automaton recognize the language 'ab'.
 Here a new kind of automaton state is show : the 'O', it represents an
 intermediate state, not final nor initial. An automaton may have several
-intermediate states.
+intermediate states but it's not mandatory.
 It is worth to note that the automaton is the lowest level representation of a
 regular grammar.
 Described as above, an automaton can test each character of an user input and
 tell if yes or no the character gives this automaton a valid state but it
 doesn't refresh the grammar status. Indeed, a grammar may be composed of several
 groups, each group recognizing one or more letter from the user input. Hence, an
-automaton and it is usefull to the user to know if a character is a capture of a
+automaton and it is useful to the user to know if a character is a capture of a
 specific group.
 
       4.2.3.1°) The automaton structure
