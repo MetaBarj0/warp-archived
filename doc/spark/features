@@ -92,6 +92,9 @@ accessible to the run time as well (for instance a JSON parser).
         4.2.3.1.4°) C++ types for automaton
       4.2.3.2°) Building an automaton from a symbol
       4.2.3.3°) Building an automaton from a group
+      4.2.3.4°) Algorithm to create/alter automaton
+        4.2.3.4.1°) Apply an unary closure algorithm
+        4.2.3.4.2°) Apply a binary closure algorithm
 
 1°) Grammars
 ------------
@@ -1327,13 +1330,21 @@ be empty. It is a template expressed with three template parameters :
 - a type sequence containing all group commands attached to transition functions
 For more details, take a look at : 'src/warp/spark/detail/automaton.hpp' and
 'src/warp/spark/detail/automaton_traits.hpp'.
+Besides these structural types, there are some types that have been designed for
+behavioral purposes such as automaton related algorithms. These algorithms can
+be used to construct or alter automata, implementing the previously defined
+groups' closures.
 
       4.2.3.2°) Building an automaton from a symbol
       ---------------------------------------------
+The first algorithm, creating a brand new automaton. Despite the title indicates
+this automaton will be built from a symbol, each automaton construction are
+triggered at group level, leading an automaton to be another representation of a
+group.
 As stated in 1.1.2° and subsequent sub-sections, there is three kind of symbols,
 inclusive, exclusive and any. All are dealing with character recognition. The
 lead to construct automaton having only two states (an initial and a final) and
-a transition function. The only difference is located in the transition
+a transition function. One of the variable parts is located in the transition
 function. Indeed, for an inclusive symbol (let's say, recognizing the 'a'
 letter), building an automaton will end up with the following automaton :
 
@@ -1370,11 +1381,19 @@ The produce automaton being :
 
 ^-(~)->$
 
+Another variable part of this very basic automaton construction is related to
+the group command. As stated in 1.1.3.2.1°, unary closure can be applied on
+symbol entities of a regular grammar. Depending the unary closure that is used,
+different type of group command can be attached tot the created transition
+function.
+
 To summarize, a symbol, no matter its type (inclusive, exclusive or any)
 produces automaton having :
 - only two states (initial and final) and
 - one transition function you need to pass in order to reach the final state
   from the initial state.
+- One group command whose the type depends on the unary closure used to create
+  the automaton.
 
 States may have the following form :
 - Initial state is represented by the '^' character
@@ -1390,30 +1409,36 @@ differently depending the type of the symbol :
 - any symbol type recognizing anny letter gives a transition function of the
   form : -(~)-> , ~ character followed by nothing meaning any letter.
 
+Group command creation will be described in the related automaton algorithm.
+
       4.2.3.3°) Building an automaton from a group
       --------------------------------------------
 As stated in 1.1.3° and sub-sequent sub sections, groups are features applying
 closures on operands. Operands can be groups or symbols. As a result, they can
-produce either very simple automaton or astonishingly complex one, depending how
-many closure are applied on how many operands.
-In this section I will show the produced automaton for the following regular
-expression :
+produce some complex automata.
+Applying a closure trigger the use of a specific concept named 'epsilon
+transition'. An epsilon transition can be used as argument in a transition
+function and is used in place of a symbol definition. When an epsilon transition
+is used as a transition function argument, it means : hey, you don't have any
+specific requirement to go through this transition function, go ahead.
+Let's call 'epsilon' the 'epsilon transition' used as argument inside a
+transition function and let's call an 'epsilon transition' a transition function
+parametered with an 'epsilon'; finally, let's call a 'transition function' a
+well known transition function parametered with a symbol.
+As a consequence, using such epsilon transitions transform a DFA into an NFA.
+Hence, it is absolutely required to transform these epsilon transitions into
+transition functions. The way to do that is very specific to the applied closure
+and is described in each algorithm.
+Moreover, applying a closure also triggers a side-effect related to group
+command. Each closure type may add, alter or replace group commands associated
+to a transition function either parametered with an epsilon transition or a
+symbol.
 
-'.*a*(b|cd?)+'
+      4.2.3.4°) Algorithm to create/alter automaton
+      ---------------------------------------------
 
-The related regular grammar definition for this regular expression could be :
+        4.2.3.4.1°) Apply an unary closure algorithm
+        --------------------------------------------
 
-BEGIN_SYMBOLS;
-  BASIC_SYMBOLS 'abcd;
-  any = .;
-END_SYMBOLS;
-BEGIN_GROUPS;
-  SYMBOLS_AS_GROUPS b c ';
-  .* = any*;
-  a* = a*;
-  d? = d?;
-  cd? = c.d?;
-  b|cd? = b|cd?;
-  (b|cd?)+ = `b|cd?`+;
-  BINARY_CLOSURE_ON . '.*a*(b|cd?)+' ' .* a* (b|cd?)+ ';
-END_GROUPS;
+        4.2.3.4.2°) Apply a binary closure algorithm
+        --------------------------------------------
