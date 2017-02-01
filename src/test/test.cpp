@@ -629,9 +629,6 @@ void test::spark_tester::test_all()
             << std::endl;
 
   test_regular_grammar();
-
-  test_compile_time_transcription();
-  test_run_time_transcription();
 }
 
 void test::spark_tester::test_regular_grammar()
@@ -678,6 +675,8 @@ void test::spark_tester::test_regular_grammar_instantiation()
   using rgdt = typename warp::spark::regular_grammar_definition_traits< rgd >;
   using rgds = typename rgdt::regular_grammar_definition_sequence;
 
+  static_assert( rgt::is_regular_grammar, "Uh oh..." );
+  static_assert( rgdt::is_regular_grammar_definition, "Uh oh..." );
   static_assert( warp::meta_sequence_traits< rgds >::is_integral_sequence,
                  "Uh oh..." );
 }

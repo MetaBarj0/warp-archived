@@ -6,11 +6,78 @@
 #include "../../sequences/algorithm.hpp"
 #include "automaton_state_traits.hpp"
 #include "automaton_t_function_traits.hpp"
+#include "automaton_g_command_traits.hpp"
 
 #include <type_traits>
 
 namespace warp::spark::detail
 {
+  /**
+   * \brief Internal traits class designed to recognize a group command
+   * sequence. This unspecialized sfinae friendly version is used when the
+   * specified type is not even a type sequence.
+   */
+  template< class, class = sfinae_type_t<> >
+    struct g_command_sequence_traits
+    {
+      /**
+       * \brief Template parameter is not even a type sequence, thus, it connot
+       * be a group command sequence.
+       */
+      static constexpr bool is_g_command_sequence = false;
+    };
+
+  /**
+   * \brief Specialization dealing with at least a type sequence, assumed to
+   * contain only group commands
+   *
+   * \tparam A type sequence assumed to contain group commands
+   */
+  template< class G_COMMAND_SEQUENCE >
+    struct g_command_sequence_traits
+    <
+      G_COMMAND_SEQUENCE,
+      sfinae_type_t
+        <
+          std::enable_if_t
+            < meta_sequence_traits< G_COMMAND_SEQUENCE >::is_type_sequence >
+        >
+    >
+    {
+    private :
+      /**
+       * \brief A static predicate indicating if the specified type is an
+       * automaton group command
+       *
+       * \tparam T an explored type in a type sequence
+       */
+      template< class T >
+        struct is_g_command
+        {
+          /**
+           * \brief Relying on a specific traits class for automaton group
+           * command type
+           */
+          static constexpr auto value =
+            automaton_g_command_traits< T >::is_automaton_g_command;
+        };
+
+    public :
+      /**
+       * \brief Some static computation ensuring first the sequence is not empty
+       * then, each element in the sequence is an automaton group command
+       */
+      static constexpr auto is_g_command_sequence =
+        ! is_empty_sequence< G_COMMAND_SEQUENCE >::value &&
+        (
+          std::is_same
+            <
+              G_COMMAND_SEQUENCE,
+              find_all_in_type_sequence_t< G_COMMAND_SEQUENCE, is_g_command >
+            >::value
+        );
+    };
+
   /**
    * \brief Meta functor designed to work on a type sequence containing
    * automaton states. For each state explored, two internal counter may be

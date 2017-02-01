@@ -17,7 +17,7 @@ namespace warp::spark::detail
       /**
        * \brief Not a group command type
        */
-      static constexpr bool is_automaton_group_command = false;
+      static constexpr bool is_automaton_g_command = false;
     };
 
   /**
@@ -65,7 +65,7 @@ namespace warp::spark::detail
        * \brief This is a group command only if group name and transition
        * function identifier are valid integral sequences
        */
-      static constexpr auto is_automaton_group_command =
+      static constexpr auto is_automaton_g_command =
         meta_sequence_traits
           < GROUP_NAME_SEQUENCE< GNS_T, GN1, GNN... > >::is_integral_sequence &&
         meta_sequence_traits
