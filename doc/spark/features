@@ -85,8 +85,8 @@ accessible to the run time as well (for instance a JSON parser).
           4.2.3.1.2.1°) Epsilon transitions
           4.2.3.1.2.2°) C++ types for transition functions
         4.2.3.1.3°) Group commands
-          4.2.3.1.3.1°) Finishing group command
-          4.2.3.1.3.2°) Capturing group command
+          4.2.3.1.3.1°) Capturing group command
+          4.2.3.1.3.2°) Finishing group command
           4.2.3.1.3.3°) Resetting group command
           4.2.3.1.3.4°) C++ types for group commands
         4.2.3.1.4°) C++ types for automaton
@@ -1229,77 +1229,75 @@ As stated above, there is three kinds of group command :
 Examples of application will be shown in automaton building sections 4.2.3.2° and
 4.2.3.3° sub-sections.
 
-          4.2.3.1.3.1°) Finishing group command
+          4.2.3.1.3.1°) Capturing group command
           -------------------------------------
-This command indicates a group is finished by the currently tested symbol, if
-this last passes the transition function. For example, let us define this
-regular grammar :
+This is the most common and natural group command. It specifies a group is being
+constructed by the traversal of a transition function when one character of the
+user input is read.
+Let's take as example this very simplistic regular grammar definition :
 
 BEGIN_SYMBOLS;
-  BASIC_SYMBOLS abc;
+  a = a;
 END_SYMBOLS;
 BEGIN_GROUPS;
-  SYMBOLS_AS_GROUPS a b c;
-  BINARY_CLOSURE_ON . abc a b c;
+  a = a;
 END_GROUPS;
 
-This grammar recognize the language 'abc' represented by a group named 'abc'
-implicitly defined through BINARY_CLOSURE_ON macro usage.
-This grammar defines at least four groups respectively named a, b, c and abc.
-An automaton representation of this grammar could be :
+This grammar recognize the language 'a'. Though it is not really useful, it will
+demonstrate how capturing group command are created.
+Below is the automaton representation of the previously defined simple grammar :
 
-^-(a)->O-(b)->O-(c)->$
+^-(a)->$
 
-All groups but the last one has its own finishing group command attached to its
-related transition function. These group commands are created when a simple
-group is created from a simple symbol :
+This simple automaton contains only two states (one initial and one final) and
+one transition function.
+The group it represents is the one named 'a' in the regular grammar definition.
+There will be a capturing group command attached to the transition function
+indicating the character passing the transition function is captured for the 'a'
+group. That's it.
 
--(a)-> finishes the group named 'a' when traversed
--(b)-> finishes the group named 'b' when traversed
--(c)-> finishes the group named 'c' when traversed
-
-          4.2.3.1.3.2°) Capturing group command
+          4.2.3.1.3.2°) Finishing group command
           -------------------------------------
-Let's work with the grammar defined in 4.2.3.1.3.2°.
-The capturing group command is created at each concatenation operation here.
-More generally, a capturing group command is applied when any closure but the
-one to one is applied to a group or symbol.
-According to that, after group a, b and c have been concatenated, each
-transition function are linked with at least two group commands :
+The finishing group command denotes that a group has finished. It means not any
+capture is necessary for the group construction. A finish group command is
+emmited in two situations :
+- a group is concatenated to another
+- the user input has ended and the current state of the automaton is final.
+Let's improve the gramar defined in previous sub-section by adding a new symbol
+and a new group :
 
--(a)-> finishes the group named 'a' when traversed
-       and captures for the group named 'abc' when traversed
--(b)-> finishes the group named 'b' when traversed
-       and captures for the group named 'abc' when traversed
--(c)-> finishes the group named 'c' when traversed
-       and captures for the group named 'abc' when traversed
+BEGIN_SYMBOLS;
+  /* same as : a = a; b = b; */
+  BASIC_SYMBOLS ab;
+END_SYMBOLS;
+BEGIN_GROUPS;
+  /* same as : a = a; b = b; */
+  SYMBOLS_AS_GROUPS a b;
+  ab = a . b;
+END_GROUPS;
 
-A capturing group command indicates that a group is being constructed with the
-transition function traversal parametered with a specific symbol.
-A capturing group command has to be transformed into a finishing group command,
-otherwise, the user cannot know if a group is finished when it has to be
-finished, regarding in which state the underlying automaton is. As a
-consequence, each 'capturing' group command attached to the transition function
-attached to the current final state of the automaton must trigger a finishing
-group command on the specified group. As an example, if the user input language
-exploration finishes and the automaton reach its terminal state, a finish group
-command for the 'abc' group must be emitted. There is other ways to transform a
-capturing group command into a finishing group command, more examples in
-4.2.3.2° and 4.2.3.3° sub-sections.
+Now, this grammar recognizes the language 'ab'. Not really useful as well, it
+will demonstrate how finishing group commands are created.
+Below is the automaton representation of the previously defined grammar :
+
+^-(a)->O-(b)->$
+
+The created 'a' group and 'b' group have their own capturing group commands.
+But, when a concatenation closure is applied on these groups, all capturing
+group commands linked to the first closure operand (capturing 'a' group for the
+'a' group here) are used to create a finishing group command linked to the
+epsilon transition. More details on that thing in 4.2.3.4.2° and related
+sub-sections.
 
           4.2.3.1.3.3°) Resetting group command
           -------------------------------------
-This very special command is used when dealing with exclusive and any type
+This very special command is used when dealing with 'exclusive' and 'any' type
 symbols. To make a quick draw, it is designed to deal with greediness of
 specific symbol types (respectively any and exclusive against inclusive) when
 repetition closures are applied on them. More precisions are located in
 4.2.3.2° 4.2.3.3° and them respective sub-sections. For now, it is only useful
 to know what is the effect of trigerring this command and on what kind of group
-command this command could be applied on. The first question's answer is : the
-effect indicates to the user that the defined generator should erase all
-characters that have been captured so far. The second question's answer is : it
-is applied only on capturing group commands. Indeed, finished group are
-finished, that's it.
+command this command could be applied on.
 
           4.2.3.1.3.4°) C++ types for group commands
           ------------------------------------------
