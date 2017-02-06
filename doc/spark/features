@@ -6,7 +6,7 @@ First, deal with regular grammar, then with context-free grammars.
 Parsers exposed will be used with transcription features, allowing infinite
 transformation of recognized languages. These transcription features must be
 usable both with regular grammars and context-free grammars.
-spark is : transcription algorithms, grammars, generators.
+spark is : transcription algorithms, grammars, transducers.
 spark deals with : user input at compile-time and run-time.
 The goal of spark is provide facilities to transcript user input in user output
 using grammars. Input can either be specified at compile time or run-time.
@@ -69,9 +69,9 @@ accessible to the run time as well (for instance a JSON parser).
 2°) Transcription algorithms
   2.1°) Transcription algorithms for compile-time
   2.2°) Transcription algorithms for run-time
-3°) Generators
-  3.1°) Generators for compile-time
-  3.2°) Generators for run-time
+3°) Transducers
+  3.1°) Transducers for compile-time
+  3.2°) Transducers for run-time
 4°) Implementing the regular grammar as study case
   4.1°) Checking validity of grammar
   4.2°) C++ type system for regular grammars
@@ -93,13 +93,14 @@ accessible to the run time as well (for instance a JSON parser).
       4.2.3.2°) Building an automaton from a symbol
       4.2.3.3°) Building an automaton from a group
       4.2.3.4°) Algorithm to create/alter automaton
-        4.2.3.4.1°) Apply an unary closure algorithm
-        4.2.3.4.2°) Apply a binary closure algorithm
+        4.2.3.4.1°) Creating a new automaton
+        4.2.3.4.2°) Apply an unary closure algorithm
+        4.2.3.4.3°) Apply a binary closure algorithm
 
 1°) Grammars
 ------------
 Grammars are a key concept of spark. It is one of the central entities to be
-used in conjunction with generators and transcription algorithms. These
+used in conjunction with transducers and transcription algorithms. These
 grammars are used to recognize and input as a specific language. They are
 declined in two versions : regular and context-free.
 
@@ -182,7 +183,7 @@ auto warp_regular_grammar_definition_string =
     1.1.2°) Writing symbols
     -----------------------
 This section describes how to write symbol definitions inside a symbol
-definition block.  A symbol is a logical object that can be compared to a single
+definition block. A symbol is a logical object that can be compared to a single
 letter (for instance a 'b'). A symbol can be a letter or anything but some
 letters.
 
@@ -450,7 +451,7 @@ closure on the 'a' group or symbol.
           -------------------------
 One of the fundamental closure (with one to one and one to many). This closure
 consist in makng the group or symbol operand in the group definition optional.
-It is strongly related with the '?' quantifier of regular expression world.  For
+It is strongly related with the '?' quantifier of regular expression world. For
 instance :
 
 a? = a?
@@ -895,7 +896,7 @@ Transcription algorithms are entities of spark that are responsible to transform
 an input language to something else while parsing the input using a defined
 grammar. It's one of the main entity of spark and is closely related with the
 user input (the language), the grammar (recognizes or not the language) and the
-generators (responsible to output something transformed from the language
+transducers (responsible to output something transformed from the language
 being parsed by the grammar).
 It exists two-flavored transcription algorithms and the flavor to use depends of
 the nature of the user input. If the specified user input (language) is defined
@@ -904,7 +905,7 @@ compile time flavor transcription algorithm that will be used. Otherwise, if the
 specified user input (language) is defined at runtime and is iterable, then
 there will be the runtime transcription algorith that will be used. Actually the
 nature of the language dictates the nature of both transcription algorithm and
-generators to be used.
+transducers to be used.
 
   2.1°) Transcription algorithms for compile-time
   -----------------------------------------------
@@ -913,28 +914,28 @@ Usualy, compile time content is specified as integral sequence and it is this
 form of representation that is requested by compile time transcription.
 The second thing needed to perform the transcription is a regular grammar as
 defined in 1.1°.
-Finally, the last requirement for the transcription to take place is a generator
-able to be processed at compile time (see in 3.1° for more details)
+Finally, the last requirement for the transcription to take place is a
+transducer able to be processed at compile time (see in 3.1° for more details)
 It exists another kind of compile-time transcription algorithm. The different is
 located in the second parameter of the algorithm, at the grammar place. Instead
-using a grammar, this algorithm makes use of a group template instance.
-In a nutshell, there is :
+using a grammar, this algorithm makes use of a group template instance. In a
+nutshell, there is :
 - compile time transcription using compile time user input, regular grammar and
-  compile-time generators
+  compile-time transducers
 - compile time transcription using compile time user input, group template
-  instance and compile-time generators
+  instance and compile-time transducers
 
   2.2°) Transcription algorithms for run-time
   -------------------------------------------
 
-3°) Generators
---------------
+3°) Transducers
+---------------
 
-  3.1°) Generators for compile-time
-  ---------------------------------
+  3.1°) Transducers for compile-time
+  ----------------------------------
 
-  3.2°) Generators for run-time
-  -----------------------------
+  3.2°) Transducers for run-time
+  ------------------------------
 
 4°) Implementing the regular grammar as study case
 --------------------------------------------------
@@ -944,7 +945,7 @@ the symbol entities and make template types that could be parametered with some
 constants and types.
 Considering that, it's important to note that entity specified in transcription
 algorithms come from the user world. The language specified is defined by the
-user, the grammar is defined by the user and, the generators are defined by
+user, the grammar is defined by the user and, the transducers are defined by
 the user. Thus, all of these must be checked for validity, especially the
 grammar which need to be transformed first from a string to a template
 expression.
@@ -953,7 +954,7 @@ expression.
   ----------------------------------
 From the spark's user point of view, a regular grammar definition is one of the
 operand to use in transcription algorithms (other operands being the language
-and the generators).
+and the transducers).
 When the user use the grammar in a transcription algorithm, the grammar template
 is instantiated and a rough check is made about the grammar definition traits.
 For instance, the grammar type must expose either a static constexpr value
@@ -985,11 +986,11 @@ Regarding these facts, it's easy to imagine a set of enumerator to describe
 symbol types, then, create a set of template specialization for the symbol type.
 - A specialization dealing with inclusive symbol type, that does take a letter
   sequence containing only one element. Indeed an inclusive symbol can only
-  recognize one letter.  As all other symbol template specialization, it has a
+  recognize one letter. As all other symbol template specialization, it has a
   name.
 - A specialization dealing with exclusive symbol type, that does take a letter
   sequence containing one or more elements giving letter excluded of the
-  recognition process.  As all other symbol template specialization, it has a
+  recognition process. As all other symbol template specialization, it has a
   name.
 - A specialization dealing with the 'any' symbol type, that does not take any
   letter sequence. As all other symbol template specialization, it has a name.
@@ -1176,12 +1177,12 @@ is a transition function parametered with the epsilon transition.
 An epsilon transition is somewhat a null predicate. It shall be used in a
 transition function and means that not any particular condition are needed to
 pass from a state to another one in an automaton.
-Hence, it transforms the automaton : it becomes undeterministic. Because of
-that, epsilon transition must be a temporary tool that will be used to compute
-an automaton from undeterministic to deterministic and thus, a final and fully
-built automaton shall not have any transition functions parametered with an
-epsilon transition within. By the way, a transition function parametered with an
-epsilon transition is represented as :
+Hence, it adds undeterminism to the automaton. Because of that, epsilon
+transition must be a temporary tool that will be used to compute an automaton
+from undeterministic to deterministic and thus, a final and fully built
+automaton shall not have any transition functions parametered with an epsilon
+transition within. By the way, a transition function parametered with an epsilon
+transition is represented as :
 
 -()->
 
@@ -1206,28 +1207,25 @@ The group command is a behavioral entity of the automaton. It is built at each
 automaton closure operation or at each automaton built from a symbol. It is used
 at each automaton transition function traversal.
 Hence, it is the bridge between defined groups (in a regular grammar),
-generators and the underlying low-level automaton. Actually, when the
+transducers and the underlying low-level automaton. Actually, when the
 automaton passes from a state to another after a character test from the user
 input (using the transition function), it is necessary to know which group is
-capturing the character and if this group is finished or reset. The group
-command is here for that purpose. When triggered, a group command communicates
-to the generator at the transcription algorithm level to allow the user to
-take an action depending of the type of the group command. It is related to a
-transition function. Indeed, a transition function tests a symbol used as
-parameter. A transition function may have several group command, indicating it
-is capturing for a specific group, or finishing a specific group or cancelling a
-specific group. This is the entity allowing the use of user-defined generators
-(see 3°).
+capturing the character and if this group is finished. The group command is here
+for that purpose. When triggered, a group command communicates to the transducer
+at the transcription algorithm level to allow the user to take an action
+depending of the type of the group command. It is related to a transition
+function. Indeed, a transition function tests a symbol used as parameter. A
+transition function may have several group command, indicating it is capturing
+for a specific group, or finishing a specific group. This is the entity
+allowing the use of user-defined transducers (see 3°).
 As stated above, there is three kinds of group command :
 - the finishing one, indicating a specific group has been finished after a
   transition function traversal with a specific symbol OR the end of the user
   input (if the related automaton is in a valid final state)
 - the capturing one, indicating a specific group is being constructed by the
   traversal of a transition function with a specific symbol
-- the resetting one, indicating a specific group has to be reset after a
-  transition function traversal with a specific symbol.
-Examples of application will be shown in automaton building sections 4.2.3.2° and
-4.2.3.3° sub-sections.
+Examples of application will be shown in automaton building sections 4.2.3.2°
+and 4.2.3.3° sub-sections.
 
           4.2.3.1.3.1°) Capturing group command
           -------------------------------------
@@ -1288,16 +1286,6 @@ group commands linked to the first closure operand (capturing 'a' group for the
 'a' group here) are used to create a finishing group command linked to the
 epsilon transition. More details on that thing in 4.2.3.4.2° and related
 sub-sections.
-
-          4.2.3.1.3.3°) Resetting group command
-          -------------------------------------
-This very special command is used when dealing with 'exclusive' and 'any' type
-symbols. To make a quick draw, it is designed to deal with greediness of
-specific symbol types (respectively any and exclusive against inclusive) when
-repetition closures are applied on them. More precisions are located in
-4.2.3.2° 4.2.3.3° and them respective sub-sections. For now, it is only useful
-to know what is the effect of trigerring this command and on what kind of group
-command this command could be applied on.
 
           4.2.3.1.3.4°) C++ types for group commands
           ------------------------------------------
@@ -1381,17 +1369,14 @@ The produce automaton being :
 
 Another variable part of this very basic automaton construction is related to
 the group command. As stated in 1.1.3.2.1°, unary closure can be applied on
-symbol entities of a regular grammar. Depending the unary closure that is used,
-different type of group command can be attached tot the created transition
-function.
+symbol entities of a regular grammar.
 
 To summarize, a symbol, no matter its type (inclusive, exclusive or any)
 produces automaton having :
 - only two states (initial and final) and
 - one transition function you need to pass in order to reach the final state
   from the initial state.
-- One group command whose the type depends on the unary closure used to create
-  the automaton.
+- One group command of type capturing for the group being constructed.
 
 States may have the following form :
 - Initial state is represented by the '^' character
@@ -1434,9 +1419,56 @@ symbol.
 
       4.2.3.4°) Algorithm to create/alter automaton
       ---------------------------------------------
+This section will document how automaton creation and alteration algorithms
+works and how to use them efficiently.
 
-        4.2.3.4.1°) Apply an unary closure algorithm
+        4.2.3.4.1°) Creating a new automaton
+        ------------------------------------
+The way to create a new automaton is by using a valid symbol definition. The
+resulting automaton will be very basic, containing only two states, a transition
+function and a group command. In spark, automaton are created at group level,
+that is, when a group is defined.
+Let's illustrate these facts by defining a simple grammar recognizing the 'a'
+language :
+
+BEGIN_SYMBOLS;
+  a = a;
+END_SYMBOLS;
+BEGIN_GROUPS;
+  a = a;
+END_GROUPS;
+
+Such a grammar could produce this group template instantiation :
+
+// the group recognizing the entire language
+group
+  <
+    // name of the group
+    integral_sequence< char, 'a' >,
+    // applying a one to one (no transformation) closure
+    group_unary_closures, group_unary_closures::one_one,
+    // the 'a' symbol, inclusive, representing the 'a' letter
+    symbol
+      <
+        // name of the symbol
+        integral_sequence< char, 'a' >,
+        // inclusive symbol, one letter
+        symbol_types::inclusive,
+        // the letter recognized
+        integral_sequence< char, 'a' >
+      >
+  > {};
+
+With this group template instantiation, all that is necessary to build an
+automaton from scratch is here :
+- The symbol definition will be used in the transition function creation.
+- Will be atached to this transition function two states
+- The type of each state will be conditioned by the closure to apply at group
+  level, but there is an initial and a final state, mandatory.
+- The group created has a name that will be used to create a group command
+
+        4.2.3.4.2°) Apply an unary closure algorithm
         --------------------------------------------
 
-        4.2.3.4.2°) Apply a binary closure algorithm
+        4.2.3.4.3°) Apply a binary closure algorithm
         --------------------------------------------
