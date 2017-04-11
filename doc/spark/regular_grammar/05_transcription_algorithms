@@ -1,0 +1,38 @@
+Transcription algorithms
+------------------------
+Transcription algorithms are entities of spark that are responsible to transform
+an input language to something else while parsing the input using a defined
+grammar. It's one of the main entity of spark and is closely related with the
+user input (the language), the grammar (recognizes or not the language) and the
+transducers (responsible to output something transformed from the language
+being parsed by the grammar).
+It exists two-flavored transcription algorithms and the flavor to use depends of
+the nature of the user input. If the specified user input (language) is defined
+at compile time (so it has a form of integral sequence) then, it will be the
+compile time flavor transcription algorithm that will be used. Otherwise, if the
+specified user input (language) is defined at runtime and is iterable, then
+there will be the runtime transcription algorith that will be used. Actually the
+nature of the language dictates the nature of both transcription algorithm and
+transducers to be used.
+
+Transcription algorithms for compile-time
+-----------------------------------------
+Transcription at compile time deals with user input specified at compile time.
+Usualy, compile time content is specified as integral sequence and it is this
+form of representation that is requested by compile time transcription.
+The second thing needed to perform the transcription is a regular grammar as
+defined in its related documentation.
+Finally, the last requirement for the transcription to take place is a
+transducer able to be processed at compile time (see in 3.1° for more details)
+It exists another kind of compile-time transcription algorithm. The difference
+is located in the second parameter of the algorithm, at the grammar place.
+Instead using a grammar, this algorithm makes use of a group template instance.
+In a nutshell, there is :
+- compile time transcription using compile time user input, regular grammar and
+  compile-time transducers
+- compile time transcription using compile time user input, group template
+  instance and compile-time transducers
+
+  2.2°) Transcription algorithms for run-time
+  -------------------------------------------
+
