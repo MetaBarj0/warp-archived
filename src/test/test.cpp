@@ -313,8 +313,8 @@ void test::sequence_algorithms_tester::test_find_first()
   using int_seq_1 =
     warp::find_first_in_integral_sequence_t< int_seq_0, odd_number >;
 
-  std::enable_if_t< true, typ_seq_1 >{};
-  std::enable_if_t< true, int_seq_1 >{};
+  ( void )std::enable_if_t< true, typ_seq_1 >{};
+  ( void )std::enable_if_t< true, int_seq_1 >{};
 }
 
 void test::sequence_algorithms_tester::test_find_all()
@@ -335,8 +335,8 @@ void test::sequence_algorithms_tester::test_find_all()
     warp::find_all_in_integral_sequence_t
     < int_seq_0, the_number, std::integral_constant< int, 42 > >;
 
-  std::enable_if_t< true, int_seq_1 >{};
-  std::enable_if_t< true, typ_seq_1 >{};
+  ( void )std::enable_if_t< true, int_seq_1 >{};
+  ( void )std::enable_if_t< true, typ_seq_1 >{};
 }
 
 void test::sequence_algorithms_tester::test_empty()
@@ -349,14 +349,14 @@ void test::sequence_algorithms_tester::test_empty()
   using int_seq_1 = warp::integral_sequence< int, 42 >;
 
   // test emptiness in all sequences
-  std::enable_if_t
+  ( void )std::enable_if_t
     < warp::is_empty_sequence< typ_seq_0 >::value, typ_seq_0 >{};
-  std::enable_if_t
+  ( void )std::enable_if_t
     < ! warp::is_empty_sequence< typ_seq_1 >::value, typ_seq_1 >{};
 
-  std::enable_if_t
+  ( void )std::enable_if_t
     < warp::is_empty_sequence< int_seq_0 >::value, int_seq_0 >{};
-  std::enable_if_t
+  ( void )std::enable_if_t
     < ! warp::is_empty_sequence< int_seq_1 >::value, int_seq_1 >{};
 }
 
@@ -379,8 +379,8 @@ void test::sequence_algorithms_tester::test_remove_first()
   using int_seq_1 =
     warp::remove_first_in_integral_sequence_t< int_seq_0, odd_number >;
 
-  std::enable_if_t< true, typ_seq_1 >{};
-  std::enable_if_t< true, int_seq_1 >{};
+  ( void )std::enable_if_t< true, typ_seq_1 >{};
+  ( void )std::enable_if_t< true, int_seq_1 >{};
 }
 
 void test::sequence_algorithms_tester::test_remove_all()
@@ -401,8 +401,8 @@ void test::sequence_algorithms_tester::test_remove_all()
     warp::remove_all_in_integral_sequence_t
     < int_seq_0, the_number, std::integral_constant< int, 42 > >;
 
-  std::enable_if_t< true, int_seq_1 >{};
-  std::enable_if_t< true, typ_seq_1 >{};
+  ( void )std::enable_if_t< true, int_seq_1 >{};
+  ( void )std::enable_if_t< true, typ_seq_1 >{};
 }
 
 void test::sequence_algorithms_tester::test_sort()
@@ -419,8 +419,8 @@ void test::sequence_algorithms_tester::test_sort()
   using int_seq_1 =
     warp::sort_integral_sequence_t< int_seq_0, warp::integral_less >;
 
-  std::enable_if_t< true, typ_seq_1 >{};
-  std::enable_if_t< true, int_seq_1 >{};
+  ( void )std::enable_if_t< true, typ_seq_1 >{};
+  ( void )std::enable_if_t< true, int_seq_1 >{};
 }
 
 void test::sequence_algorithms_tester::test_partition()
@@ -434,8 +434,8 @@ void test::sequence_algorithms_tester::test_partition()
   using int_seq_1 =
     warp::partition_integral_sequence_t< int_seq_0, odd_number >;
 
-  std::enable_if_t< true, typ_seq_1 >{};
-  std::enable_if_t< true, int_seq_1 >{};
+  ( void )std::enable_if_t< true, typ_seq_1 >{};
+  ( void )std::enable_if_t< true, int_seq_1 >{};
 }
 
 void test::sequence_algorithms_tester::test_unique()
@@ -446,8 +446,8 @@ void test::sequence_algorithms_tester::test_unique()
   using typ_seq_1 = warp::unique_on_t< typ_seq_0 >;
   using int_seq_1 = warp::unique_on_t< int_seq_0 >;
 
-  std::enable_if_t< true, typ_seq_1 >{};
-  std::enable_if_t< true, int_seq_1 >{};
+  ( void )std::enable_if_t< true, typ_seq_1 >{};
+  ( void )std::enable_if_t< true, int_seq_1 >{};
 }
 
 void test::sequence_algorithms_tester::test_generate()
@@ -470,10 +470,10 @@ void test::sequence_algorithms_tester::test_generate()
   using int_seq_3 =
     warp::generate_unsigned_integral_sequence_t< 50, warp::prime >;
 
-  std::enable_if_t< true, int_seq_0 >{};
-  std::enable_if_t< true, int_seq_1 >{};
-  std::enable_if_t< true, int_seq_2 >{};
-  std::enable_if_t< true, int_seq_3 >{};
+  ( void )std::enable_if_t< true, int_seq_0 >{};
+  ( void )std::enable_if_t< true, int_seq_1 >{};
+  ( void )std::enable_if_t< true, int_seq_2 >{};
+  ( void )std::enable_if_t< true, int_seq_3 >{};
 }
 
 void test::sequence_algorithms_tester::test_append_char_buffer()
@@ -485,7 +485,7 @@ void test::sequence_algorithms_tester::test_append_char_buffer()
   using int_seq_1 = warp::append_char_buffer_in_t< int_seq_0, hello >;
   using int_seq_2 = warp::append_char_buffer_in_t< int_seq_1, world >;
 
-  std::enable_if_t< true, int_seq_2 >{};
+  ( void )std::enable_if_t< true, int_seq_2 >{};
 }
 
 void test::sequence_algorithms_tester::test_for_each()
@@ -616,8 +616,8 @@ void test::sequence_algorithms_tester::test_merge()
     std::is_same
     < typ_seq_2, warp::type_sequence< char, bool, short, int > >::value;
 
-  std::enable_if_t< int_seq_ok, int_seq_2 >{};
-  std::enable_if_t< typ_seq_ok, typ_seq_2 >{};
+  ( void )std::enable_if_t< int_seq_ok, int_seq_2 >{};
+  ( void )std::enable_if_t< typ_seq_ok, typ_seq_2 >{};
 }
 
 // spark tests
