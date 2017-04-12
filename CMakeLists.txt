@@ -6,31 +6,34 @@ project( warp )
 enable_language( CXX )
 
 # By default, perform a debug build, modifying a cache variable
-set( CMAKE_BUILD_TYPE "Debug" CACHE STRING
-     "Specify the default build type" FORCE )
+if( NOT CMAKE_BUILD_TYPE )
+  set( CMAKE_BUILD_TYPE "Debug" )
+endif()
 
 # Specific clang configuration
-set( CMAKE_CXX_COMPILER "clang++" CACHE STRING
-     "Specify the c++ compiler to use" FORCE )
-set( CMAKE_CXX_FLAGS
-     "-W -Wall -Wextra -std=c++1z -ftemplate-depth=768" CACHE STRING
-     "Generic c++ flag to use with the c++ compiler" FORCE )
+if( NOT CMAKE_CXX_FLAGS )
+  set( CMAKE_CXX_FLAGS
+       "-W -Wall -Wextra -std=c++1z -ftemplate-depth=768" )
+endif()
 
-set( CMAKE_CXX_FLAGS_DEBUG "-O0 -g" CACHE STRING
-  "Specific flag to use with the Debug configuration" FORCE )
-set( CMAKE_CXX_FLAGS_RELEASE "-O3" CACHE STRING
-  "Specific flag to use with the Release configuration" FORCE )
+if( NOT CMAKE_CXX_FLAGS_DEBUG )
+  set( CMAKE_CXX_FLAGS_DEBUG "-O0 -g" )
+endif()
+
+if( NOT CMAKE_CXX_FLAGS_RELEASE )
+  set( CMAKE_CXX_FLAGS_RELEASE "-O3" )
+endif()
 
 # specify binary directory outputs both for libs and executables
 # binary executables
-set( CMAKE_RUNTIME_OUTPUT_DIRECTORY CACHE STRING
-     ${CMAKE_BINARY_DIR}/bin/${CMAKE_BUILD_TYPE} FORCE )
+set( CMAKE_RUNTIME_OUTPUT_DIRECTORY
+     ${CMAKE_BINARY_DIR}/bin/${CMAKE_BUILD_TYPE} )
 # shared libraries
-set( CMAKE_LIBRARY_OUTPUT_DIRECTORY CACHE STRING
-     ${CMAKE_BINARY_DIR}/lib/${CMAKE_BUILD_TYPE} FORCE )
+set( CMAKE_LIBRARY_OUTPUT_DIRECTORY
+     ${CMAKE_BINARY_DIR}/lib/${CMAKE_BUILD_TYPE} )
 # static libraries and object files
-set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY CACHE STRING
-     ${CMAKE_BINARY_DIR}/lib/${CMAKE_BUILD_TYPE} FORCE )
+set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY
+     ${CMAKE_BINARY_DIR}/lib/${CMAKE_BUILD_TYPE} )
 
 # delegated work in these subdirs
 add_subdirectory( ./src )
