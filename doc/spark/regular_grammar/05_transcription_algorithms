@@ -23,7 +23,8 @@ form of representation that is requested by compile time transcription.
 The second thing needed to perform the transcription is a regular grammar as
 defined in its related documentation.
 Finally, the last requirement for the transcription to take place is a
-transducer able to be processed at compile time (see in 3.1° for more details)
+transducer able to be processed at compile time (see in related document for
+more details).
 It exists another kind of compile-time transcription algorithm. The difference
 is located in the second parameter of the algorithm, at the grammar place.
 Instead using a grammar, this algorithm makes use of a group template instance.
@@ -32,6 +33,8 @@ In a nutshell, there is :
   compile-time transducers
 - compile time transcription using compile time user input, group template
   instance and compile-time transducers
+The second form is more a detail of implementation than a feature, as it ensures
+the regular grammar can be transformed in a group template.
 
   2.2°) Transcription algorithms for run-time
   -------------------------------------------
