@@ -167,14 +167,15 @@ namespace warp::spark
     struct join_array_in_sequence;
 
   /**
-   * \brief Specialization dealing with the last element of the array
+   * \brief Specialization dealing with a valid array type exposing a char
+   * buffer array member
    *
-   * \tparam U the array type, exposing the array member
+   * \tparam T the array type, exposing the array member
    * \tparam V the type of the array (char buffer)
    * \tparam N the size of the array
    */
-  template< class U, class V, std::size_t N >
-    struct join_array_in_sequence< U, V[ N ] >
+  template< class T, class V, std::size_t N >
+    struct join_array_in_sequence< T, V[ N ] >
     {
       /**
        * \brief Grab the char type of the array's element
@@ -198,7 +199,7 @@ namespace warp::spark
             /**
              * \brief Mandatory to build a value type
              */
-            static constexpr auto value = U::array[ I ];
+            static constexpr auto value = T::array[ I ];
           };
 
           /**
@@ -236,7 +237,7 @@ namespace warp::spark
             /**
              * \brief Requirement for a value type
              */
-            static constexpr auto value = U::array[ 0 ];
+            static constexpr auto value = T::array[ 0 ];
           };
 
           /**
@@ -253,7 +254,8 @@ namespace warp::spark
         };
 
       /**
-       * \brief add this char buffer to the resulting sequence
+       * \brief add this char buffer to the resulting sequence, last element
+       * first
        */
       using type =
         typename push_front_char_buffer_in_sequence
@@ -280,77 +282,77 @@ namespace warp::spark
    *
    * \tparam T a value type containing a value member of char type
    */
-  template< class U >
+  template< class T >
     struct build_sequence_from
     <
-      U,
+      T,
       warp::sfinae_type_t
         <
           std::enable_if_t
-            < warp::is_char_buffer< decltype( U::value ) >::value >
+            < warp::is_char_buffer< decltype( T::value ) >::value >
         >
     >
     {
       /**
        * \brief Grab the char type
        */
-      using char_type = std::remove_pointer_t< decltype( U::value ) >;
+      using char_type = std::remove_pointer_t< decltype( T::value ) >;
 
       /**
        * \brief expose the resulting sequence
        */
       using type =
         warp::append_char_buffer_in_t
-        < warp::integral_sequence< char_type >, U >;
+        < warp::integral_sequence< char_type >, T >;
     };
 
   /**
    * \brief SFINAE friendly specialization triggered if provided template
    * parameter is a value type of char type
    *
-   * \tparam U a value type containing a value function returning a char
+   * \tparam T a value type containing a value function returning a char
    * type
    */
-  template< class U >
+  template< class T >
     struct build_sequence_from
     <
-      U,
+      T,
       warp::sfinae_type_t
         <
           std::enable_if
-            < warp::is_char_buffer< decltype( U::value() ) >::value >
+            < warp::is_char_buffer< decltype( T::value() ) >::value >
         >
     >
     {
       /**
        * \brief Grab the char type
        */
-      using char_type = std::remove_pointer_t< decltype( U::value() ) >;
+      using char_type = std::remove_pointer_t< decltype( T::value() ) >;
 
       /**
        * \brief Exposes the resulting sequence
        */
       using type =
         warp::append_char_buffer_in_t
-        < warp::integral_sequence< char_type >, U >;
+        < warp::integral_sequence< char_type >, T >;
     };
 
   /**
    * \brief SFINAE friendly specialization dealing with array type (type having
    * an array of char buffer member)
    *
-   * \tparam U an array of char buffer type
+   * \tparam T an array of char buffer type
    */
-  template< class U >
+  template< class T >
     struct build_sequence_from
     <
-      U,
+      T,
       warp::sfinae_type_t
         <
           std::enable_if_t
             <
               warp::is_char_buffer
-                < std::remove_extent_t< decltype( U::array ) > >::value
+                < std::remove_extent_t< decltype( T::array ) > >::value
             >
         >
     >
@@ -358,12 +360,12 @@ namespace warp::spark
       /**
        * \brief Grab the array type
        */
-      using array_type = decltype( U::array );
+      using array_type = decltype( T::array );
 
       /**
-       * \brief Uses an internal feature to unfold the array into a sequence
+       * \brief Uses an internal feature to join the array into a sequence
        */
-      using type = typename join_array_in_sequence< U, array_type >::type;
+      using type = typename join_array_in_sequence< T, array_type >::type;
     };
 
   /**
@@ -386,6 +388,13 @@ namespace warp::spark
       static constexpr auto is_regular_grammar_definition = false;
     };
 
+  /**
+   * \brief This specialization is triggered when the T type is matching the
+   * signature of a value type (both member and function) or an array type
+   * exposing a value of type buffer on char
+   *
+   * \tparam T an assumed value or array type
+   */
   template< class T >
     struct regular_grammar_definition_value_or_array_traits
     <

@@ -33,7 +33,8 @@ namespace warp::spark
    * \tparam NAME the name of the group, integral sequence
    * \tparam SYMBOL a correct symbol template (signature). Using this pattern
    * remove all coupling between the group type and the symbol type. The
-   * end-user could provide its own symbol template implementation here.
+   * end-user could provide its own symbol template implementation here as soon
+   * as he respects its template signature.
    * \tparam SYMBOL_NAME the name of the specified symbol operand
    * \tparam SYMBOL_TYPE type of the provided symbol
    * \tparam SYMBOL_LETTER_SEQUENCE letter sequence used in the provided symbol
