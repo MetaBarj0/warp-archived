@@ -152,6 +152,10 @@ namespace warp::spark
    * type.
    *
    * \tparam NAME the name of the group, integral sequence
+   * \tparam GROUP a group template that respects the template signature of a
+   * group. Allow to remove the constraint the use the group template with
+   * itself only. Any group type is valid as soon as it respects the template
+   * signature of the group template.
    * \tparam OPERAND_NAME the name of the group operand
    * \tparam OPERAND_CLOSURE_TYPE the type of closure to apply, either unary or
    * binary
@@ -165,6 +169,13 @@ namespace warp::spark
   template
     <
       class NAME,
+      template
+        <
+          class,
+          class CLOSURE_TYPE, CLOSURE_TYPE,
+          class,
+          class...
+        > class GROUP,
       class OPERAND_NAME,
       class OPERAND_CLOSURE_TYPE, OPERAND_CLOSURE_TYPE OPERAND_CLOSURE,
       class OPERAND_FIRST_GROUP_OR_SYMBOL,
@@ -174,7 +185,7 @@ namespace warp::spark
     <
       NAME,
       group_unary_closures, group_unary_closures::one_one,
-      group
+      GROUP
         <
           OPERAND_NAME,
           OPERAND_CLOSURE_TYPE, OPERAND_CLOSURE,
@@ -188,6 +199,10 @@ namespace warp::spark
    * type.
    *
    * \tparam NAME the name of the group, integral sequence
+   * \tparam GROUP a group template that respects the template signature of a
+   * group. Allow to remove the constraint the use the group template with
+   * itself only. Any group type is valid as soon as it respects the template
+   * signature of the group template.
    * \tparam OPERAND_NAME the name of the group operand
    * \tparam OPERAND_CLOSURE_TYPE the type of closure to apply, either unary or
    * binary
@@ -201,6 +216,13 @@ namespace warp::spark
   template
     <
       class NAME,
+      template
+        <
+          class,
+          class CLOSURE_TYPE, CLOSURE_TYPE,
+          class,
+          class...
+        > class GROUP,
       class OPERAND_NAME,
       class OPERAND_CLOSURE_TYPE, OPERAND_CLOSURE_TYPE OPERAND_CLOSURE,
       class OPERAND_FIRST_GROUP_OR_SYMBOL,
@@ -210,7 +232,7 @@ namespace warp::spark
     <
       NAME,
       group_unary_closures, group_unary_closures::zero_one,
-      group
+      GROUP
         <
           OPERAND_NAME,
           OPERAND_CLOSURE_TYPE, OPERAND_CLOSURE,
@@ -224,6 +246,10 @@ namespace warp::spark
    * type.
    *
    * \tparam NAME the name of the group, integral sequence
+   * \tparam GROUP a group template that respects the template signature of a
+   * group. Allow to remove the constraint the use the group template with
+   * itself only. Any group type is valid as soon as it respects the template
+   * signature of the group template.
    * \tparam OPERAND_NAME the name of the group operand
    * \tparam OPERAND_CLOSURE_TYPE the type of closure to apply, either unary or
    * binary
@@ -237,6 +263,13 @@ namespace warp::spark
   template
     <
       class NAME,
+      template
+        <
+          class,
+          class CLOSURE_TYPE, CLOSURE_TYPE,
+          class,
+          class...
+        > class GROUP,
       class OPERAND_NAME,
       class OPERAND_CLOSURE_TYPE, OPERAND_CLOSURE_TYPE OPERAND_CLOSURE,
       class OPERAND_FIRST_GROUP_OR_SYMBOL,
@@ -246,7 +279,7 @@ namespace warp::spark
     <
       NAME,
       group_unary_closures, group_unary_closures::one_many,
-      group
+      GROUP
         <
           OPERAND_NAME,
           OPERAND_CLOSURE_TYPE, OPERAND_CLOSURE,
@@ -260,6 +293,10 @@ namespace warp::spark
    * type.
    *
    * \tparam NAME the name of the group, integral sequence
+   * \tparam GROUP a group template that respects the template signature of a
+   * group. Allow to remove the constraint the use the group template with
+   * itself only. Any group type is valid as soon as it respects the template
+   * signature of the group template.
    * \tparam OPERAND_NAME the name of the group operand
    * \tparam OPERAND_CLOSURE_TYPE the type of closure to apply, either unary or
    * binary
@@ -273,6 +310,13 @@ namespace warp::spark
   template
     <
       class NAME,
+      template
+        <
+          class,
+          class CLOSURE_TYPE, CLOSURE_TYPE,
+          class,
+          class...
+        > class GROUP,
       class OPERAND_NAME,
       class OPERAND_CLOSURE_TYPE, OPERAND_CLOSURE_TYPE OPERAND_CLOSURE,
       class OPERAND_FIRST_GROUP_OR_SYMBOL,
@@ -282,7 +326,7 @@ namespace warp::spark
     <
       NAME,
       group_unary_closures, group_unary_closures::zero_many,
-      group
+      GROUP
         <
           OPERAND_NAME,
           OPERAND_CLOSURE_TYPE, OPERAND_CLOSURE,
@@ -296,6 +340,14 @@ namespace warp::spark
    * operand types.
    *
    * \tparam NAME the name of the group, integral sequence
+   * \tparam GROUP_1 a group template that respects the template signature of a
+   * group. Allow to remove the constraint the use the group template with
+   * itself only. Any group type is valid as soon as it respects the template
+   * signature of the group template.
+   * \tparam GROUP_2 a group template that respects the template signature of a
+   * group. Allow to remove the constraint the use the group template with
+   * itself only. Any group type is valid as soon as it respects the template
+   * signature of the group template. May be a different template of GROUP_1
    * \tparam FIRST_OPERAND_NAME the name of the first group operand
    * \tparam FIRST_OPERAND_CLOSURE_TYPE the type of closure to apply, either
    * unary or binary. part of the first operand.
@@ -318,6 +370,20 @@ namespace warp::spark
   template
     <
       class NAME,
+      template
+        <
+          class,
+          class CLOSURE_TYPE, CLOSURE_TYPE,
+          class,
+          class...
+        > class GROUP_1,
+      template
+        <
+          class,
+          class CLOSURE_TYPE, CLOSURE_TYPE,
+          class,
+          class...
+        > class GROUP_2,
       class FIRST_OPERAND_NAME,
       class FIRST_OPERAND_CLOSURE_TYPE,
       FIRST_OPERAND_CLOSURE_TYPE FIRST_OPERAND_CLOSURE,
@@ -333,14 +399,14 @@ namespace warp::spark
     <
       NAME,
       group_binary_closures, group_binary_closures::concatenation,
-      group
+      GROUP_1
         <
           FIRST_OPERAND_NAME,
           FIRST_OPERAND_CLOSURE_TYPE, FIRST_OPERAND_CLOSURE,
           FIRST_OPERAND_FIRST_GROUP_OR_SYMBOL,
           FIRST_OPERAND_LAST_GROUP...
         >,
-      group
+      GROUP_2
         <
           LAST_OPERAND_NAME,
           LAST_OPERAND_CLOSURE_TYPE, LAST_OPERAND_CLOSURE,
@@ -354,6 +420,14 @@ namespace warp::spark
    * types.
    *
    * \tparam NAME the name of the group, integral sequence
+   * \tparam GROUP_1 a group template that respects the template signature of a
+   * group. Allow to remove the constraint the use the group template with
+   * itself only. Any group type is valid as soon as it respects the template
+   * signature of the group template.
+   * \tparam GROUP_2 a group template that respects the template signature of a
+   * group. Allow to remove the constraint the use the group template with
+   * itself only. Any group type is valid as soon as it respects the template
+   * signature of the group template. May be a different template of GROUP_1
    * \tparam FIRST_OPERAND_NAME the name of the first group operand
    * \tparam FIRST_OPERAND_CLOSURE_TYPE the type of closure to apply, either
    * unary or binary. part of the first operand.
@@ -376,6 +450,20 @@ namespace warp::spark
   template
     <
       class NAME,
+      template
+        <
+          class,
+          class CLOSURE_TYPE, CLOSURE_TYPE,
+          class,
+          class...
+        > class GROUP_1,
+      template
+        <
+          class,
+          class CLOSURE_TYPE, CLOSURE_TYPE,
+          class,
+          class...
+        > class GROUP_2,
       class FIRST_OPERAND_NAME,
       class FIRST_OPERAND_CLOSURE_TYPE,
       FIRST_OPERAND_CLOSURE_TYPE FIRST_OPERAND_CLOSURE,
@@ -391,14 +479,14 @@ namespace warp::spark
     <
       NAME,
       group_binary_closures, group_binary_closures::alternation,
-      group
+      GROUP_1
         <
           FIRST_OPERAND_NAME,
           FIRST_OPERAND_CLOSURE_TYPE, FIRST_OPERAND_CLOSURE,
           FIRST_OPERAND_FIRST_GROUP_OR_SYMBOL,
           FIRST_OPERAND_LAST_GROUP...
         >,
-      group
+      GROUP_2
         <
           LAST_OPERAND_NAME,
           LAST_OPERAND_CLOSURE_TYPE, LAST_OPERAND_CLOSURE,
