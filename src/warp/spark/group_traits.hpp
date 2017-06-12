@@ -105,6 +105,7 @@ namespace warp::spark
 
       /**
        * \brief value of the unary closure
+       * \todo find something more elegant for this
        */
       static constexpr auto closure =
         is_group ? CLOSURE : static_cast< group_unary_closures >( -1 );
